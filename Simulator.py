@@ -27,11 +27,16 @@ class Simulator:
             print("controller valid")
             self.controller = controller
             self.ax = Axes3D(fig)
-            
+        
+        self.blockInstructions = []
             
     def simulate(self):
         
         self.addFoamBlock()
+        for block in self.blockInstructions:
+            lengths, offsets, face_color = block
+            self.addRectangle(lengths, offsets, 'cyan', 0.3)
+            
         plt.show()
 
     
@@ -51,7 +56,7 @@ class Simulator:
         
         self.addRectangle(lengths, offsets, face_color)
 
-    def addRectangle(self, lengths, offsets, face_color):
+    def addRectangle(self, lengths, offsets, face_color, alpha=0.1):
         ax = self.ax
         
         xLength, yLength, zLength = lengths
@@ -72,7 +77,7 @@ class Simulator:
                 verts[vertNum][pointNum] = tuple(map(operator.add, offsets, ele))
     
     
-        collection = Poly3DCollection(verts, linewidths=1, alpha=0.1, edgecolors="r")
+        collection = Poly3DCollection(verts, linewidths=1, alpha=alpha, edgecolors="black")
         
         collection.set_facecolor(face_color)
         ax.add_collection3d(collection)
@@ -91,10 +96,8 @@ class Simulator:
             xOffset = 0
             zOffset = (self.controller.getLengths()[2] - zLength)/2
             offsets = real2PlotDim((xOffset, yOffset, zOffset))
-            self.addRectangle(lengths, offsets, 'cyan')
-        
-        plt.show()
-        self.simulate()
+            self.blockInstructions.append((lengths, offsets, 'cyan'))
+            currentHeight += yLength
         
         
         
