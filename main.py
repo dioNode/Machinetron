@@ -12,18 +12,30 @@ def main():
     setMountFace(76.6, 110, 80)
     
     # Commands go here
-    reshapeFrontM([(70, 29), (50, 20), (40, 40)])
+    #reshapeFrontM([(70, 29), (50, 20), (40, 40)])
     
-    
+
+
+
+
+
+
+
+
+
+
+
+
 
     
     
-    
-    
-    
-    
     # end of commands
-    simulator.simulate()
+    #simulator.simulate()
+
+
+
+
+
 
 
 def setMountFace(xLength, yLength, zLength):
