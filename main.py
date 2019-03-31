@@ -1,5 +1,6 @@
 from Controller import Controller
 from Simulator import Simulator
+from Command import Command
 import matplotlib.pyplot as plt
 
 controller = Controller()
@@ -13,10 +14,14 @@ def main():
     
     # Commands go here
     #reshapeFrontM([(70, 29), (50, 20), (40, 40)])
-    
+    command = Command("G01 X1 Y1")
+    controller.addCommand(command)
+    controller.addCommand(Command("C2 X2 Y2"))
+    controller.addCommand(Command("P2 X3 Y3"))
 
-
-
+    print(controller)
+    controller.startNextCommand()
+    print(controller)
 
 
 

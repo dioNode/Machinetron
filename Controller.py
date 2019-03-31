@@ -1,5 +1,6 @@
 from Handler import Handler
 from Drill import Drill
+from Command import Command
 
 class Controller:
     """The class that controls all functionality of MACHINETRON.
@@ -16,6 +17,13 @@ class Controller:
         
         self.handler = Handler()
         self.drill = Drill()
+
+        self.commandQueue = []
+        self.currentCommand = None
+
+    def __repr__(self):
+        print(self.commandQueue)
+        return str(self.currentCommand)
         
     def setMountFace(self, xLength, yLength, zLength):
         self.xLength = xLength
@@ -25,4 +33,13 @@ class Controller:
         
     def getLengths(self):
         return ((self.xLength, self.yLength, self.zLength))
-        
+
+    def addCommand(self, command):
+        if isinstance(command, Command):
+            self.commandQueue.append(command)
+        else:
+            print("Throw not a command exception")
+
+    def startNextCommand(self):
+        self.currentCommand = self.commandQueue.pop(0)
+
