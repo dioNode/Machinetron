@@ -1,12 +1,17 @@
 from Controller import Controller
 from Simulator import Simulator
 from Command import Command
+from Motor import Motor
+from OutputSimulator import OutputSimulator
 import matplotlib.pyplot as plt
+import numpy as np
+import time
+
 
 controller = Controller()
 
 fig = plt.figure()
-simulator = Simulator(controller, fig)
+#simulator = Simulator(controller, fig)
 
 def main():
     
@@ -14,14 +19,28 @@ def main():
     
     # Commands go here
     #reshapeFrontM([(70, 29), (50, 20), (40, 40)])
-    command = Command("G01 X1 Y1")
-    controller.addCommand(command)
-    controller.addCommand(Command("C2 X2 Y2"))
-    controller.addCommand(Command("P2 X3 Y3"))
+    for i in range(2):
+        command = Command("G01 X1 Y1")
+        controller.addCommand(command)
+        controller.addCommand(Command("C2 X2 Y2"))
+        controller.addCommand(Command("P2 X3 Y3"))
 
-    print(controller)
-    controller.startNextCommand()
-    print(controller)
+
+    controller.start()
+    motor = Motor(10, 5)
+
+    outputSimulator = OutputSimulator(controller)
+
+    outputSimulator.simulate()
+
+
+    while True:
+        #controller.tick()
+        outputSimulator.update()
+        controller.handler.railMotor.step()
+        controller.handler.spinMotor.step()
+
+        time.sleep(0.1)
 
 
 
@@ -56,7 +75,7 @@ def setMountFace(xLength, yLength, zLength):
 
 def reshapeFrontM(widthHeightTuples):
     print("TODO: reshapeFrontM")
-    simulator.reshapeFrontM(widthHeightTuples)
+    # simulator.reshapeFrontM(widthHeightTuples)
 
 def reshapeSideM(widthHeightTuples):
     print("TODO: reshapeSideM")

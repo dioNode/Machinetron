@@ -6,9 +6,9 @@ class CutMachine(SubMachine):
     This is either the drill, mill or lathe.
     
     """    
-    def __init__(self):
+    def __init__(self, controller):
         print("TODO: CutMachine init")
-        super().__init__()
+        super().__init__(controller)
         
     def raiseTo(self, z):
         print("TODO: CutMachine raiseTo")

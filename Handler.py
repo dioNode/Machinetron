@@ -1,4 +1,5 @@
 from SubMachine import SubMachine
+from Motor import Motor
 
 class Handler(SubMachine):
     """This controls the handler submachine.
@@ -7,9 +8,12 @@ class Handler(SubMachine):
     motions.
     
     """
-    def __init__(self):
-        super().__init__()
-        print("TODO: Handler init")
+    def __init__(self, controller):
+        super().__init__(controller)
+        # Initialise motors
+        self.railMotor = Motor(2)
+        self.flipMotor = Motor(0.5)
+        self.spinMotor = Motor(2)
         
     def positionFace(self, face, submachine):
         print("TODO: Handler positionFace")

@@ -1,6 +1,6 @@
 from CutMachine import CutMachine
 
-class Drill(CutMachine):
+class Lathe(CutMachine):
     """The machine responsible for drilling.
     
     This directly sends commands to drill microcontroller to generate 
