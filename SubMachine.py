@@ -10,7 +10,6 @@ class SubMachine:
     """
     def __init__(self, controller):
         self.controller = controller
+        self.name = "SubMachine"
 
-        self.spinMotor = Motor(0.4)
-        self.vertMotor = Motor(0.2)
-        self.penMotor = Motor(0.7)
+

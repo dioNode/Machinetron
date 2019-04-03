@@ -9,3 +9,5 @@ class Mill(CutMachine):
     """
     def __init__(self, controller):
         super().__init__(controller)
+        self.name = "Mill"
+        self.homeX = 400

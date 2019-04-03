@@ -9,3 +9,5 @@ class Lathe(CutMachine):
     """
     def __init__(self, controller):
         super().__init__(controller)
+        self.name = "Lathe"
+        self.homeX = 200

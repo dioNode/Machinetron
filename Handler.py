@@ -10,10 +10,11 @@ class Handler(SubMachine):
     """
     def __init__(self, controller):
         super().__init__(controller)
+        self.name = "Controller"
         # Initialise motors
-        self.railMotor = Motor(2)
-        self.flipMotor = Motor(0.5)
-        self.spinMotor = Motor(2)
+        self.railMotor = Motor(0.05)
+        self.flipMotor = Motor(0.05)
+        self.spinMotor = Motor(0.05)
         
     def positionFace(self, face, submachine):
         print("TODO: Handler positionFace")

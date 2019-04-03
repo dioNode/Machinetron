@@ -27,7 +27,6 @@ def main():
 
 
     controller.start()
-    motor = Motor(10, 5)
 
     outputSimulator = OutputSimulator(controller)
 
@@ -39,8 +38,9 @@ def main():
         outputSimulator.update()
         controller.handler.railMotor.step()
         controller.handler.spinMotor.step()
+        controller.mill.vertMotor.step()
 
-        time.sleep(0.1)
+        time.sleep(0.001)
 
 
 

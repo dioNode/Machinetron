@@ -9,3 +9,5 @@ class Drill(CutMachine):
     """
     def __init__(self, controller):
         super().__init__(controller)
+        self.name = "Drill"
+        self.homeX = 0

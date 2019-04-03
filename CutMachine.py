@@ -1,4 +1,5 @@
 from SubMachine import SubMachine
+from Motor import Motor
 
 class CutMachine(SubMachine):
     """A submachine responsible for cutting.
@@ -9,6 +10,11 @@ class CutMachine(SubMachine):
     def __init__(self, controller):
         print("TODO: CutMachine init")
         super().__init__(controller)
+        self.spinMotor = Motor(0.04)
+        self.vertMotor = Motor(0.02)
+        self.penMotor = Motor(0.07)
+        self.name = "Cut Machine"
+        self.homeX = 0
         
     def raiseTo(self, z):
         print("TODO: CutMachine raiseTo")
