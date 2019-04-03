@@ -8,20 +8,31 @@ class OutputSimulator:
         self.height = 150
         self.padding = 50
         self.motorDisplayRadius = 20
+        self.handlerDisplaySize = 30
+        self.handlerDisplayWidth = self.width*3 + self.padding*2
+        self.handlerDisplayHeight = 150
+
+        # Top starting points for each section
+        self.endeffactorDisplayTop = self.padding
+        self.motorDisplayTop = int(self.padding * 1.5 + self.height)
+        self.handlerDisplayTop = self.motorDisplayTop + self.motorDisplayRadius + self.padding
+        self.handlerMotorDisplayTop = self.handlerDisplayTop + self.handlerDisplayHeight + self.padding
 
         pygame.font.init()
         self.titleFont = pygame.font.SysFont('Comic Sans MS', 30)
         self.generalFont = pygame.font.SysFont('Comic Sans MS', 14)
+
+        self.screenHeight = 600
+        self.screenWidth = self.padding + 3 * (self.padding + self.width)
+
         if isinstance(controller, Controller):
             self.controller = controller
 
+
     def update(self):
-        width = self.width
-        height = self.height
-        padding = self.padding
         win = self.win
-        motorDisplayTop = 2 * padding + height
-        displayTop = padding
+        motorDisplayTop = self.motorDisplayTop
+        displayTop = self.endeffactorDisplayTop
         controller = self.controller
         cutMachines = [controller.drill, controller.lathe, controller.mill]
 
@@ -33,13 +44,13 @@ class OutputSimulator:
 
 
         for i in range(3):
-            x = padding + i * (padding + width)
+            x = self.padding + i * (self.padding + self.width)
             # Draw border rectangle
-            self.updateEndeffactorDisplays(cutMachines, displayTop, i, win, x)
+            self.updateEndeffactorDisplays(cutMachines, displayTop, i, x)
             # Draw motor angles
             self.updateMotorDisplay(cutMachines, i, motorDisplayTop, x)
 
-
+        self.updateHandlerDisplay()
 
         pygame.display.update()
 
@@ -64,6 +75,38 @@ class OutputSimulator:
                                 cutMachine.penMotor.currentAngle()])
         return motorAngles
 
+    def updateHandlerDisplay(self):
+        win = self.win
+        height = self.handlerDisplayHeight
+        width = self.handlerDisplayWidth
+        titleFont = self.titleFont
+        y = self.handlerDisplayTop
+        x = self.padding
+        motorRadius = self.motorDisplayRadius
+        handler = self.controller.handler
+
+        pygame.draw.rect(win, (0, 0, 0), (x, y + self.padding, width, height), 1)
+        handlerMotors = [handler.railMotor, handler.flipMotor, handler.spinMotor]
+
+        for j in range(3):
+            motorX = int(x + j * ((width - 2 * motorRadius) / 2) + motorRadius)
+            motorY = int(self.handlerMotorDisplayTop + motorRadius + self.padding/2)
+            pygame.draw.circle(win, (0, 0, 0), (motorX, motorY), motorRadius, 1)
+            angle = math.radians(handlerMotors[j].currentAngle())
+            deltaX = motorRadius * math.cos(angle)
+            deltaY = motorRadius * math.sin(angle)
+            pygame.draw.line(win, (0, 0, 0), (motorX, motorY), (motorX + deltaX, motorY + deltaY))
+            motorNames = {0: 'Rail', 1: 'Flip', 2: 'Spin'}
+            textsurface = self.generalFont.render(motorNames[j], False, (0, 0, 0))
+            win.blit(textsurface, (motorX - motorRadius, motorY + motorRadius))
+        textsurface = titleFont.render(handler.name, False, (0, 0, 0))
+        win.blit(textsurface, (x, y))
+
+        handlerX = handler.railMotor.currentDisplacement + self.padding
+        length = self.handlerDisplaySize
+        pygame.draw.rect(win, (0, 0, 0), (handlerX, y + height/2, length, length))
+
+
     def updateMotorDisplay(self, cutMachines, i, motorDisplayTop, x):
         width = self.width
         motorRadius = self.motorDisplayRadius
@@ -84,8 +127,9 @@ class OutputSimulator:
         textsurface = titleFont.render(cutMachines[i].name, False, (0, 0, 0))
         win.blit(textsurface, (x, 0))
 
-    def updateEndeffactorDisplays(self, cutMachines, displayTop, i, win, x):
+    def updateEndeffactorDisplays(self, cutMachines, displayTop, i, x):
         endeffactorLocations = self.getEndeffactorLocations(cutMachines)
+        win = self.win
         height = self.height
         width = self.width
         pygame.draw.rect(win, (0, 0, 0), (x, displayTop, width, height), 1)
@@ -110,11 +154,9 @@ class OutputSimulator:
         pygame.draw.circle(win, (0, 1, 0), (endeffactorLocationX, endeffactorLocationY), 5)
 
     def simulate(self):
-        width = self.width
-        padding = self.padding
         pygame.init()
-        screenWidth = padding + 3 * (padding + width)
-        self.win = pygame.display.set_mode((screenWidth, 500))
+
+        self.win = pygame.display.set_mode((self.screenWidth, self.screenHeight))
         pygame.display.set_caption("Machinetron Outputs")
 
 

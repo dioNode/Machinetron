@@ -12,7 +12,7 @@ class Handler(SubMachine):
         super().__init__(controller)
         self.name = "Controller"
         # Initialise motors
-        self.railMotor = Motor(0.05)
+        self.railMotor = Motor(0.1)
         self.flipMotor = Motor(0.05)
         self.spinMotor = Motor(0.05)
         
