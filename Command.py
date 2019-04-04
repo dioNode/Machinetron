@@ -1,16 +1,24 @@
 import random
 
 class Command:
-    def __init__(self, command):
-        x = lambda a: a+10
-        self.action = x
-        self.command = command
+    def __init__(self):
+        self.name = "Unknown Command"
+        self.targetList = {}
 
     def __str__(self):
-        return "Command["+self.command+"]"
+        return self.name
 
     def __repr__(self):
         return str(self)
 
+    def generateTargets(self):
+        print("Command: No target")
+        return {}
+
     def isComplete(self):
-        return True if round(random.random()) == 1 else False
+        complete = False
+        for submachine, motors in self.targetList:
+            for motor, values in motors:
+                print(values)
+        return complete
+

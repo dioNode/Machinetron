@@ -3,6 +3,9 @@ from Drill import Drill
 from Mill import Mill
 from Lathe import Lathe
 from Command import Command
+from MicrocontrollerSimulator import MicrocontrollerSimulator
+
+from supportMaps import statusMap
 
 import time
 
@@ -28,8 +31,9 @@ class Controller:
 
         self.commandQueue = []
         self.currentCommand = None
+        self.microcontrollerSimulator = MicrocontrollerSimulator()
 
-        self.state = 0  # 0=Stopped, 1=Running, 2=Paused
+        self.state = statusMap['stopped']
 
     def __repr__(self):
         print(self.commandQueue)
@@ -37,27 +41,19 @@ class Controller:
 
 
     def tick(self):
-        if self.state == 1:
+        if self.state == statusMap['started']:
             if not self.isComplete():
-                print("tick")
-                if self.currentCommand.isComplete():
+                if self.commandComplete():
                     print("Completed " + str(self.currentCommand))
                     self.startNextCommand()
-            else:
-                print("Finished")
 
         time.sleep(TIME_STEP)
         self.currentTime += TIME_STEP
-        print(self.currentTime)
-
-        self.handler.railMotor.step()
-        self.handler.spinMotor.step()
-        self.mill.vertMotor.step()
-        self.drill.spinMotor.step()
 
     def start(self):
         self.startNextCommand()
-        self.state = 1
+
+        self.state = statusMap['started']
 
     def pause(self):
         print("TODO: Pause controller")
@@ -77,12 +73,49 @@ class Controller:
     def addCommand(self, command):
         if isinstance(command, Command):
             self.commandQueue.append(command)
+            print("added comamnd")
         else:
             print("Throw not a command exception")
 
     def startNextCommand(self):
-        self.currentCommand = self.commandQueue.pop(0)
+        if not self.commandQueue:
+            # Command queue is empty
+            self.currentCommand = None
+        else:
+            self.currentCommand = self.commandQueue.pop(0)
+            self.startExecuteCurrentCommand()
 
     def isComplete(self):
         # Return true if list is commands are empty
-        return not self.commandQueue
+        return not self.commandQueue and self.currentCommand == None
+
+    def startExecuteCurrentCommand(self):
+        targets = self.currentCommand.generateTargets()
+        self.microcontrollerSimulator.setTargets(targets)
+
+    def updateEndeffactorValues(self):
+
+        results = self.getMicrocontrollerResults()
+        for cutmachine in [self.drill, self.mill, self.lathe]:
+            name = cutmachine.name.lower()
+            cutmachine.spinMotor.currentDisplacement = results[name]['spin']
+            cutmachine.vertMotor.currentDisplacement = results[name]['vert']
+            cutmachine.penMotor.currentDisplacement = results[name]['pen']
+
+        name = self.handler.name.lower()
+        self.handler.spinMotor.currentDisplacement = results[name]['spin']
+        self.handler.railMotor.currentDisplacement = results[name]['rail']
+        self.handler.flipMotor.currentDisplacement = results[name]['flip']
+
+    def commandComplete(self):
+        self.microcontrollerSimulator.update()
+        return self.microcontrollerSimulator.getCommandStatus() == statusMap['complete']
+
+
+    def getMicrocontrollerResults(self):
+        self.microcontrollerSimulator.update()
+        return self.microcontrollerSimulator.results
+
+    def getMicrocontrollerTargets(self):
+        self.microcontrollerSimulator.update()
+        return self.microcontrollerSimulator.targets

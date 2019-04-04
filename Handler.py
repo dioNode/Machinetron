@@ -10,7 +10,7 @@ class Handler(SubMachine):
     """
     def __init__(self, controller):
         super().__init__(controller)
-        self.name = "Controller"
+        self.name = "Handler"
         # Initialise motors
         self.railMotor = Motor(0.1)
         self.flipMotor = Motor(0.05)

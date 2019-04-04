@@ -1,4 +1,5 @@
 import datetime
+from supportMaps import statusMap
 
 class MicrocontrollerSimulator:
     def __init__(self):
@@ -39,10 +40,12 @@ class MicrocontrollerSimulator:
                 'targetValue': targetValue,
                 'startSpeed': startSpeed,
                 'endSpeed': endSpeed,
-                'status': 'progress'
+                'status': statusMap['started']
             }
-
         }
+
+    def setTargets(self, targets):
+        self.targets = targets
 
     def update(self):
         newTime = datetime.datetime.now()
@@ -54,17 +57,27 @@ class MicrocontrollerSimulator:
                 targetValue = values['targetValue']
                 # Need to change to accommodate variable speed
                 speed = values['startSpeed']
+
                 displacement = speed * deltaTime
                 if abs(targetValue - currentValue) <= displacement:
                     # You've reached the target
                     newValue = targetValue
                     # Signal complete
-                    self.targets[submachine][motor]['status'] = 'complete'
+                    self.targets[submachine][motor]['status'] = statusMap['complete']
                 else:
+                    # Add distance
                     direction = (targetValue - currentValue) / abs(targetValue - currentValue)
                     newValue = currentValue + direction*displacement
+                    print(speed, deltaTime, direction, newValue)
 
                 # Update info
                 self.results[submachine][motor] = newValue
+        self.currentTime = newTime
 
-
+    def getCommandStatus(self):
+        status = statusMap['complete']
+        for submachine, motors in self.targets.items():
+            for motor, values in motors.items():
+                if values['status'] != statusMap['complete']:
+                    status = statusMap['started']
+        return status

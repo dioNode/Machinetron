@@ -1,37 +1,35 @@
 from Controller import Controller
-from Simulator import Simulator
-from Command import Command
 from OutputSimulator import OutputSimulator
-import time
+from SelectCutmachineCommand import SelectCutmachineCommand
 
 
 controller = Controller()
-
-# fig = plt.figure()
-#simulator = Simulator(controller, fig)
 
 def main():
     
     setMountFace(76.6, 110, 80)
     
     # Commands go here
-    #reshapeFrontM([(70, 29), (50, 20), (40, 40)])
-    for i in range(2):
-        command = Command("G01 X1 Y1")
-        controller.addCommand(command)
-        controller.addCommand(Command("C2 X2 Y2"))
-        controller.addCommand(Command("P2 X3 Y3"))
 
+    controller.addCommand(SelectCutmachineCommand(controller.lathe))
+    for i in range(5):
+        controller.addCommand(SelectCutmachineCommand(controller.drill))
+        controller.addCommand(SelectCutmachineCommand(controller.mill))
 
     controller.start()
-
     outputSimulator = OutputSimulator(controller)
-
     outputSimulator.simulate()
+
+
+
 
     while True:
         controller.tick()
+        controller.updateEndeffactorValues()
         outputSimulator.update()
+
+
+
         # controller.handler.railMotor.step()
         # controller.handler.spinMotor.step()
         # controller.mill.vertMotor.step()
