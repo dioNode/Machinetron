@@ -1,6 +1,6 @@
 from Controller import Controller
-from OutputSimulator import OutputSimulator
-from SelectCutmachineCommand import SelectCutmachineCommand
+from Simulators.OutputSimulator import OutputSimulator
+from Commands.SelectCutmachineCommand import SelectCutmachineCommand
 
 
 controller = Controller()
@@ -30,27 +30,13 @@ def main():
 
 
 
-        # controller.handler.railMotor.step()
-        # controller.handler.spinMotor.step()
-        # controller.mill.vertMotor.step()
-        # controller.drill.spinMotor.step()
 
 
 
 
 
-
-
-
-
-
-
-    
     
     # end of commands
-    #simulator.simulate()
-
-
 
 
 

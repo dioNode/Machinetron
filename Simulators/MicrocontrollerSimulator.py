@@ -1,5 +1,5 @@
 import datetime
-from supportMaps import statusMap
+from support.supportMaps import statusMap
 
 class MicrocontrollerSimulator:
     def __init__(self):
@@ -68,7 +68,6 @@ class MicrocontrollerSimulator:
                     # Add distance
                     direction = (targetValue - currentValue) / abs(targetValue - currentValue)
                     newValue = currentValue + direction*displacement
-                    print(speed, deltaTime, direction, newValue)
 
                 # Update info
                 self.results[submachine][motor] = newValue

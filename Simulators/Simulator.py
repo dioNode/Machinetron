@@ -1,11 +1,11 @@
-import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import matplotlib.pyplot as plt
 import operator
 
 from Controller import Controller
-from supportFunctions import real2PlotDim, plotDim2Real
+from support.supportFunctions import real2PlotDim
+
 
 class Simulator:
     """Simulates the action commands given by the user.

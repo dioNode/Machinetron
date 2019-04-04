@@ -1,4 +1,4 @@
-from CutMachine import CutMachine
+from SubMachines.CutMachine import CutMachine
 
 class Mill(CutMachine):
     """The machine responsible for drilling.

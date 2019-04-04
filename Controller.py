@@ -1,11 +1,11 @@
-from Handler import Handler
-from Drill import Drill
-from Mill import Mill
-from Lathe import Lathe
-from Command import Command
-from MicrocontrollerSimulator import MicrocontrollerSimulator
+from SubMachines.Handler import Handler
+from SubMachines.Drill import Drill
+from SubMachines.Mill import Mill
+from SubMachines.Lathe import Lathe
+from Commands.Command import Command
+from Simulators.MicrocontrollerSimulator import MicrocontrollerSimulator
 
-from supportMaps import statusMap
+from support.supportMaps import statusMap
 
 import time
 

@@ -1,5 +1,3 @@
-from Motor import Motor
-
 class SubMachine:
     """The machines that combine to create MACHINETRON.
     

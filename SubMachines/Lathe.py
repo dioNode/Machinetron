@@ -1,6 +1,6 @@
-from CutMachine import CutMachine
+from SubMachines.CutMachine import CutMachine
 
-class Drill(CutMachine):
+class Lathe(CutMachine):
     """The machine responsible for drilling.
     
     This directly sends commands to drill microcontroller to generate 
@@ -9,5 +9,5 @@ class Drill(CutMachine):
     """
     def __init__(self, controller):
         super().__init__(controller)
-        self.name = "Drill"
-        self.homeX = 0
+        self.name = "Lathe"
+        self.homeX = 200

@@ -1,4 +1,4 @@
-from Motor import Motor
+from Motors.Motor import Motor
 
 class SpinMotor(Motor):
     def __init__(self, displacementPerStep):

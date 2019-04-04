@@ -1,5 +1,5 @@
-from SubMachine import SubMachine
-from Motor import Motor
+from SubMachines.SubMachine import SubMachine
+from Motors.Motor import Motor
 
 class CutMachine(SubMachine):
     """A submachine responsible for cutting.

@@ -1,6 +1,6 @@
-from Command import Command
-from CutMachine import CutMachine
-from supportMaps import statusMap
+from Commands.Command import Command
+from SubMachines.CutMachine import CutMachine
+from support.supportMaps import statusMap
 
 from config import configurationMap
 
