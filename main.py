@@ -1,6 +1,11 @@
 from Controller import Controller
 from Simulators.OutputSimulator import OutputSimulator
 from Commands.SelectCutmachineCommand import SelectCutmachineCommand
+from Commands.RaiseCommand import RaiseCommand
+from Commands.ShiftCommand import ShiftCommand
+from Commands.PushCommand import PushCommand
+from Commands.SpinCommand import SpinCommand
+from Commands.CombinedCommand import CombinedCommand
 
 
 controller = Controller()
@@ -12,9 +17,11 @@ def main():
     # Commands go here
 
     controller.addCommand(SelectCutmachineCommand(controller.lathe))
-    for i in range(5):
-        controller.addCommand(SelectCutmachineCommand(controller.drill))
-        controller.addCommand(SelectCutmachineCommand(controller.mill))
+    combined = [RaiseCommand(controller.drill, 100), SpinCommand(controller.drill), ShiftCommand(controller.drill, 50)]
+    controller.addCommand(CombinedCommand(combined))
+
+    controller.addCommand(RaiseCommand(controller.drill, 50))
+
 
     controller.start()
     outputSimulator = OutputSimulator(controller)

@@ -7,6 +7,9 @@ class OutputSimulator:
         self.width = 150
         self.height = 150
         self.padding = 50
+        self.commandsDisplayWidth = 160
+        self.commandsDisplayHeight = 500
+        self.commandHeight = 40
         self.motorDisplayRadius = 20
         self.handlerDisplaySize = 30
         self.handlerDisplayWidth = self.width*3 + self.padding*2
@@ -22,8 +25,8 @@ class OutputSimulator:
         self.titleFont = pygame.font.SysFont('Comic Sans MS', 30)
         self.generalFont = pygame.font.SysFont('Comic Sans MS', 14)
 
-        self.screenHeight = 600
-        self.screenWidth = self.padding + 3 * (self.padding + self.width)
+        self.screenHeight = self.commandsDisplayHeight + 2*self.padding
+        self.screenWidth = 2 * self.padding + 3 * (self.padding + self.width) + self.commandsDisplayWidth
 
         if isinstance(controller, Controller):
             self.controller = controller
@@ -49,6 +52,8 @@ class OutputSimulator:
             self.updateMotorDisplay(cutMachines, i, motorDisplayTop, x)
 
         self.updateHandlerDisplay(cutMachines)
+
+        self.updateCommandsDisplay()
 
         pygame.display.update()
 
@@ -83,13 +88,14 @@ class OutputSimulator:
         motorRadius = self.motorDisplayRadius
         handler = self.controller.handler
 
+        # Draw the border around where handler can move around
         pygame.draw.rect(win, (0, 0, 0), (x, y + self.padding, width, height), 1)
         handlerMotors = [handler.railMotor, handler.flipMotor, handler.spinMotor]
-
         motorY = int(self.handlerMotorDisplayTop + motorRadius + self.padding/2)
-        for j in range(3):
-            motorX = int(x + j * ((width - 2 * motorRadius) / 2) + motorRadius)
 
+        for j in range(3):
+            # Handler motors
+            motorX = int(x + j * ((width - 2 * motorRadius) / 2) + motorRadius)
             pygame.draw.circle(win, (0, 0, 0), (motorX, motorY), motorRadius, 1)
             angle = math.radians(handlerMotors[j].currentAngle())
             deltaX = motorRadius * math.cos(angle)
@@ -99,6 +105,8 @@ class OutputSimulator:
             motorNames = {0: 'Rail', 1: 'Flip', 2: 'Spin'}
             textsurface = self.generalFont.render(motorNames[j], False, (0, 0, 0))
             win.blit(textsurface, (motorX - motorRadius, motorY + motorRadius))
+
+        # Handler name label
         textsurface = titleFont.render(handler.name, False, (0, 0, 0))
         win.blit(textsurface, (x, y))
 
@@ -106,7 +114,7 @@ class OutputSimulator:
         handlerX = handler.railMotor.currentDisplacement + self.padding
         length = self.handlerDisplaySize
         pygame.draw.rect(win, (0, 0, 0),
-                         (handlerX, y + height/2 + self.padding/2, length, length))
+                         (handlerX - length/2, y + height/2 + self.padding/2, length, length))
 
         # CutMachines display to show their location relative to Handler
         for cutMachine in cutMachines:
@@ -150,26 +158,55 @@ class OutputSimulator:
         faceX = int(x + width / 2 - faceWidth / 2)
         faceY = int(displayTop + height / 2 - faceHeight / 2)
         pygame.draw.rect(win, (31, 142, 33), (faceX, faceY, faceWidth, faceHeight))
-        # endeffactorLocatonX = endeffactorLocations[i][0] + int(faceX)
         handlerX = self.controller.handler.railMotor.currentDisplacement
 
         endeffactorLocationX = int(handlerX - cutMachines[i].homeX)
 
+        shade = 250 - cutMachines[i].penMotor.currentDisplacement
+        shade = 20 if shade < 20 else shade
+
+        circleColour = (shade, shade, shade)
+
         if endeffactorLocationX < 0:
             endeffactorLocationX = 0
+            circleColour = (200, 200, 200)
         elif endeffactorLocationX > faceWidth:
             endeffactorLocationX = faceWidth
+            circleColour = (200, 200, 200)
 
         endeffactorLocationX += faceX
 
         endeffactorLocationY = endeffactorLocations[i][1] + int(faceY)
         pointRadius = 5
-        angle = math.radians(cutMachines[i].spinMotor.currentAngle())
+        angle = math.radians(cutMachines[i].spinMotor.currentDisplacement)
         deltaX = pointRadius * math.cos(angle)
         deltaY = pointRadius * math.sin(angle)
-        pygame.draw.circle(win, (150, 150, 150), (endeffactorLocationX, endeffactorLocationY), pointRadius)
+        pygame.draw.circle(win, circleColour, (endeffactorLocationX, endeffactorLocationY), pointRadius)
         pygame.draw.line(win, (0, 0, 0), (endeffactorLocationX, endeffactorLocationY),
                          (endeffactorLocationX + deltaX, endeffactorLocationY + deltaY))
+
+    def updateCommandsDisplay(self):
+        currentCommand = self.controller.currentCommand
+        commandQueue = self.controller.commandQueue
+        win = self.win
+        height = self.commandsDisplayHeight
+        width = self.commandsDisplayWidth
+        titleFont = self.titleFont
+        generalFont = self.generalFont
+        x = self.screenWidth - width - self.padding
+        y = self.padding
+        pygame.draw.rect(win, (0, 0, 0), (x, y, width, height), 1)
+        textsurface = titleFont.render('Commands', False, (0, 0, 0))
+        win.blit(textsurface, (x, 0))
+        # Draw the commands inside
+        if not currentCommand == None:
+            pygame.draw.rect(win, (220, 220, 250), (x+1, y+1, width-2, self.commandHeight-2))
+            textsurface = generalFont.render(currentCommand.name, False, (0, 0, 0))
+            win.blit(textsurface, (x+3, y))
+        for commandNum in range(len(commandQueue)):
+            commandName = commandQueue[commandNum].name
+            textsurface = generalFont.render(commandName, False, (0, 0, 0))
+            win.blit(textsurface, (x+3, y + (commandNum + 1) * self.commandHeight))
 
     def simulate(self):
         pygame.init()

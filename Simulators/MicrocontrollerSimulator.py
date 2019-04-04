@@ -47,6 +47,9 @@ class MicrocontrollerSimulator:
     def setTargets(self, targets):
         self.targets = targets
 
+    def clearTargets(self):
+        self.targets = {}
+
     def update(self):
         newTime = datetime.datetime.now()
         deltaTime = newTime - self.currentTime
@@ -57,17 +60,23 @@ class MicrocontrollerSimulator:
                 targetValue = values['targetValue']
                 # Need to change to accommodate variable speed
                 speed = values['startSpeed']
-
                 displacement = speed * deltaTime
-                if abs(targetValue - currentValue) <= displacement:
-                    # You've reached the target
-                    newValue = targetValue
-                    # Signal complete
+
+                if targetValue == None:
+                    # Spinning motor no end
+                    newValue = (currentValue + displacement)
                     self.targets[submachine][motor]['status'] = statusMap['complete']
                 else:
-                    # Add distance
-                    direction = (targetValue - currentValue) / abs(targetValue - currentValue)
-                    newValue = currentValue + direction*displacement
+                    # Displacement motor
+                    if abs(targetValue - currentValue) <= displacement:
+                        # You've reached the target
+                        newValue = targetValue
+                        # Signal complete
+                        self.targets[submachine][motor]['status'] = statusMap['complete']
+                    else:
+                        # Add distance
+                        direction = (targetValue - currentValue) / abs(targetValue - currentValue)
+                        newValue = currentValue + direction*displacement
 
                 # Update info
                 self.results[submachine][motor] = newValue

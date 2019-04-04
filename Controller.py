@@ -44,7 +44,6 @@ class Controller:
         if self.state == statusMap['started']:
             if not self.isComplete():
                 if self.commandComplete():
-                    print("Completed " + str(self.currentCommand))
                     self.startNextCommand()
 
         time.sleep(TIME_STEP)
@@ -73,7 +72,6 @@ class Controller:
     def addCommand(self, command):
         if isinstance(command, Command):
             self.commandQueue.append(command)
-            print("added comamnd")
         else:
             print("Throw not a command exception")
 
@@ -81,6 +79,7 @@ class Controller:
         if not self.commandQueue:
             # Command queue is empty
             self.currentCommand = None
+            self.microcontrollerSimulator.clearTargets()
         else:
             self.currentCommand = self.commandQueue.pop(0)
             self.startExecuteCurrentCommand()

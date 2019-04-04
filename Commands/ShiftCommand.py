@@ -4,21 +4,23 @@ from support.supportMaps import statusMap
 
 from config import configurationMap
 
-class SelectCutmachineCommand(Command):
-    def __init__(self, cutMachine):
+class ShiftCommand(Command):
+    def __init__(self, cutMachine, horizontalDisplacement):
         super().__init__()
-        self.name = "Selecting "+cutMachine.name
+        self.name = "Shifting "+cutMachine.name
+        self.horizontalDisplacement = horizontalDisplacement
         if not isinstance(cutMachine, CutMachine):
-            print("SelectCutmachineCommand: Not a cut machine")
+            print("ShiftCommand: Not a cut machine")
         else:
             self.cutMachine = cutMachine
 
     def generateTargets(self):
         targets = {}
         cutMachine = self.cutMachine
+        globalTargetX = self.horizontalDisplacement + cutMachine.homeX
 
         targets['handler'] = {'rail': {
-            'targetValue': cutMachine.homeX,
+            'targetValue': globalTargetX,
             'startSpeed': configurationMap['handler']['railSpeed'],
             'endSpeed': configurationMap['handler']['railSpeed'],
             'status': statusMap['started']
