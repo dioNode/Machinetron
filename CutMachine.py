@@ -10,7 +10,7 @@ class CutMachine(SubMachine):
     def __init__(self, controller):
         print("TODO: CutMachine init")
         super().__init__(controller)
-        self.spinMotor = Motor(0.04)
+        self.spinMotor = Motor(1)
         self.vertMotor = Motor(0.02)
         self.penMotor = Motor(0.07)
         self.name = "Cut Machine"

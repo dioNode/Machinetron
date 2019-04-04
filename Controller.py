@@ -1,11 +1,12 @@
-import time
-
 from Handler import Handler
 from Drill import Drill
 from Mill import Mill
 from Lathe import Lathe
 from Command import Command
 
+import time
+
+TIME_STEP = 0.001
 
 class Controller:
     """The class that controls all functionality of MACHINETRON.
@@ -15,7 +16,7 @@ class Controller:
     
     """
     def __init__(self):
-        print("Controller created...")
+        self.currentTime = 0
         self.xLength = 0
         self.yLength = 0
         self.zLength = 0
@@ -44,6 +45,15 @@ class Controller:
                     self.startNextCommand()
             else:
                 print("Finished")
+
+        time.sleep(TIME_STEP)
+        self.currentTime += TIME_STEP
+        print(self.currentTime)
+
+        self.handler.railMotor.step()
+        self.handler.spinMotor.step()
+        self.mill.vertMotor.step()
+        self.drill.spinMotor.step()
 
     def start(self):
         self.startNextCommand()

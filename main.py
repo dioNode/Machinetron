@@ -1,16 +1,13 @@
 from Controller import Controller
 from Simulator import Simulator
 from Command import Command
-from Motor import Motor
 from OutputSimulator import OutputSimulator
-import matplotlib.pyplot as plt
-import numpy as np
 import time
 
 
 controller = Controller()
 
-fig = plt.figure()
+# fig = plt.figure()
 #simulator = Simulator(controller, fig)
 
 def main():
@@ -32,15 +29,14 @@ def main():
 
     outputSimulator.simulate()
 
-
     while True:
-        #controller.tick()
+        controller.tick()
         outputSimulator.update()
-        controller.handler.railMotor.step()
-        controller.handler.spinMotor.step()
-        controller.mill.vertMotor.step()
+        # controller.handler.railMotor.step()
+        # controller.handler.spinMotor.step()
+        # controller.mill.vertMotor.step()
+        # controller.drill.spinMotor.step()
 
-        time.sleep(0.001)
 
 
 

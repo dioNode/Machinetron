@@ -10,7 +10,7 @@ class OutputSimulator:
         self.motorDisplayRadius = 20
         self.handlerDisplaySize = 30
         self.handlerDisplayWidth = self.width*3 + self.padding*2
-        self.handlerDisplayHeight = 150
+        self.handlerDisplayHeight = 100
 
         # Top starting points for each section
         self.endeffactorDisplayTop = self.padding
@@ -30,19 +30,17 @@ class OutputSimulator:
 
 
     def update(self):
+        # Clear canvas
         win = self.win
+        win.fill((255, 255, 255))
+
+        # Variables
         motorDisplayTop = self.motorDisplayTop
         displayTop = self.endeffactorDisplayTop
         controller = self.controller
         cutMachines = [controller.drill, controller.lathe, controller.mill]
 
-
-
-
-        # Clear canvas
-        win.fill((255, 255, 255))
-
-
+        # Display stuff
         for i in range(3):
             x = self.padding + i * (self.padding + self.width)
             # Draw border rectangle
@@ -50,7 +48,7 @@ class OutputSimulator:
             # Draw motor angles
             self.updateMotorDisplay(cutMachines, i, motorDisplayTop, x)
 
-        self.updateHandlerDisplay()
+        self.updateHandlerDisplay(cutMachines)
 
         pygame.display.update()
 
@@ -75,7 +73,7 @@ class OutputSimulator:
                                 cutMachine.penMotor.currentAngle()])
         return motorAngles
 
-    def updateHandlerDisplay(self):
+    def updateHandlerDisplay(self, cutMachines):
         win = self.win
         height = self.handlerDisplayHeight
         width = self.handlerDisplayWidth
@@ -88,23 +86,36 @@ class OutputSimulator:
         pygame.draw.rect(win, (0, 0, 0), (x, y + self.padding, width, height), 1)
         handlerMotors = [handler.railMotor, handler.flipMotor, handler.spinMotor]
 
+        motorY = int(self.handlerMotorDisplayTop + motorRadius + self.padding/2)
         for j in range(3):
             motorX = int(x + j * ((width - 2 * motorRadius) / 2) + motorRadius)
-            motorY = int(self.handlerMotorDisplayTop + motorRadius + self.padding/2)
+
             pygame.draw.circle(win, (0, 0, 0), (motorX, motorY), motorRadius, 1)
             angle = math.radians(handlerMotors[j].currentAngle())
             deltaX = motorRadius * math.cos(angle)
             deltaY = motorRadius * math.sin(angle)
-            pygame.draw.line(win, (0, 0, 0), (motorX, motorY), (motorX + deltaX, motorY + deltaY))
+            pygame.draw.line(win, (0, 0, 0), (motorX, motorY),
+                             (motorX + deltaX, motorY + deltaY))
             motorNames = {0: 'Rail', 1: 'Flip', 2: 'Spin'}
             textsurface = self.generalFont.render(motorNames[j], False, (0, 0, 0))
             win.blit(textsurface, (motorX - motorRadius, motorY + motorRadius))
         textsurface = titleFont.render(handler.name, False, (0, 0, 0))
         win.blit(textsurface, (x, y))
 
+        # Handler location
         handlerX = handler.railMotor.currentDisplacement + self.padding
         length = self.handlerDisplaySize
-        pygame.draw.rect(win, (0, 0, 0), (handlerX, y + height/2, length, length))
+        pygame.draw.rect(win, (0, 0, 0),
+                         (handlerX, y + height/2 + self.padding/2, length, length))
+
+        # CutMachines display to show their location relative to Handler
+        for cutMachine in cutMachines:
+            machineX = cutMachine.homeX + x
+            machineY = y + self.padding
+            machineHeight = 10
+            machineWidth = self.controller.xLength
+            pygame.draw.rect(win, (0, 1, 1),
+                             (machineX, machineY, machineWidth, machineHeight))
 
 
     def updateMotorDisplay(self, cutMachines, i, motorDisplayTop, x):
@@ -120,7 +131,8 @@ class OutputSimulator:
             angle = math.radians(motorAngles[i][j])
             deltaX = motorRadius * math.cos(angle)
             deltaY = motorRadius * math.sin(angle)
-            pygame.draw.line(win, (0, 0, 0), (motorX, motorY), (motorX + deltaX, motorY + deltaY))
+            pygame.draw.line(win, (0, 0, 0), (motorX, motorY),
+                             (motorX + deltaX, motorY + deltaY))
             motorNames = {0: 'Spin', 1: 'Vert', 2: 'Pen'}
             textsurface = self.generalFont.render(motorNames[j], False, (0, 0, 0))
             win.blit(textsurface, (motorX - motorRadius, motorY + motorRadius))
@@ -151,7 +163,13 @@ class OutputSimulator:
         endeffactorLocationX += faceX
 
         endeffactorLocationY = endeffactorLocations[i][1] + int(faceY)
-        pygame.draw.circle(win, (0, 1, 0), (endeffactorLocationX, endeffactorLocationY), 5)
+        pointRadius = 5
+        angle = math.radians(cutMachines[i].spinMotor.currentAngle())
+        deltaX = pointRadius * math.cos(angle)
+        deltaY = pointRadius * math.sin(angle)
+        pygame.draw.circle(win, (150, 150, 150), (endeffactorLocationX, endeffactorLocationY), pointRadius)
+        pygame.draw.line(win, (0, 0, 0), (endeffactorLocationX, endeffactorLocationY),
+                         (endeffactorLocationX + deltaX, endeffactorLocationY + deltaY))
 
     def simulate(self):
         pygame.init()

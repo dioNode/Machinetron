@@ -14,7 +14,7 @@ class Handler(SubMachine):
         # Initialise motors
         self.railMotor = Motor(0.1)
         self.flipMotor = Motor(0.05)
-        self.spinMotor = Motor(0.05)
+        self.spinMotor = Motor(2)
         
     def positionFace(self, face, submachine):
         print("TODO: Handler positionFace")
