@@ -15,12 +15,9 @@ def main():
     setMountFace(76.6, 110, 80)
     
     # Commands go here
+    reshapeFrontM([(76.6, 20), (50, 30), (60, 30)])
 
-    controller.addCommand(SelectCutmachineCommand(controller.lathe))
-    combined = [RaiseCommand(controller.drill, 100), SpinCommand(controller.drill), ShiftCommand(controller.drill, 50)]
-    controller.addCommand(CombinedCommand(combined))
 
-    controller.addCommand(RaiseCommand(controller.drill, 50))
 
 
     controller.start()
@@ -61,8 +58,40 @@ def setMountFace(xLength, yLength, zLength):
     controller.setMountFace(xLength, yLength, zLength)
 
 def reshapeFrontM(widthHeightTuples):
-    print("TODO: reshapeFrontM")
     # simulator.reshapeFrontM(widthHeightTuples)
+    # TODO turn face
+    controller.addCommand(SelectCutmachineCommand(controller.mill))
+
+    controller.addCommand(RaiseCommand(controller.mill, controller.zLength))
+    controller.addCommand(ShiftCommand(controller.mill, 0))
+
+    currentHeight = 0
+
+    millSpinCommand = SpinCommand(controller.mill)
+
+    # Push into depth
+    controller.addCommand(PushCommand(controller.mill, controller.yLength))
+
+    # Go up left hand side
+    for tupleNum in range(len(widthHeightTuples)):
+        widthHeightTuple = widthHeightTuples[tupleNum]
+        width, height = widthHeightTuple
+        currentHeight += height
+        x = controller.xLength / 2 - width / 2
+        z = controller.zLength - currentHeight
+        controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, x), millSpinCommand]))
+        controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
+
+    # Go back down right hand side
+    for tupleNum in range(len(widthHeightTuples) - 1, -1, -1):
+        widthHeightTuple = widthHeightTuples[tupleNum]
+        width, height = widthHeightTuple
+        currentHeight -= height
+        x = controller.xLength / 2 + width / 2
+        z = controller.zLength - currentHeight
+        controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, x), millSpinCommand]))
+        controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
+
 
 def reshapeSideM(widthHeightTuples):
     print("TODO: reshapeSideM")
