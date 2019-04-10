@@ -1,13 +1,9 @@
 from Controller import Controller
 import pygame
 import math
-import numpy as np
 
 class OutputSimulator:
     def __init__(self, controller):
-        self.currentFaceWidth = controller.xLength
-        self.currentFaceHeight = controller.zLength
-        self.currentFaceDepth = controller.yLength
         self.width = 150
         self.height = 150
         self.padding = 50
@@ -46,7 +42,6 @@ class OutputSimulator:
         displayTop = self.endeffactorDisplayTop
         controller = self.controller
         cutMachines = [controller.drill, controller.lathe, controller.mill]
-        self.updateDirectionFaced()
 
         # Display stuff
         for i in range(3):
@@ -61,56 +56,6 @@ class OutputSimulator:
         self.updateCommandsDisplay()
 
         pygame.display.update()
-
-    def updateDirectionFaced(self):
-
-        spinAngle = self.controller.handler.spinMotor.currentDisplacement % 360
-        flipAngle = self.controller.handler.flipMotor.currentDisplacement % 360
-
-        xLength = self.controller.xLength
-        yLength = self.controller.yLength
-        zLength = self.controller.zLength
-
-        if flipAngle == 0:
-            # Handler is down
-            self.currentFaceHeight = zLength
-            if spinAngle == 0:
-                # Facing front
-                self.currentFaceWidth = xLength
-                self.currentFaceDepth = yLength
-            elif spinAngle == 90:
-                # Facing right
-                self.currentFaceWidth = yLength
-                self.currentFaceDepth = xLength
-            elif spinAngle == 180:
-                # Facing right
-                self.currentFaceWidth = xLength
-                self.currentFaceDepth = yLength
-            elif spinAngle == 270:
-                # Facing right
-                self.currentFaceWidth = yLength
-                self.currentFaceDepth = xLength
-        elif flipAngle == 90:
-            # Handler is up
-            self.currentFaceDepth = zLength
-            if spinAngle == 0:
-                # Facing front
-                self.currentFaceWidth = xLength
-                self.currentFaceHeight = yLength
-            elif spinAngle == 90:
-                # Facing right
-                self.currentFaceWidth = yLength
-                self.currentFaceHeight = xLength
-            elif spinAngle == 180:
-                # Facing right
-                self.currentFaceWidth = xLength
-                self.currentFaceHeight = yLength
-            elif spinAngle == 270:
-                # Facing right
-                self.currentFaceWidth = yLength
-                self.currentFaceHeight = xLength
-
-
 
 
     def getEndeffactorLocations(self, cutMachines):
@@ -197,7 +142,7 @@ class OutputSimulator:
             machineX = cutMachine.homeX + x
             machineY = y + self.padding
             machineHeight = 10
-            machineWidth = self.currentFaceWidth
+            machineWidth = self.controller.currentFaceWidth
             pygame.draw.rect(win, (0, 1, 1),
                              (machineX, machineY, machineWidth, machineHeight))
 
@@ -229,8 +174,8 @@ class OutputSimulator:
         height = self.height
         width = self.width
         pygame.draw.rect(win, (0, 0, 0), (x, displayTop, width, height), 1)
-        faceWidth = int(self.currentFaceWidth)
-        faceHeight = int(self.currentFaceHeight)
+        faceWidth = int(self.controller.currentFaceWidth)
+        faceHeight = int(self.controller.currentFaceHeight)
         faceX = int(x + width / 2 - faceWidth / 2)
         faceY = int(displayTop + height / 2 - faceHeight / 2)
         pygame.draw.rect(win, (31, 142, 33), (faceX, faceY, faceWidth, faceHeight))

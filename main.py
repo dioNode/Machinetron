@@ -15,9 +15,6 @@ def main():
     setMountFace(76.6, 110, 80)
     
     # Commands go here
-    controller.addCommand(SelectFaceCommand('front', controller.handler))
-    controller.addCommand(SelectFaceCommand('right', controller.handler))
-    controller.addCommand(SelectFaceCommand('top', controller.handler))
 
     reshapeFrontM([(76.6, 20), (50, 30), (60, 30)])
     drill('front', 30, 30, 10)
@@ -58,15 +55,11 @@ def setMountFace(xLength, yLength, zLength):
     controller.setMountFace(xLength, yLength, zLength)
 
 def reshapeFrontM(widthHeightTuples):
-    # simulator.reshapeFrontM(widthHeightTuples)
-    # TODO turn face
+    # Get to initial positioning
     controller.addCommand(SelectCutmachineCommand(controller.mill))
-
     controller.addCommand(RaiseCommand(controller.mill, controller.zLength))
     controller.addCommand(ShiftCommand(controller.mill, 0))
-
     currentHeight = 0
-
     millSpinCommand = SpinCommand(controller.mill)
 
     # Push into depth
@@ -119,9 +112,8 @@ def lathe(z0, z1, radius):
     print("TODO: lathe")
     
 def drill(face, x, z, depth):
-    #TODO Change face
     # Align to face
-    # controller.addCommand(SelectCutmachineCommand(controller.drill))
+    controller.addCommand(SelectFaceCommand(face, controller.handler))
     controller.addCommand(CombinedCommand([
         ShiftCommand(controller.drill, x),
         RaiseCommand(controller.drill, z)], 'Align Drill'))

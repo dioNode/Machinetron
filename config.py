@@ -14,6 +14,8 @@ configurationMap = {
         'raiseDPR': 10,
         'pushDPR': 5,
         'spinDPR': 1,
+        'diameter': 6,
+        'depth': 80,
     }, 'lathe': {
         'homeX': 200,
         'raiseSpeed': 20,
@@ -22,6 +24,8 @@ configurationMap = {
         'raiseDPR': 10,
         'pushDPR': 5,
         'spinDPR': 1,
+        'length': 3,
+        'depth': 60,
     }, 'mill': {
         'homeX': 400,
         'raiseSpeed': 20,
@@ -30,5 +34,7 @@ configurationMap = {
         'raiseDPR': 10,
         'pushDPR': 5,
         'spinDPR': 1,
+        'diameter': 10,
+        'depth': 60,
     },
 }

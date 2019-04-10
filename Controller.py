@@ -23,6 +23,10 @@ class Controller:
         self.xLength = 0
         self.yLength = 0
         self.zLength = 0
+
+        self.currentFaceWidth = self.xLength
+        self.currentFaceHeight = self.zLength
+        self.currentFaceDepth = self.yLength
         
         self.handler = Handler(self)
         self.drill = Drill(self)
@@ -48,6 +52,7 @@ class Controller:
 
         time.sleep(TIME_STEP)
         self.currentTime += TIME_STEP
+        self.updateDirectionFaced()
 
     def start(self):
         self.startNextCommand()
@@ -118,3 +123,53 @@ class Controller:
     def getMicrocontrollerTargets(self):
         self.microcontrollerSimulator.update()
         return self.microcontrollerSimulator.targets
+
+
+    def updateDirectionFaced(self):
+
+        spinAngle = self.handler.spinMotor.currentDisplacement % 360
+        flipAngle = self.handler.flipMotor.currentDisplacement % 360
+
+        xLength = self.xLength
+        yLength = self.yLength
+        zLength = self.zLength
+
+        if flipAngle == 0:
+            # Handler is down
+            self.currentFaceHeight = zLength
+            if spinAngle == 0:
+                # Facing front
+                self.currentFaceWidth = xLength
+                self.currentFaceDepth = yLength
+            elif spinAngle == 90:
+                # Facing right
+                self.currentFaceWidth = yLength
+                self.currentFaceDepth = xLength
+            elif spinAngle == 180:
+                # Facing right
+                self.currentFaceWidth = xLength
+                self.currentFaceDepth = yLength
+            elif spinAngle == 270:
+                # Facing right
+                self.currentFaceWidth = yLength
+                self.currentFaceDepth = xLength
+        elif flipAngle == 90:
+            # Handler is up
+            self.currentFaceDepth = zLength
+            if spinAngle == 0:
+                # Facing front
+                self.currentFaceWidth = xLength
+                self.currentFaceHeight = yLength
+            elif spinAngle == 90:
+                # Facing right
+                self.currentFaceWidth = yLength
+                self.currentFaceHeight = xLength
+            elif spinAngle == 180:
+                # Facing right
+                self.currentFaceWidth = xLength
+                self.currentFaceHeight = yLength
+            elif spinAngle == 270:
+                # Facing right
+                self.currentFaceWidth = yLength
+                self.currentFaceHeight = xLength
+
