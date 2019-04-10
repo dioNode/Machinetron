@@ -17,7 +17,7 @@ class RaiseCommand(Command):
     def generateTargets(self):
         targets = {}
         cutMachine = self.cutMachine
-        speed = configurationMap['cutMachine']['raiseSpeed']
+        speed = configurationMap[cutMachine.name.lower()]['raiseSpeed']
 
         name = cutMachine.name.lower()
         targets[name] = {'vert': {

@@ -1,5 +1,10 @@
 from SubMachines.SubMachine import SubMachine
 from Motors.Motor import Motor
+from Motors.SpinMotor import SpinMotor
+from Commands.SpinCommand import SpinCommand
+from Commands.ShiftCommand import ShiftCommand
+
+from config import configurationMap
 
 class Handler(SubMachine):
     """This controls the handler submachine.
@@ -12,9 +17,9 @@ class Handler(SubMachine):
         super().__init__(controller)
         self.name = "Handler"
         # Initialise motors
-        self.railMotor = Motor(0.1)
-        self.flipMotor = Motor(0.05)
-        self.spinMotor = Motor(2)
+        self.railMotor = Motor(configurationMap['handler']['railDPR'])
+        self.flipMotor = SpinMotor(configurationMap['handler']['flipDPR'])
+        self.spinMotor = SpinMotor(configurationMap['handler']['spinDPR'])
         
     def positionFace(self, face, submachine):
         print("TODO: Handler positionFace")
@@ -32,7 +37,6 @@ class Handler(SubMachine):
         print("TODO: Handler rotate")
 
     def reset(self):
-        print("TODO: Handler reset")
-        
-    def spinOff(self):
-        print("TODO: Handler spinOff")
+        self.controller.addCommand(SpinCommand(self, 0))
+        self.controller.addCommand(ShiftCommand(self, 0))
+

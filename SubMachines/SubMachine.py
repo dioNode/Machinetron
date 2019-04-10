@@ -1,3 +1,5 @@
+from Motors.SpinMotor import SpinMotor
+
 class SubMachine:
     """The machines that combine to create MACHINETRON.
     
@@ -8,6 +10,8 @@ class SubMachine:
     """
     def __init__(self, controller):
         self.controller = controller
+        self.spinMotor = SpinMotor(1)
         self.name = "SubMachine"
 
-
+    def reset(self):
+        print('Reset not defined')

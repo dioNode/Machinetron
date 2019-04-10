@@ -15,32 +15,29 @@ def main():
     setMountFace(76.6, 110, 80)
     
     # Commands go here
+    controller.addCommand(SpinCommand(controller.handler, 4000))
     reshapeFrontM([(76.6, 20), (50, 30), (60, 30)])
+    drill('front', 30, 30, 10)
+    drill('front', 30, 60, 10)
 
 
+
+
+
+
+
+    resetAll()
+    # end of commands
 
 
     controller.start()
     outputSimulator = OutputSimulator(controller)
     outputSimulator.simulate()
 
-
-
-
     while True:
         controller.tick()
         controller.updateEndeffactorValues()
         outputSimulator.update()
-
-
-
-
-
-
-
-
-    
-    # end of commands
 
 
 
@@ -70,7 +67,10 @@ def reshapeFrontM(widthHeightTuples):
     millSpinCommand = SpinCommand(controller.mill)
 
     # Push into depth
-    controller.addCommand(PushCommand(controller.mill, controller.yLength))
+    controller.addCommand(CombinedCommand([
+        PushCommand(controller.mill, controller.yLength),
+        SpinCommand(controller.mill)
+    ]))
 
     # Go up left hand side
     for tupleNum in range(len(widthHeightTuples)):
@@ -92,6 +92,7 @@ def reshapeFrontM(widthHeightTuples):
         controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, x), millSpinCommand]))
         controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
 
+    controller.addCommand(PushCommand(controller.mill, 0))
 
 def reshapeSideM(widthHeightTuples):
     print("TODO: reshapeSideM")
@@ -115,8 +116,38 @@ def lathe(z0, z1, radius):
     print("TODO: lathe")
     
 def drill(face, x, z, depth):
-    print("TODO: drill")    
-    
+    #TODO Change face
+    # Align to face
+    # controller.addCommand(SelectCutmachineCommand(controller.drill))
+    controller.addCommand(CombinedCommand([
+        ShiftCommand(controller.drill, x),
+        RaiseCommand(controller.drill, z)], 'Align Drill'))
+    # Drill in
+    controller.addCommand(CombinedCommand([
+        PushCommand(controller.drill, depth),
+        SpinCommand(controller.drill)
+    ], 'Drill In'))
+    # Pull drill out
+    controller.addCommand(PushCommand(controller.drill, 0))
+
+def resetAll():
+    # Remove all potential cutting bits from workpiece
+    controller.addCommand(CombinedCommand([
+        PushCommand(controller.drill, 0),
+        PushCommand(controller.mill, 0),
+        PushCommand(controller.lathe, 0),
+        SpinCommand(controller.drill, 0),
+        SpinCommand(controller.mill, 0),
+        SpinCommand(controller.lathe, 0),
+        SpinCommand(controller.handler, 0),
+    ], 'Retract Cutting Pieces'))
+    # Reset all to original location
+    controller.addCommand(CombinedCommand([
+        ShiftCommand(controller.drill, 0),
+        RaiseCommand(controller.drill, 0),
+        RaiseCommand(controller.mill, 0),
+        RaiseCommand(controller.lathe, 0),
+    ], 'Move to Home Location'))
 
 if __name__== "__main__":
     main()

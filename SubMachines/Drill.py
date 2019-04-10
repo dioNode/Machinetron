@@ -1,4 +1,7 @@
 from SubMachines.CutMachine import CutMachine
+from Motors.Motor import Motor
+from Motors.SpinMotor import SpinMotor
+from config import configurationMap
 
 class Drill(CutMachine):
     """The machine responsible for drilling.
@@ -10,4 +13,7 @@ class Drill(CutMachine):
     def __init__(self, controller):
         super().__init__(controller)
         self.name = "Drill"
-        self.homeX = 0
+        self.homeX = configurationMap['drill']['homeX']
+        self.spinMotor = SpinMotor(configurationMap['drill']['spinDPR'])
+        self.vertMotor = Motor(configurationMap['drill']['raiseDPR'])
+        self.penMotor = Motor(configurationMap['drill']['pushDPR'])

@@ -1,26 +1,31 @@
 from Commands.Command import Command
-from SubMachines.CutMachine import CutMachine
-from support.supportMaps import statusMap
-
-from config import configurationMap
 
 class SpinCommand(Command):
-    def __init__(self, cutMachine):
+    def __init__(self, subMachine, targetValue=None):
         super().__init__()
-        self.name = "Spinning "+cutMachine.name
-        if not isinstance(cutMachine, CutMachine):
+        self.name = "Spinning "+subMachine.name
+        self.targetValue = targetValue
+        if not isinstance(subMachine, SubMachine):
             print("SpinCommand: Not a cut machine")
         else:
-            self.cutMachine = cutMachine
+            self.subMachine = subMachine
 
     def generateTargets(self):
         targets = {}
-        cutMachine = self.cutMachine
-        speed = configurationMap['cutMachine']['spinSpeed']
+        subMachine = self.subMachine
+        speed = configurationMap[subMachine.name.lower()]['spinSpeed']
 
-        name = cutMachine.name.lower()
+        if self.targetValue != None:
+            # Set target value relative to where the current angle is
+            currentValue = subMachine.spinMotor.currentDisplacement
+            offsetFromZero = currentValue % 360
+            zeroValue = currentValue - offsetFromZero
+            self.targetValue += zeroValue
+
+
+        name = subMachine.name.lower()
         targets[name] = {'spin': {
-            'targetValue': None,
+            'targetValue': self.targetValue,
             'startSpeed': speed,
             'endSpeed': speed,
             'status': statusMap['started']
@@ -29,3 +34,8 @@ class SpinCommand(Command):
 
         return targets
 
+
+from SubMachines.SubMachine import SubMachine
+from support.supportMaps import statusMap
+
+from config import configurationMap
