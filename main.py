@@ -1,12 +1,12 @@
 from Controller import Controller
 from Simulators.OutputSimulator import OutputSimulator
 from Commands.SelectCutmachineCommand import SelectCutmachineCommand
+from Commands.SelectFaceCommand import SelectFaceCommand
 from Commands.RaiseCommand import RaiseCommand
 from Commands.ShiftCommand import ShiftCommand
 from Commands.PushCommand import PushCommand
 from Commands.SpinCommand import SpinCommand
 from Commands.CombinedCommand import CombinedCommand
-
 
 controller = Controller()
 
@@ -15,7 +15,10 @@ def main():
     setMountFace(76.6, 110, 80)
     
     # Commands go here
-    controller.addCommand(SpinCommand(controller.handler, 4000))
+    controller.addCommand(SelectFaceCommand('front', controller.handler))
+    controller.addCommand(SelectFaceCommand('right', controller.handler))
+    controller.addCommand(SelectFaceCommand('top', controller.handler))
+
     reshapeFrontM([(76.6, 20), (50, 30), (60, 30)])
     drill('front', 30, 30, 10)
     drill('front', 30, 60, 10)

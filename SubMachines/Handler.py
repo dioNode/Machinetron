@@ -21,20 +21,11 @@ class Handler(SubMachine):
         self.flipMotor = SpinMotor(configurationMap['handler']['flipDPR'])
         self.spinMotor = SpinMotor(configurationMap['handler']['spinDPR'])
         
-    def positionFace(self, face, submachine):
-        print("TODO: Handler positionFace")
-        
     def moveTo(self, x):
         print("TODO: Handler moveTo")
 
     def moveX(self, steps):
         print("TODO: Handler moveX")
-
-    def spin(self):
-        print("TODO: Handler spin")
-        
-    def rotate(self, steps):
-        print("TODO: Handler rotate")
 
     def reset(self):
         self.controller.addCommand(SpinCommand(self, 0))

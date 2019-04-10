@@ -5,6 +5,9 @@ import numpy as np
 
 class OutputSimulator:
     def __init__(self, controller):
+        self.currentFaceWidth = controller.xLength
+        self.currentFaceHeight = controller.zLength
+        self.currentFaceDepth = controller.yLength
         self.width = 150
         self.height = 150
         self.padding = 50
@@ -43,6 +46,7 @@ class OutputSimulator:
         displayTop = self.endeffactorDisplayTop
         controller = self.controller
         cutMachines = [controller.drill, controller.lathe, controller.mill]
+        self.updateDirectionFaced()
 
         # Display stuff
         for i in range(3):
@@ -58,7 +62,53 @@ class OutputSimulator:
 
         pygame.display.update()
 
+    def updateDirectionFaced(self):
 
+        spinAngle = self.controller.handler.spinMotor.currentDisplacement % 360
+        flipAngle = self.controller.handler.flipMotor.currentDisplacement % 360
+
+        xLength = self.controller.xLength
+        yLength = self.controller.yLength
+        zLength = self.controller.zLength
+
+        if flipAngle == 0:
+            # Handler is down
+            self.currentFaceHeight = zLength
+            if spinAngle == 0:
+                # Facing front
+                self.currentFaceWidth = xLength
+                self.currentFaceDepth = yLength
+            elif spinAngle == 90:
+                # Facing right
+                self.currentFaceWidth = yLength
+                self.currentFaceDepth = xLength
+            elif spinAngle == 180:
+                # Facing right
+                self.currentFaceWidth = xLength
+                self.currentFaceDepth = yLength
+            elif spinAngle == 270:
+                # Facing right
+                self.currentFaceWidth = yLength
+                self.currentFaceDepth = xLength
+        elif flipAngle == 90:
+            # Handler is up
+            self.currentFaceDepth = zLength
+            if spinAngle == 0:
+                # Facing front
+                self.currentFaceWidth = xLength
+                self.currentFaceHeight = yLength
+            elif spinAngle == 90:
+                # Facing right
+                self.currentFaceWidth = yLength
+                self.currentFaceHeight = xLength
+            elif spinAngle == 180:
+                # Facing right
+                self.currentFaceWidth = xLength
+                self.currentFaceHeight = yLength
+            elif spinAngle == 270:
+                # Facing right
+                self.currentFaceWidth = yLength
+                self.currentFaceHeight = xLength
 
 
 
@@ -117,13 +167,13 @@ class OutputSimulator:
         averageDim = (self.controller.xLength + self.controller.yLength + self.controller.zLength) / 2
         scale = averageDim / length
         handWidth = self.controller.xLength / scale
-        handHeight = self.controller.zLength / scale
+        handHeight = self.controller.yLength / scale
         mag = math.sqrt(math.pow(handWidth/2, 2) + math.pow(handHeight/2, 2))
         centerX = handlerX
         centerY = y + height/2 + self.padding/2 + length/2
         cornerAngle = math.atan(handHeight/handWidth)
-        spinDiagAngle = math.radians(self.controller.handler.spinMotor.currentAngle())
-        flipAngle = math.radians(self.controller.handler.flipMotor.currentAngle())
+        spinDiagAngle = math.radians(self.controller.handler.spinMotor.currentDisplacement)
+        flipAngle = math.radians(self.controller.handler.flipMotor.currentDisplacement)
 
         # These angles are with reference to horizontal but shouldn't matter
         xtr = mag * math.cos(cornerAngle + spinDiagAngle)
@@ -135,21 +185,10 @@ class OutputSimulator:
         xbl = -mag * math.cos(cornerAngle + spinDiagAngle)
         ybl = -mag * math.sin(cornerAngle + spinDiagAngle)
 
-        R = np.array([[math.cos(spinDiagAngle), -math.sin(spinDiagAngle)],
-                        [math.sin(spinDiagAngle), math.cos(spinDiagAngle)]])
-
-        pttr = np.array([[xtr], [ytr]]) * R
-        pttl = np.array([[xtl], [ytl]]) * R
-        ptbr = np.array([[xbr], [ybr]]) * R
-        ptbl = np.array([[xbl], [ybr]]) * R
-
-        # print(pttr, pttl, ptbr, ptbl)
-
         pointlist = [(xtr + centerX, ytr + centerY),
                      (xbr + centerX, ybr + centerY),
                      (xbl + centerX, ybl + centerY),
-                     (xtl + centerX, ytl + centerY),
-                     ]
+                     (xtl + centerX, ytl + centerY)]
 
         pygame.draw.polygon(win, (0, 0, 0), pointlist)
 
@@ -158,7 +197,7 @@ class OutputSimulator:
             machineX = cutMachine.homeX + x
             machineY = y + self.padding
             machineHeight = 10
-            machineWidth = self.controller.xLength
+            machineWidth = self.currentFaceWidth
             pygame.draw.rect(win, (0, 1, 1),
                              (machineX, machineY, machineWidth, machineHeight))
 
@@ -190,8 +229,8 @@ class OutputSimulator:
         height = self.height
         width = self.width
         pygame.draw.rect(win, (0, 0, 0), (x, displayTop, width, height), 1)
-        faceWidth = int(self.controller.xLength)
-        faceHeight = int(self.controller.zLength)
+        faceWidth = int(self.currentFaceWidth)
+        faceHeight = int(self.currentFaceHeight)
         faceX = int(x + width / 2 - faceWidth / 2)
         faceY = int(displayTop + height / 2 - faceHeight / 2)
         pygame.draw.rect(win, (31, 142, 33), (faceX, faceY, faceWidth, faceHeight))
