@@ -4,6 +4,7 @@ from SubMachines.Mill import Mill
 from SubMachines.Lathe import Lathe
 from Commands.Command import Command
 from Simulators.MicrocontrollerSimulator import MicrocontrollerSimulator
+from Commands.CommandGenerator import CommandGenerator
 
 from support.supportMaps import statusMap
 
@@ -32,6 +33,7 @@ class Controller:
         self.drill = Drill(self)
         self.lathe = Lathe(self)
         self.mill = Mill(self)
+        self.commandGenerator = CommandGenerator(self)
 
         self.commandQueue = []
         self.currentCommand = None
@@ -123,7 +125,6 @@ class Controller:
     def getMicrocontrollerTargets(self):
         self.microcontrollerSimulator.update()
         return self.microcontrollerSimulator.targets
-
 
     def updateDirectionFaced(self):
 
