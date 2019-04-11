@@ -1,7 +1,7 @@
 from Commands.Command import Command
 
 class FlipCommand(Command):
-    def __init__(self, handler, position):
+    def __init__(self, handler, position, startSpeed=None, endSpeed=None):
         super().__init__()
         self.name = 'Flipping ' + position
         self.position = position
@@ -10,10 +10,13 @@ class FlipCommand(Command):
         else:
             self.handler = handler
 
+        # Set speeds
+        self.startSpeed = startSpeed if startSpeed is not None else configurationMap[handler.name.lower()]['flipSpeed']
+        self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
+
     def generateTargets(self):
         targets = {}
         handler = self.handler
-        speed = configurationMap[handler.name.lower()]['flipSpeed']
 
         self.targetValue = 0
         if self.position == 'up':
@@ -22,8 +25,8 @@ class FlipCommand(Command):
         name = handler.name.lower()
         targets[name] = {'flip': {
             'targetValue': self.targetValue,
-            'startSpeed': speed,
-            'endSpeed': speed,
+            'startSpeed': self.startSpeed,
+            'endSpeed': self.endSpeed,
             'status': statusMap['started']
             }
         }

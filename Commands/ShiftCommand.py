@@ -5,7 +5,7 @@ from support.supportMaps import statusMap
 from config import configurationMap
 
 class ShiftCommand(Command):
-    def __init__(self, cutMachine, horizontalDisplacement):
+    def __init__(self, cutMachine, horizontalDisplacement, startSpeed=None, endSpeed=None):
         super().__init__()
         self.name = "Shifting "+cutMachine.name
         self.horizontalDisplacement = horizontalDisplacement
@@ -14,6 +14,10 @@ class ShiftCommand(Command):
         else:
             self.cutMachine = cutMachine
 
+        # Set speeds
+        self.startSpeed = startSpeed if startSpeed is not None else configurationMap['handler']['railSpeed']
+        self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
+
     def generateTargets(self):
         targets = {}
         cutMachine = self.cutMachine
@@ -21,8 +25,8 @@ class ShiftCommand(Command):
 
         targets['handler'] = {'rail': {
             'targetValue': globalTargetX,
-            'startSpeed': configurationMap['handler']['railSpeed'],
-            'endSpeed': configurationMap['handler']['railSpeed'],
+            'startSpeed': self.startSpeed,
+            'endSpeed': self.endSpeed,
             'status': statusMap['started']
             }
         }

@@ -1,16 +1,5 @@
-import numpy as np
-
 from Controller import Controller
 from Simulators.OutputSimulator import OutputSimulator
-from Commands.SelectCutmachineCommand import SelectCutmachineCommand
-from Commands.SelectFaceCommand import SelectFaceCommand
-from Commands.RaiseCommand import RaiseCommand
-from Commands.ShiftCommand import ShiftCommand
-from Commands.PushCommand import PushCommand
-from Commands.SpinCommand import SpinCommand
-from Commands.CombinedCommand import CombinedCommand
-
-from config import configurationMap
 
 controller = Controller()
 
@@ -20,9 +9,8 @@ def main():
     controller.tick()
 
 
-    
-    # Commands go here
-    reshapeFrontM([(76.6, 20), (50, 30), (60, 30)])
+    ################ Commands go here ################
+    reshapeSideM([(76.6, 20), (50, 30), (60, 30)])
     lathe(30, 50, 40)
     drill('front', 0, 30, 10)
     drill('left', -30, 60, 10)
@@ -33,10 +21,9 @@ def main():
 
 
 
+    ################ End of Commands ################
+
     controller.commandGenerator.resetAll()
-    # end of commands
-
-
     outputSimulator = OutputSimulator(controller)
     outputSimulator.simulate()
 
@@ -63,13 +50,14 @@ def setMountFace(xLength, yLength, zLength):
     controller.setMountFace(xLength, yLength, zLength)
 
 def reshapeFrontM(widthHeightTuples):
-    controller.commandGenerator.reshapeFrontM(widthHeightTuples)
+    controller.commandGenerator.reshapeM(widthHeightTuples, 'front')
 
 def reshapeSideM(widthHeightTuples):
-    print("TODO: reshapeSideM")
+    controller.commandGenerator.reshapeM(widthHeightTuples, 'left')
 
 def reshapeTopM(xzMiddleTuples):
-    print("TODO: reshapeTopM")
+    # TODO fix to center vertically
+    controller.commandGenerator.reshapeM(xzMiddleTuples, 'top')
     
 def cutInCircle(face, x, z, radius, depth):
     print("TODO: cutInCircle")
@@ -86,7 +74,6 @@ def intrude(face, x0, x1, z0, z1, d0, d1, radius):
 def lathe(z0, z1, radius):
     controller.commandGenerator.lathe(z0, z1, radius)
 
-    
 def drill(face, x, z, depth):
     controller.commandGenerator.drill(face, x, z, depth)
 

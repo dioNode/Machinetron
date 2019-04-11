@@ -6,9 +6,13 @@ from support.supportMaps import statusMap
 from config import configurationMap
 
 class PushCommand(Command):
-    def __init__(self, cutMachine, depth, faceDepth, fromCenter=False, flipped=False):
+    def __init__(self, cutMachine, depth, faceDepth, fromCenter=False, flipped=False, startSpeed=None, endSpeed=None):
         super().__init__()
         self.name = "Pushing "+cutMachine.name
+
+        self.startSpeed = startSpeed if startSpeed is not None else configurationMap[cutMachine.name.lower()]['pushSpeed']
+        self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
+
         if depth != 0:
             if flipped:
                 offset2Face = configurationMap['offsets']['cuttingBit2HandlerFlipBase'] - faceDepth
@@ -31,13 +35,12 @@ class PushCommand(Command):
     def generateTargets(self):
         targets = {}
         cutMachine = self.cutMachine
-        speed = configurationMap[cutMachine.name.lower()]['raiseSpeed']
 
         name = cutMachine.name.lower()
         targets[name] = {'pen': {
             'targetValue': self.depth,
-            'startSpeed': speed,
-            'endSpeed': speed,
+            'startSpeed': self.startSpeed,
+            'endSpeed': self.endSpeed,
             'status': statusMap['started']
             }
         }

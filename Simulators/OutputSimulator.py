@@ -224,7 +224,7 @@ class OutputSimulator:
             pygame.draw.rect(win, (220, 220, 250), (x+1, y+1, width-2, self.commandHeight-2))
             textsurface = generalFont.render(currentCommand.name, False, (0, 0, 0))
             win.blit(textsurface, (x+3, y))
-        for commandNum in range(12):
+        for commandNum in range(min(12, len(commandQueue))):
             commandName = commandQueue[commandNum].name
             textsurface = generalFont.render(commandName, False, (0, 0, 0))
             win.blit(textsurface, (x+3, y + (commandNum + 1) * self.commandHeight))

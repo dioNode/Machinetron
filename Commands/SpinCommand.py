@@ -1,7 +1,7 @@
 from Commands.Command import Command
 
 class SpinCommand(Command):
-    def __init__(self, subMachine, targetValue=None):
+    def __init__(self, subMachine, targetValue=None, startSpeed=None, endSpeed=None):
         super().__init__()
         self.name = "Spinning "+subMachine.name
         self.targetValue = targetValue
@@ -10,10 +10,13 @@ class SpinCommand(Command):
         else:
             self.subMachine = subMachine
 
+        # Set speeds
+        self.startSpeed = startSpeed if startSpeed is not None else configurationMap[subMachine.name.lower()]['spinSpeed']
+        self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
+
     def generateTargets(self):
         targets = {}
         subMachine = self.subMachine
-        speed = configurationMap[subMachine.name.lower()]['spinSpeed']
 
         if self.targetValue != None:
             # Set target value relative to where the current angle is
@@ -26,8 +29,8 @@ class SpinCommand(Command):
         name = subMachine.name.lower()
         targets[name] = {'spin': {
             'targetValue': self.targetValue,
-            'startSpeed': speed,
-            'endSpeed': speed,
+            'startSpeed': self.startSpeed,
+            'endSpeed': self.endSpeed,
             'status': statusMap['started']
             }
         }

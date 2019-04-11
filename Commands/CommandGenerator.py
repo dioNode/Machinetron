@@ -14,27 +14,27 @@ class CommandGenerator:
     def __init__(self, controller):
         self.controller = controller
 
-    def reshapeFrontM(self, widthHeightTuples):
+    def reshapeM(self, widthHeightTuples, face):
         # Some useful variables to have
         controller = self.controller
-        currentHeight = 0
         millSpinCommand = SpinCommand(controller.mill)
         radius = configurationMap['mill']['diameter'] / 2
 
         # Get to initial positioning
         controller.addCommand(CombinedCommand([
-            SelectFaceCommand('front', controller.handler),
-            RaiseCommand(controller.mill, controller.zLength),
-            ShiftCommand(controller.mill, -controller.xLength / 2 - radius)
+            SelectFaceCommand(face, controller.handler),
+            RaiseCommand(controller.mill, controller.currentFaceHeight),
+            ShiftCommand(controller.mill, -controller.currentFaceWidth / 2 - radius)
         ], 'Setup initial position and face'))
 
         # Push into depth
         controller.addCommand(CombinedCommand([
-            PushCommand(controller.mill, controller.yLength, controller.currentFaceDepth),
+            PushCommand(controller.mill, controller.currentFaceDepth, controller.currentFaceDepth),
             millSpinCommand
         ]))
 
         # Go up left hand side
+        currentHeight = 0
         for tupleNum in range(len(widthHeightTuples)):
             widthHeightTuple = widthHeightTuples[tupleNum]
             width, height = widthHeightTuple
@@ -55,8 +55,8 @@ class CommandGenerator:
             controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
 
         # Go back down to bottom
-        controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, 0), millSpinCommand]))
-        controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
+        controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, controller.currentFaceHeight), millSpinCommand]))
+        controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth, startSpeed=2))
 
     def drill(self, face, x, z, depth):
         # Align to face

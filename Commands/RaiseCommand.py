@@ -5,7 +5,7 @@ from support.supportMaps import statusMap
 from config import configurationMap
 
 class RaiseCommand(Command):
-    def __init__(self, cutMachine, heightDisplacement):
+    def __init__(self, cutMachine, heightDisplacement, startSpeed=None, endSpeed=None):
         super().__init__()
         self.name = "Raising "+cutMachine.name
         self.heightDisplacement = heightDisplacement
@@ -14,16 +14,19 @@ class RaiseCommand(Command):
         else:
             self.cutMachine = cutMachine
 
+        # Set speeds
+        self.startSpeed = startSpeed if startSpeed is not None else configurationMap[cutMachine.name.lower()]['raiseSpeed']
+        self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
+
     def generateTargets(self):
         targets = {}
         cutMachine = self.cutMachine
-        speed = configurationMap[cutMachine.name.lower()]['raiseSpeed']
 
         name = cutMachine.name.lower()
         targets[name] = {'vert': {
             'targetValue': self.heightDisplacement,
-            'startSpeed': speed,
-            'endSpeed': speed,
+            'startSpeed': self.startSpeed,
+            'endSpeed': self.endSpeed,
             'status': statusMap['started']
             }
         }
