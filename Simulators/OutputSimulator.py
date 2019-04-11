@@ -184,13 +184,14 @@ class OutputSimulator:
 
         shade = 250 - cutMachines[i].penMotor.currentDisplacement
         shade = 20 if shade < 20 else shade
+        shade = 255 if shade >= 255 else shade
 
         circleColour = (shade, shade, shade)
 
-        if endeffactorLocationX < 0:
+        if endeffactorLocationX <= 0:
             endeffactorLocationX = 0
             circleColour = (200, 200, 200)
-        elif endeffactorLocationX > faceWidth:
+        elif endeffactorLocationX >= faceWidth:
             endeffactorLocationX = faceWidth
             circleColour = (200, 200, 200)
 
@@ -223,7 +224,7 @@ class OutputSimulator:
             pygame.draw.rect(win, (220, 220, 250), (x+1, y+1, width-2, self.commandHeight-2))
             textsurface = generalFont.render(currentCommand.name, False, (0, 0, 0))
             win.blit(textsurface, (x+3, y))
-        for commandNum in range(len(commandQueue)):
+        for commandNum in range(12):
             commandName = commandQueue[commandNum].name
             textsurface = generalFont.render(commandName, False, (0, 0, 0))
             win.blit(textsurface, (x+3, y + (commandNum + 1) * self.commandHeight))

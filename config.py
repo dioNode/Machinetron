@@ -6,7 +6,7 @@ configurationMap = {
         'railDPR': 0.1,
         'flipDPR': 0.5,
         'spinDPR': 2,
-    }, 'drill': {
+    }, 'drill': { # Location of lathe is measured relative to bottom
         'homeX': 100,
         'raiseSpeed': 20,
         'pushSpeed': 30,
@@ -26,6 +26,7 @@ configurationMap = {
         'spinDPR': 1,
         'length': 3,
         'depth': 60,
+        'pushIncrement': 5
     }, 'mill': {
         'homeX': 500,
         'raiseSpeed': 20,
@@ -36,5 +37,8 @@ configurationMap = {
         'spinDPR': 1,
         'diameter': 10,
         'depth': 60,
-    },
+    }, 'offsets': {
+        'cuttingBit2HandlerCenter': 70,
+        'cuttingBit2HandlerFlipBase': 140,
+    }
 }

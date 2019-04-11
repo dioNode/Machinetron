@@ -1,3 +1,5 @@
+import numpy as np
+
 from Controller import Controller
 from Simulators.OutputSimulator import OutputSimulator
 from Commands.SelectCutmachineCommand import SelectCutmachineCommand
@@ -13,8 +15,11 @@ from config import configurationMap
 controller = Controller()
 
 def main():
-    
     setMountFace(76.6, 110, 80)
+    controller.start()
+    controller.tick()
+
+
     
     # Commands go here
     lathe(30, 50, 40)
@@ -32,9 +37,10 @@ def main():
     # end of commands
 
 
-    controller.start()
     outputSimulator = OutputSimulator(controller)
     outputSimulator.simulate()
+
+
 
     while True:
         controller.tick()
@@ -71,7 +77,7 @@ def reshapeFrontM(widthHeightTuples):
 
     # Push into depth
     controller.addCommand(CombinedCommand([
-        PushCommand(controller.mill, controller.yLength),
+        PushCommand(controller.mill, controller.yLength, controller.currentFaceDepth),
         millSpinCommand
     ]))
 
@@ -97,7 +103,7 @@ def reshapeFrontM(widthHeightTuples):
 
     # Go back down to bottom
     controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, 0), millSpinCommand]))
-    controller.addCommand(PushCommand(controller.mill, 0))
+    controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
 
 def reshapeSideM(widthHeightTuples):
     print("TODO: reshapeSideM")
@@ -118,8 +124,47 @@ def intrude(face, x0, x1, z0, z1, d0, d1, radius):
     print("TODO: intrude")
     
 def lathe(z0, z1, radius):
+    if z0 > z1:
+        zBot = controller.currentFaceHeight - z1
+        zTop = controller.currentFaceHeight - z0
+    else:
+        zBot = controller.currentFaceHeight - z0
+        zTop = controller.currentFaceHeight - z1
+
+    # Offset to account for lathe length
+    latheLength = configurationMap['lathe']['length']
+    zTop += latheLength
+
+    pushIncrement = configurationMap['lathe']['pushIncrement']
     handlerSpinCommand = SpinCommand(controller.handler)
-    
+    # Set starting positions
+    controller.addCommand(CombinedCommand([
+        SpinCommand(controller.handler, 0),
+        RaiseCommand(controller.lathe, 0),
+        ShiftCommand(controller.lathe, 0),
+    ]))
+    controller.addCommand(RaiseCommand(controller.lathe, zTop))
+
+    # Start lathing
+    maxRadius = max(controller.currentFaceDepth, controller.currentFaceWidth) / 2
+    for currentRadius in np.arange(maxRadius, radius, -pushIncrement):
+        # Push in
+        controller.addCommand(CombinedCommand([
+            PushCommand(controller.lathe, currentRadius, controller.currentFaceDepth, True),
+            handlerSpinCommand
+        ], 'Push Lathe in'))
+        # Go down
+        controller.addCommand(CombinedCommand([
+            RaiseCommand(controller.lathe, zBot),
+            handlerSpinCommand
+        ], 'Lathe Down'))
+        # Back up
+        controller.addCommand(CombinedCommand([
+            RaiseCommand(controller.lathe, zTop),
+            handlerSpinCommand
+        ], 'Lathe Up'))
+
+    resetAll()
 
     
 def drill(face, x, z, depth):
@@ -130,18 +175,18 @@ def drill(face, x, z, depth):
         RaiseCommand(controller.drill, z)], 'Align Drill'))
     # Drill in
     controller.addCommand(CombinedCommand([
-        PushCommand(controller.drill, depth),
+        PushCommand(controller.drill, depth, controller.currentFaceDepth),
         SpinCommand(controller.drill)
     ], 'Drill In'))
     # Pull drill out
-    controller.addCommand(PushCommand(controller.drill, 0))
+    controller.addCommand(PushCommand(controller.drill, 0, controller.currentFaceDepth))
 
 def resetAll():
     # Remove all potential cutting bits from workpiece
     controller.addCommand(CombinedCommand([
-        PushCommand(controller.drill, 0),
-        PushCommand(controller.mill, 0),
-        PushCommand(controller.lathe, 0),
+        PushCommand(controller.drill, 0, controller.currentFaceDepth),
+        PushCommand(controller.mill, 0, controller.currentFaceDepth),
+        PushCommand(controller.lathe, 0, controller.currentFaceDepth),
         SpinCommand(controller.drill, 0),
         SpinCommand(controller.mill, 0),
         SpinCommand(controller.lathe, 0),
