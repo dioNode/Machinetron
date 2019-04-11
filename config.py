@@ -7,7 +7,7 @@ configurationMap = {
         'flipDPR': 0.5,
         'spinDPR': 2,
     }, 'drill': {
-        'homeX': 0,
+        'homeX': 100,
         'raiseSpeed': 20,
         'pushSpeed': 30,
         'spinSpeed': 500,
@@ -17,7 +17,7 @@ configurationMap = {
         'diameter': 6,
         'depth': 80,
     }, 'lathe': {
-        'homeX': 200,
+        'homeX': 300,
         'raiseSpeed': 20,
         'pushSpeed': 30,
         'spinSpeed': 0,
@@ -27,7 +27,7 @@ configurationMap = {
         'length': 3,
         'depth': 60,
     }, 'mill': {
-        'homeX': 400,
+        'homeX': 500,
         'raiseSpeed': 20,
         'pushSpeed': 30,
         'spinSpeed': 500,

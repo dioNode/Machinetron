@@ -8,6 +8,8 @@ from Commands.PushCommand import PushCommand
 from Commands.SpinCommand import SpinCommand
 from Commands.CombinedCommand import CombinedCommand
 
+from config import configurationMap
+
 controller = Controller()
 
 def main():
@@ -15,10 +17,10 @@ def main():
     setMountFace(76.6, 110, 80)
     
     # Commands go here
-
+    lathe(30, 50, 40)
+    drill('front', 0, 30, 10)
+    drill('left', -30, 60, 10)
     reshapeFrontM([(76.6, 20), (50, 30), (60, 30)])
-    drill('front', 30, 30, 10)
-    drill('front', 30, 60, 10)
 
 
 
@@ -55,17 +57,22 @@ def setMountFace(xLength, yLength, zLength):
     controller.setMountFace(xLength, yLength, zLength)
 
 def reshapeFrontM(widthHeightTuples):
-    # Get to initial positioning
-    controller.addCommand(SelectCutmachineCommand(controller.mill))
-    controller.addCommand(RaiseCommand(controller.mill, controller.zLength))
-    controller.addCommand(ShiftCommand(controller.mill, 0))
+    # Some useful variables to have
     currentHeight = 0
     millSpinCommand = SpinCommand(controller.mill)
+    radius = configurationMap['mill']['diameter'] / 2
+
+    # Get to initial positioning
+    controller.addCommand(CombinedCommand([
+        SelectFaceCommand('front', controller.handler),
+        RaiseCommand(controller.mill, controller.zLength),
+        ShiftCommand(controller.mill, -controller.xLength/2 - radius)
+    ], 'Setup initial position and face'))
 
     # Push into depth
     controller.addCommand(CombinedCommand([
         PushCommand(controller.mill, controller.yLength),
-        SpinCommand(controller.mill)
+        millSpinCommand
     ]))
 
     # Go up left hand side
@@ -73,8 +80,8 @@ def reshapeFrontM(widthHeightTuples):
         widthHeightTuple = widthHeightTuples[tupleNum]
         width, height = widthHeightTuple
         currentHeight += height
-        x = controller.xLength / 2 - width / 2
-        z = controller.zLength - currentHeight
+        x = -width / 2 - radius
+        z = controller.zLength - currentHeight - radius
         controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, x), millSpinCommand]))
         controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
 
@@ -83,11 +90,13 @@ def reshapeFrontM(widthHeightTuples):
         widthHeightTuple = widthHeightTuples[tupleNum]
         width, height = widthHeightTuple
         currentHeight -= height
-        x = controller.xLength / 2 + width / 2
-        z = controller.zLength - currentHeight
+        x = width / 2 + radius
+        z = controller.zLength - currentHeight - radius
         controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, x), millSpinCommand]))
         controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
 
+    # Go back down to bottom
+    controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, 0), millSpinCommand]))
     controller.addCommand(PushCommand(controller.mill, 0))
 
 def reshapeSideM(widthHeightTuples):
@@ -109,7 +118,9 @@ def intrude(face, x0, x1, z0, z1, d0, d1, radius):
     print("TODO: intrude")
     
 def lathe(z0, z1, radius):
-    print("TODO: lathe")
+    handlerSpinCommand = SpinCommand(controller.handler)
+    
+
     
 def drill(face, x, z, depth):
     # Align to face

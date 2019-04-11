@@ -118,7 +118,6 @@ class OutputSimulator:
         centerY = y + height/2 + self.padding/2 + length/2
         cornerAngle = math.atan(handHeight/handWidth)
         spinDiagAngle = math.radians(self.controller.handler.spinMotor.currentDisplacement)
-        flipAngle = math.radians(self.controller.handler.flipMotor.currentDisplacement)
 
         # These angles are with reference to horizontal but shouldn't matter
         xtr = mag * math.cos(cornerAngle + spinDiagAngle)
@@ -139,7 +138,7 @@ class OutputSimulator:
 
         # CutMachines display to show their location relative to Handler
         for cutMachine in cutMachines:
-            machineX = cutMachine.homeX + x
+            machineX = cutMachine.homeX + x - self.controller.currentFaceWidth/2
             machineY = y + self.padding
             machineHeight = 10
             machineWidth = self.controller.currentFaceWidth
@@ -181,7 +180,7 @@ class OutputSimulator:
         pygame.draw.rect(win, (31, 142, 33), (faceX, faceY, faceWidth, faceHeight))
         handlerX = self.controller.handler.railMotor.currentDisplacement
 
-        endeffactorLocationX = int(handlerX - cutMachines[i].homeX)
+        endeffactorLocationX = int(handlerX - cutMachines[i].homeX + self.controller.currentFaceWidth/2)
 
         shade = 250 - cutMachines[i].penMotor.currentDisplacement
         shade = 20 if shade < 20 else shade
