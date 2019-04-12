@@ -29,6 +29,7 @@ class MicrocontrollerSimulator:
             },
         }
 
+        self.speeds = {}
         self.targets = {}
 
     def displaceActuator(self, submachine, motor, displacement):
@@ -58,15 +59,38 @@ class MicrocontrollerSimulator:
             for motor, values in motors.items():
                 currentValue = self.results[submachine][motor]
                 targetValue = values['targetValue']
-                # Need to change to accommodate variable speed
-                speed = values['startSpeed']
-                displacement = speed * deltaTime
+                startSpeed = values['startSpeed']
+                endSpeed = values['endSpeed']
+
+                displacement = deltaTime * startSpeed
+                # self.results[submachine][motor] = displacement
+
 
                 if targetValue == None:
                     # Spinning motor no end
+
                     newValue = (currentValue + displacement)
                     self.targets[submachine][motor]['status'] = statusMap['complete']
                 else:
+                    if targetValue - currentValue == 0:
+                        accel = 0
+                    else:
+                        accel = (pow(endSpeed, 2) - pow(startSpeed, 2)) / (2 * (targetValue - currentValue))
+
+                    # Adjust speed and acceleration
+                    if self.speeds.get(submachine) is None:
+                        self.speeds[submachine] = {motor: startSpeed}
+                    else:
+                        if self.speeds.get(submachine).get(motor) is None:
+                            self.speeds[submachine][motor] = startSpeed
+
+                    prevSpeed = self.speeds[submachine][motor]
+                    newSpeed = prevSpeed + accel * deltaTime
+                    self.speeds[submachine][motor] = newSpeed
+
+                    # s = ut + 0.5at^2
+                    displacement = prevSpeed * deltaTime + 0.5 * accel * pow(deltaTime, 2)
+
                     # Displacement motor
                     if abs(targetValue - currentValue) <= displacement:
                         # You've reached the target

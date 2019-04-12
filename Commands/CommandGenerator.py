@@ -24,7 +24,7 @@ class CommandGenerator:
         controller.addCommand(CombinedCommand([
             SelectFaceCommand(face, controller.handler),
             RaiseCommand(controller.mill, controller.currentFaceHeight),
-            ShiftCommand(controller.mill, -controller.currentFaceWidth / 2 - radius)
+            ShiftCommand(controller.mill, -controller.currentFaceWidth / 2 - radius, startSpeed=10, endSpeed=100)
         ], 'Setup initial position and face'))
 
         # Push into depth
@@ -56,7 +56,7 @@ class CommandGenerator:
 
         # Go back down to bottom
         controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, controller.currentFaceHeight), millSpinCommand]))
-        controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth, startSpeed=2))
+        controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
 
     def drill(self, face, x, z, depth):
         # Align to face

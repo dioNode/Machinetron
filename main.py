@@ -10,6 +10,7 @@ def main():
 
 
     ################ Commands go here ################
+
     reshapeSideM([(76.6, 20), (50, 30), (60, 30)])
     lathe(30, 50, 40)
     drill('front', 0, 30, 10)
