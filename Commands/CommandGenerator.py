@@ -24,7 +24,7 @@ class CommandGenerator:
         controller.addCommand(CombinedCommand([
             SelectFaceCommand(face, controller.handler),
             RaiseCommand(controller.mill, controller.currentFaceHeight),
-            ShiftCommand(controller.mill, -controller.currentFaceWidth / 2 - radius, startSpeed=10, endSpeed=100)
+            ShiftCommand(controller.mill, -controller.currentFaceWidth / 2 - radius, startSpeed=100, endSpeed=10)
         ], 'Setup initial position and face'))
 
         # Push into depth

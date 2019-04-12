@@ -83,10 +83,10 @@ class Controller:
             print("Throw not a command exception")
 
     def startNextCommand(self):
+        self.microcontrollerSimulator.clearTargets()
         if not self.commandQueue:
             # Command queue is empty
             self.currentCommand = None
-            self.microcontrollerSimulator.clearTargets()
         else:
             self.currentCommand = self.commandQueue.pop(0)
             self.startExecuteCurrentCommand()

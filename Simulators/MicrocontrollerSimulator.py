@@ -30,6 +30,7 @@ class MicrocontrollerSimulator:
         }
 
         self.speeds = {}
+        self.accel = {}
         self.targets = {}
 
     def displaceActuator(self, submachine, motor, displacement):
@@ -50,6 +51,8 @@ class MicrocontrollerSimulator:
 
     def clearTargets(self):
         self.targets = {}
+        self.accel = {}
+        self.speeds = {}
 
     def update(self):
         newTime = datetime.datetime.now()
@@ -80,10 +83,13 @@ class MicrocontrollerSimulator:
                     # Adjust speed and acceleration
                     if self.speeds.get(submachine) is None:
                         self.speeds[submachine] = {motor: startSpeed}
+                        self.accel[submachine] = {motor: accel}
                     else:
                         if self.speeds.get(submachine).get(motor) is None:
                             self.speeds[submachine][motor] = startSpeed
+                            self.accel[submachine][motor] = accel
 
+                    accel = self.accel[submachine][motor]
                     prevSpeed = self.speeds[submachine][motor]
                     newSpeed = prevSpeed + accel * deltaTime
                     self.speeds[submachine][motor] = newSpeed
