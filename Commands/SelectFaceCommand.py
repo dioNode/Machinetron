@@ -7,11 +7,12 @@ from support.supportMaps import statusMap, faceMap
 from config import configurationMap
 
 class SelectFaceCommand(Command):
-    def __init__(self, face, handler):
+    def __init__(self, face, controller):
         super().__init__()
         self.name = 'Selecting ' + face + ' face'
-        self.handler = handler
+        self.handler = controller.handler
         self.face = face
+        controller.setFace(face)
 
     def generateTargets(self):
         face = self.face

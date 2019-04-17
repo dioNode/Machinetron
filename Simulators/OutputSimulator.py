@@ -1,4 +1,5 @@
 from Controller import Controller
+from config import configurationMap
 import pygame
 import math
 
@@ -198,13 +199,21 @@ class OutputSimulator:
         endeffactorLocationX += faceX
 
         endeffactorLocationY = endeffactorLocations[i][1] + int(faceY)
-        pointRadius = 5
-        angle = math.radians(cutMachines[i].spinMotor.currentDisplacement)
-        deltaX = pointRadius * math.cos(angle)
-        deltaY = pointRadius * math.sin(angle)
-        pygame.draw.circle(win, circleColour, (endeffactorLocationX, endeffactorLocationY), pointRadius)
-        pygame.draw.line(win, (0, 0, 0), (endeffactorLocationX, endeffactorLocationY),
-                         (endeffactorLocationX + deltaX, endeffactorLocationY + deltaY))
+        machineName = cutMachines[i].name.lower()
+        if machineName != 'lathe':
+            pointRadius = round(configurationMap[machineName]['diameter'] / 2)
+            angle = math.radians(cutMachines[i].spinMotor.currentDisplacement)
+            deltaX = pointRadius * math.cos(angle)
+            deltaY = pointRadius * math.sin(angle)
+            pygame.draw.circle(win, circleColour, (endeffactorLocationX, endeffactorLocationY), pointRadius)
+            pygame.draw.line(win, (0, 0, 0), (endeffactorLocationX, endeffactorLocationY),
+                             (endeffactorLocationX + deltaX, endeffactorLocationY + deltaY))
+        else:
+            cutHeight = configurationMap[machineName]['length']
+            cutWidth = 2
+            pygame.draw.rect(win, circleColour, (endeffactorLocationX - cutWidth/2, endeffactorLocationY - cutHeight,
+                                                 cutWidth, cutHeight))
+
 
     def updateCommandsDisplay(self):
         currentCommand = self.controller.currentCommand

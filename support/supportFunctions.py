@@ -47,3 +47,8 @@ def dict_merge(dct, merge_dct):
             dict_merge(dct[k], merge_dct[k])
         else:
             dct[k] = merge_dct[k]
+
+
+def getLinearVelocityTime(u, v, s):
+    t = (s - 0.5*(v-u))/u
+    return t

@@ -89,9 +89,15 @@ class MicrocontrollerSimulator:
                             self.speeds[submachine][motor] = startSpeed
                             self.accel[submachine][motor] = accel
 
+
                     accel = self.accel[submachine][motor]
                     prevSpeed = self.speeds[submachine][motor]
                     newSpeed = prevSpeed + accel * deltaTime
+
+                    # Account for overaccelerating
+                    if accel > 0 and newSpeed > endSpeed or accel < 0 and newSpeed < endSpeed:
+                        newSpeed = endSpeed
+
                     self.speeds[submachine][motor] = newSpeed
 
                     # s = ut + 0.5at^2

@@ -126,6 +126,31 @@ class Controller:
         self.microcontrollerSimulator.update()
         return self.microcontrollerSimulator.targets
 
+    def setFace(self, face):
+        xLength = self.xLength
+        yLength = self.yLength
+        zLength = self.zLength
+        if face == 'front':
+            self.currentFaceWidth = xLength
+            self.currentFaceDepth = yLength
+            self.currentFaceHeight = zLength
+        elif face == 'right':
+            self.currentFaceWidth = yLength
+            self.currentFaceDepth = xLength
+            self.currentFaceHeight = zLength
+        elif face == 'back':
+            self.currentFaceWidth = xLength
+            self.currentFaceDepth = yLength
+            self.currentFaceHeight = zLength
+        elif face == 'left':
+            self.currentFaceWidth = yLength
+            self.currentFaceDepth = xLength
+            self.currentFaceHeight = zLength
+        elif face == 'top':
+            self.currentFaceWidth = xLength
+            self.currentFaceHeight = yLength
+            self.currentFaceDepth = zLength
+
     def updateDirectionFaced(self):
 
         spinAngle = self.handler.spinMotor.currentDisplacement % 360
@@ -137,23 +162,18 @@ class Controller:
 
         if flipAngle == 0:
             # Handler is down
-            self.currentFaceHeight = zLength
             if spinAngle == 0:
                 # Facing front
-                self.currentFaceWidth = xLength
-                self.currentFaceDepth = yLength
+                self.setFace('front')
             elif spinAngle == 90:
                 # Facing right
-                self.currentFaceWidth = yLength
-                self.currentFaceDepth = xLength
+                self.setFace('right')
             elif spinAngle == 180:
-                # Facing right
-                self.currentFaceWidth = xLength
-                self.currentFaceDepth = yLength
+                # Facing back
+                self.setFace('back')
             elif spinAngle == 270:
-                # Facing right
-                self.currentFaceWidth = yLength
-                self.currentFaceDepth = xLength
+                # Facing left
+                self.setFace('left')
         elif flipAngle == 90:
             # Handler is up
             self.currentFaceDepth = zLength
