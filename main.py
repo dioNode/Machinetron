@@ -1,6 +1,5 @@
 from Controller import Controller
 from Simulators.OutputSimulator import OutputSimulator
-from config import configurationMap
 
 controller = Controller()
 
@@ -11,24 +10,16 @@ def main():
 
 
     ################ Commands go here ################
-    # reshapeSideM([(76.6, 20), (50, 30), (60, 30)])
-    # fillet('front', 20, 20, 20, 1, 10)
-    # cutInCircle('front', 0, 30, 30, 20)
-    # lathe(30, 50, 40)
-    # drill('front', 0, 30, 10)
-    # drill('left', -30, 60, 10)
 
+    intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 36)
 
-
-
-    lathe(50, 80, 25)
-    drill('front', -20, 25, 50)
-    drill('front', 20, 25, 50)
-    cutInCircle('top', 0, 40, 25, 40)
-    fillet('top', -38.3, 0, 10, 3, 30)
-    fillet('top', -38.3, 80, 10, 2, 30)
-    fillet('top', 38.3, 0, 10, 4, 30)
-    fillet('top', 38.3, 80, 10, 1, 30)
+    # lathe(50, 80, 25)
+    # drill('front', -20, 25, 50)
+    # drill('front', 20, 25, 50)
+    # cutInCircle('top', 0, 40, 25, 40)
+    # fillet('top', -38.3, 0, 10, 3, 30)
+    # fillet('top', -38.3, 80, 10, 2, 30)
+    # fillet('top', 38.3, 0, 10, 4, 30)
 
 
 
@@ -38,6 +29,7 @@ def main():
     ################ End of Commands ################
 
     controller.commandGenerator.resetAll()
+    controller.setFace('front')
     outputSimulator = OutputSimulator(controller)
     outputSimulator.simulate()
 
@@ -90,7 +82,7 @@ def fillet(face, x, z, radius, quadrant, depth):
 
 
 def intrude(face, x0, x1, z0, z1, d0, d1, radius):
-    print("TODO: intrude")
+    controller.commandGenerator.intrude(face, x0, x1, z0, z1, d0, d1, radius)
 
 
 def lathe(z0, z1, radius):

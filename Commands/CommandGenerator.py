@@ -63,7 +63,8 @@ class CommandGenerator:
     def drill(self, face, x, z, depth):
         # Align to face
         controller = self.controller
-        controller.addCommand(SelectFaceCommand(face, controller))
+        z = controller.currentFaceHeight - z
+        self.selectFace(face)
         controller.addCommand(CombinedCommand([
             ShiftCommand(controller.drill, x),
             RaiseCommand(controller.drill, z)], 'Align Drill'))
@@ -141,7 +142,7 @@ class CommandGenerator:
 
     def millArcDiscrete(self, face, x, z, radius, depth, startAngle, endAngle):
         # Set starting location
-        self.controller.addCommand(SelectFaceCommand(face, self.controller))
+        self.selectFace(face)
         # Start with top right quadrant
         actualZ = self.controller.currentFaceHeight - z
         angle = startAngle
@@ -166,14 +167,17 @@ class CommandGenerator:
                 ShiftCommand(self.controller.mill, currentX),
                 RaiseCommand(self.controller.mill, currentZ),
             ]))
+        angle = endAngle
+        currentX = x + radius * math.cos(angle)
+        currentZ = actualZ + radius * math.sin(angle)
         self.controller.addCommand(CombinedCommand([
             SpinCommand(self.controller.mill),
-            ShiftCommand(self.controller.mill, x + radius),
-            RaiseCommand(self.controller.mill, actualZ),
+            ShiftCommand(self.controller.mill, currentX),
+            RaiseCommand(self.controller.mill, currentZ),
         ]))
 
     def cutInCircle(self, face, x, z, radius, depth):
-        self.controller.addCommand(SelectFaceCommand(face, self.controller))
+        self.selectFace(face)
         millRadius = configurationMap['mill']['diameter'] / 2
         # Go through and cut out from inner to out
         for r in np.arange(millRadius, radius-millRadius, millRadius*2):
@@ -240,20 +244,30 @@ class CommandGenerator:
         if quadrant == 1:
             startAngle = 3*math.pi/2
             endAngle = 2*math.pi
+            x -= radius
+            z -= radius
         elif quadrant == 2:
-            startAngle = 2*math.pi
+            startAngle = math.pi
             endAngle = 3*math.pi/2
+            x += radius
+            z -= radius
         elif quadrant == 3:
             startAngle = math.pi/2
-            endAngle = 2*math.pi
+            endAngle = math.pi
+            x += radius
+            z += radius
         elif quadrant == 4:
             startAngle = 0
             endAngle = math.pi/2
+            x -= radius
+            z += radius
         else:
             print('Quadrant not valid')
             startAngle = 0
             endAngle = 0
+        radius += configurationMap['mill']['diameter']/2
         self.millArcDiscrete(face, x, z, radius, depth, startAngle, endAngle)
+        self.retractMill()
 
     def retractMill(self):
         self.controller.addCommand(PushCommand(self.controller.mill, 0, self.controller.currentFaceDepth))
@@ -269,3 +283,79 @@ class CommandGenerator:
 
     def selectFace(self, face):
         self.controller.addCommand(SelectFaceCommand(face, self.controller))
+
+    def moveTo(self, cutMachine, x, z, d, face=None):
+        moveCommand = CombinedCommand([
+            ShiftCommand(cutMachine, x),
+            RaiseCommand(cutMachine, z),
+            PushCommand(cutMachine, d, self.controller.currentFaceDepth)
+        ])
+        if face is not None:
+            moveCommand = CombinedCommand([
+                moveCommand,
+                SelectFaceCommand(face, self.controller)
+            ])
+        self.controller.addCommand(moveCommand)
+
+    def intrude(self, face, x0, x1, z0, z1, d0, d1, radius):
+        self.selectFace(face)
+        controller = self.controller
+        if z0 > z1:
+            zLow = controller.currentFaceHeight - z1
+            zHigh = controller.currentFaceHeight - z0
+            xLow = x1
+            xHigh = x0
+            dLow = d1
+            dHigh = d0
+        else:
+            zLow = controller.currentFaceHeight - z0
+            zHigh = controller.currentFaceHeight - z1
+            xLow = x0
+            xHigh = x1
+            dLow = d0
+            dHigh = d1
+        millRadius = configurationMap['mill']['diameter']/2
+        r = radius-millRadius
+        # Start at top left
+        self.moveTo(controller.mill, xHigh - r, zHigh, 0)
+        # Push in
+        self.controller.addCommand(self.getSpinningPushCommand(controller.mill, dHigh))
+        for r in np.arange(radius-millRadius, 0, -millRadius*2):
+            # Half circle around to right hand side
+            self.millArcDiscrete(face, xHigh, self.controller.currentFaceHeight - zHigh, r, d0, math.pi, 2*math.pi)
+            # Move down to bottom right
+            self.controller.addCommand(CombinedCommand([
+                SpinCommand(controller.mill),
+                RaiseCommand(controller.mill, zLow)
+            ]))
+            # Half circle around to left hand side
+            self.millArcDiscrete(face, xLow, self.controller.currentFaceHeight - zLow, r, d0, 0, math.pi)
+            # Move up to top left
+            self.controller.addCommand(CombinedCommand([
+                SpinCommand(controller.mill),
+                RaiseCommand(controller.mill, zHigh)
+            ]))
+        # Do again for final range
+        r = radius % millRadius
+        # Half circle around to right hand side
+        self.millArcDiscrete(face, xHigh, self.controller.currentFaceHeight - zHigh, r, d0, math.pi, 2 * math.pi)
+        # Move down to bottom right
+        self.controller.addCommand(CombinedCommand([
+            SpinCommand(controller.mill),
+            RaiseCommand(controller.mill, zLow)
+        ]))
+        # Half circle around to left hand side
+        self.millArcDiscrete(face, xLow, self.controller.currentFaceHeight - zLow, r, d0, 0, math.pi)
+        # Move up to top left
+        self.controller.addCommand(CombinedCommand([
+            SpinCommand(controller.mill),
+            RaiseCommand(controller.mill, zHigh)
+        ]))
+        self.retractMill()
+
+    def getSpinningPushCommand(self, cutMachine, d):
+        return CombinedCommand([
+            PushCommand(cutMachine, d, self.controller.currentFaceDepth),
+            SpinCommand(cutMachine)
+        ])
+

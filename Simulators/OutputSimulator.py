@@ -189,11 +189,13 @@ class OutputSimulator:
 
         circleColour = (shade, shade, shade)
 
-        if endeffactorLocationX <= 0:
-            endeffactorLocationX = 0
+        offset = 10
+
+        if endeffactorLocationX <= -offset:
+            endeffactorLocationX = -offset
             circleColour = (200, 200, 200)
-        elif endeffactorLocationX >= faceWidth:
-            endeffactorLocationX = faceWidth
+        elif endeffactorLocationX >= faceWidth + offset:
+            endeffactorLocationX = faceWidth + offset
             circleColour = (200, 200, 200)
 
         endeffactorLocationX += faceX
