@@ -40,5 +40,7 @@ configurationMap = {
     }, 'offsets': {
         'cuttingBit2HandlerCenter': 70,
         'cuttingBit2HandlerFlipBase': 140,
+    }, 'coordination': {
+        'speed': 20,
     }
 }

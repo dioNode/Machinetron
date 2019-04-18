@@ -302,40 +302,60 @@ class CommandGenerator:
         controller = self.controller
         if z0 > z1:
             zLow = controller.currentFaceHeight - z1
-            zHigh = controller.currentFaceHeight - z0
             xLow = x1
-            xHigh = x0
             dLow = d1
+            zHigh = controller.currentFaceHeight - z0
+            xHigh = x0
             dHigh = d0
         else:
             zLow = controller.currentFaceHeight - z0
-            zHigh = controller.currentFaceHeight - z1
             xLow = x0
-            xHigh = x1
             dLow = d0
+            zHigh = controller.currentFaceHeight - z1
+            xHigh = x1
             dHigh = d1
         millRadius = configurationMap['mill']['diameter']/2
+        speed = configurationMap['coordination']['speed']
+        # Calculate speed coordinations
+        xDiff = abs(x1 - x0)
+        zDiff = abs(z1 - z0)
+        dDiff = abs(d1 - d0)
+        maxDiff = max([xDiff, zDiff, dDiff])
+        xSpeed = speed * xDiff / maxDiff if xDiff != 0 else 1
+        zSpeed = speed * zDiff / maxDiff if zDiff != 0 else 1
+        dSpeed = speed * dDiff / maxDiff if dDiff != 0 else 1
+
+        # print(zHigh-zLow, xHigh-xLow)
+        print(xDiff, zDiff)
+        tiltAngle = np.arctan2(zHigh-zLow, xHigh-xLow) + np.pi/2
+        print('tiltANgle', tiltAngle)
         r = radius-millRadius
         if r < 0:
             print('WARNING intrude radius too small')
         # Start at top left
-        self.moveTo(controller.mill, xHigh - r, zHigh, 0)
+        self.moveTo(controller.mill, xHigh - r*np.cos(tiltAngle), zHigh - r*np.sin(tiltAngle), 0)
         # Push in
         self.controller.addCommand(self.getSpinningPushCommand(controller.mill, dHigh))
         for r in np.arange(radius-millRadius, 0, -millRadius*2):
             # Half circle around to right hand side
-            self.millArcDiscrete(face, xHigh, self.controller.currentFaceHeight - zHigh, r, d0, math.pi, 2*math.pi)
+            self.millArcDiscrete(face, xHigh, self.controller.currentFaceHeight - zHigh, r, dHigh,
+                                 math.pi + tiltAngle, 2*math.pi + tiltAngle)
             # Move down to bottom right
             self.controller.addCommand(CombinedCommand([
                 SpinCommand(controller.mill),
-                RaiseCommand(controller.mill, zLow)
+                RaiseCommand(controller.mill, zLow + r*np.sin(tiltAngle), startSpeed=zSpeed),
+                ShiftCommand(controller.mill, xLow + r*np.cos(tiltAngle), startSpeed=xSpeed),
+                PushCommand(controller.mill, dLow, controller.currentFaceDepth, startSpeed=dSpeed)
             ]))
             # Half circle around to left hand side
-            self.millArcDiscrete(face, xLow, self.controller.currentFaceHeight - zLow, r, d0, 0, math.pi)
+            self.millArcDiscrete(face, xLow, self.controller.currentFaceHeight - zLow, r,
+                                 dLow, 0 + tiltAngle, math.pi + tiltAngle)
             # Move up to top left
             self.controller.addCommand(CombinedCommand([
                 SpinCommand(controller.mill),
-                RaiseCommand(controller.mill, zHigh)
+                RaiseCommand(controller.mill, zHigh - r*np.sin(tiltAngle), startSpeed=zSpeed),
+                ShiftCommand(controller.mill, xHigh - r*np.cos(tiltAngle), startSpeed=xSpeed),
+                PushCommand(controller.mill, dHigh, controller.currentFaceDepth, startSpeed=dSpeed)
             ]))
         self.retractMill()
 
