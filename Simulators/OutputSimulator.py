@@ -5,6 +5,11 @@ import math
 
 class OutputSimulator:
     def __init__(self, controller):
+        # Window variables
+        self.carryOn = True
+        self.clock = pygame.time.Clock()
+
+        # Dimension parameters
         self.width = 150
         self.height = 150
         self.padding = 50
@@ -34,30 +39,37 @@ class OutputSimulator:
 
 
     def update(self):
-        # Clear canvas
-        win = self.win
-        win.fill((255, 255, 255))
+        if self.carryOn:
+            # Check events
+            for event in pygame.event.get():  # User did something
+                if event.type == pygame.QUIT:  # If user clicked close
+                    self.carryOn = False  # Flag that we are done so we exit this loop
 
-        # Variables
-        motorDisplayTop = self.motorDisplayTop
-        displayTop = self.endeffactorDisplayTop
-        controller = self.controller
-        cutMachines = [controller.drill, controller.lathe, controller.mill]
+            # Clear canvas
+            win = self.win
+            win.fill((255, 255, 255))
 
-        # Display stuff
-        for i in range(3):
-            x = self.padding + i * (self.padding + self.width)
-            # Draw border rectangle
-            self.updateEndeffactorDisplays(cutMachines, displayTop, i, x)
-            # Draw motor angles
-            self.updateMotorDisplay(cutMachines, i, motorDisplayTop, x)
+            # Variables
+            motorDisplayTop = self.motorDisplayTop
+            displayTop = self.endeffactorDisplayTop
+            controller = self.controller
+            cutMachines = [controller.drill, controller.lathe, controller.mill]
 
-        self.updateHandlerDisplay(cutMachines)
+            # Display stuff
+            for i in range(3):
+                x = self.padding + i * (self.padding + self.width)
+                # Draw border rectangle
+                self.updateEndeffactorDisplays(cutMachines, displayTop, i, x)
+                # Draw motor angles
+                self.updateMotorDisplay(cutMachines, i, motorDisplayTop, x)
 
-        self.updateCommandsDisplay()
+            self.updateHandlerDisplay(cutMachines)
 
-        pygame.display.update()
+            self.updateCommandsDisplay()
 
+            pygame.display.update()
+        else:
+            pygame.quit()
 
     def getEndeffactorLocations(self, cutMachines):
         endeffactorLocations = []

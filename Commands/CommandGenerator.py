@@ -316,6 +316,8 @@ class CommandGenerator:
             dHigh = d1
         millRadius = configurationMap['mill']['diameter']/2
         r = radius-millRadius
+        if r < 0:
+            print('WARNING intrude radius too small')
         # Start at top left
         self.moveTo(controller.mill, xHigh - r, zHigh, 0)
         # Push in
@@ -335,22 +337,6 @@ class CommandGenerator:
                 SpinCommand(controller.mill),
                 RaiseCommand(controller.mill, zHigh)
             ]))
-        # Do again for final range
-        r = radius % millRadius
-        # Half circle around to right hand side
-        self.millArcDiscrete(face, xHigh, self.controller.currentFaceHeight - zHigh, r, d0, math.pi, 2 * math.pi)
-        # Move down to bottom right
-        self.controller.addCommand(CombinedCommand([
-            SpinCommand(controller.mill),
-            RaiseCommand(controller.mill, zLow)
-        ]))
-        # Half circle around to left hand side
-        self.millArcDiscrete(face, xLow, self.controller.currentFaceHeight - zLow, r, d0, 0, math.pi)
-        # Move up to top left
-        self.controller.addCommand(CombinedCommand([
-            SpinCommand(controller.mill),
-            RaiseCommand(controller.mill, zHigh)
-        ]))
         self.retractMill()
 
     def getSpinningPushCommand(self, cutMachine, d):
