@@ -4,7 +4,17 @@ from support.supportMaps import statusMap
 
 from config import configurationMap
 
+
 class RaiseCommand(Command):
+    """Moves the handler to horizontally align your cutting tool to the desired point on the foam.
+
+    Args:
+        cutMachine (CutMachine): The cut machine in focus.
+        heightDisplacement (double): The vertical displacement for the cutting tool from the bottom of the foam.
+        startSpeed (double): Initial speed of push (mm/s).
+        endSpeed (double): Final speed of push (mm/s).
+
+    """
     def __init__(self, cutMachine, heightDisplacement, startSpeed=None, endSpeed=None):
         super().__init__()
         self.name = "Raising "+cutMachine.name

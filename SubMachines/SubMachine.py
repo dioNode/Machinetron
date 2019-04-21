@@ -1,5 +1,6 @@
 from Motors.SpinMotor import SpinMotor
 
+
 class SubMachine:
     """The machines that combine to create MACHINETRON.
     

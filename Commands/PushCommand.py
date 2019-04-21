@@ -2,10 +2,22 @@ from Commands.Command import Command
 from SubMachines.CutMachine import CutMachine
 from support.supportMaps import statusMap
 
-
 from config import configurationMap
 
+
 class PushCommand(Command):
+    """This command pushes the cutMachine towards the foam.
+
+    Args:
+        cutMachine (CutMachine): The cut machine in focus.
+        depth (double): Depth of cut machine betting pushed into the initial face surface.
+        faceDepth (double): Current depth of the foam relative to the current face.
+        fromCenter (boolean): Whether the depth variable is defined from the center.
+        flipped (boolean): Whether the foam block is currently flipped.
+        startSpeed (double): Initial speed of push (mm/s).
+        endSpeed (double): Final speed of push (mm/s).
+
+    """
     def __init__(self, cutMachine, depth, faceDepth, fromCenter=False, flipped=False, startSpeed=None, endSpeed=None):
         super().__init__()
         self.name = "Pushing "+cutMachine.name

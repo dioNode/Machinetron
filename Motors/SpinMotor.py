@@ -1,7 +1,7 @@
 from Motors.Motor import Motor
 
 class SpinMotor(Motor):
-    """Motor object for controlling actuators.
+    """Motor object for controlling spinning actuators that deal with angles.
 
     """
 

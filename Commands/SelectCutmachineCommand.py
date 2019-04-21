@@ -4,7 +4,14 @@ from support.supportMaps import statusMap
 
 from config import configurationMap
 
+
 class SelectCutmachineCommand(Command):
+    """Moves the handler towards the desired cutting machine.
+
+    Args:
+        cutMachine (CutMachine): The desired cutting machine to operate with.
+
+    """
     def __init__(self, cutMachine):
         super().__init__()
         self.name = "Selecting "+cutMachine.name

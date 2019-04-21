@@ -2,11 +2,16 @@ from Commands.Command import Command
 from Commands.FlipCommand import FlipCommand
 from Commands.SpinCommand import SpinCommand
 from Commands.CombinedCommand import CombinedCommand
-from support.supportMaps import statusMap, faceMap
 
-from config import configurationMap
 
 class SelectFaceCommand(Command):
+    """Turns the handler to turn the desired face of the foam towards cut machines.
+
+    args:
+        face (string): The face to turn towards the cut machines (font, left, right, back, top).
+        controller (Controller): The main controller.
+
+    """
     def __init__(self, face, controller):
         super().__init__()
         self.name = 'Selecting ' + face + ' face'

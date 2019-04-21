@@ -1,6 +1,16 @@
 from Commands.Command import Command
 
+
 class FlipCommand(Command):
+    """Flips the handler up and down.
+
+    Args:
+          handler (Handler): The handler sub machine.
+          position (string): The flipping position (up, down).
+          startSpeed (double): Initial speed of push (degrees/s).
+          endSpeed (double): Final speed of push (degrees/s).
+
+    """
     def __init__(self, handler, position, startSpeed=None, endSpeed=None):
         super().__init__()
         self.name = 'Flipping ' + position

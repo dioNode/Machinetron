@@ -1,6 +1,16 @@
 from Commands.Command import Command
 
+
 class SpinCommand(Command):
+    """Moves the handler to horizontally align your cutting tool to the desired point on the foam.
+
+    Args:
+        subMachine (SubMachine): The sub machine in focus.
+        targetValue (double): The number of degrees to be spun relative to the current nearest zero point.
+        startSpeed (double): Initial speed of push (mm/s).
+        endSpeed (double): Final speed of push (mm/s).
+
+    """
     def __init__(self, subMachine, targetValue=None, startSpeed=None, endSpeed=None):
         super().__init__()
         self.name = "Spinning "+subMachine.name

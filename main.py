@@ -134,17 +134,42 @@ def fillet(face, x, z, radius, quadrant, depth):
 def intrude(face, x0, x1, z0, z1, d0, d1, radius):
     """Creates an intrusion from one point to another with a set radius.
 
-
+    Args:
+        face (string): The face being worked on (front, top, left, right, back).
+        x0 (double): The initial horizontal displacement.
+        x1 (double): The final horizontal displacement.
+        z0 (double): The initial vertical displacement from the face's bottom of the circle's center point.
+        z1 (double): The initial vertical displacement from the face's bottom of the circle's center point.
+        d0 (double): The initial depth.
+        d1 (double): The final depth.
+        radius (double): Radius of the circle being cut out.
 
     """
     controller.commandGenerator.intrude(face, x0, x1, z0, z1, d0, d1, radius)
 
 
 def lathe(z0, z1, radius):
+    """Uses the lathe to create a radial cut from z0 to z1.
+
+    Args:
+        z0 (double): The initial vertical displacement from the face's bottom of the circle's center point.
+        z1 (double): The final vertical displacement from the face's bottom of the circle's center point.
+        radius (double): Radius of the circle being cut out.
+
+    """
     controller.commandGenerator.lathe(z0, z1, radius)
 
 
 def drill(face, x, z, depth):
+    """Uses the drill to drill a hole.
+
+    Args:
+        face (string): The face being worked on (front, top, left, right, back).
+        x (double): The horizontal displacement of the drill from center.
+        z (double): The vertical displacement from the face's bottom of the drill's center point.
+        depth (double): Depth of the drill into the foam.
+
+    """
     controller.commandGenerator.drill(face, x, z, depth)
 
 

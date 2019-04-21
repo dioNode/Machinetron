@@ -12,7 +12,14 @@ from Commands.SelectCutmachineCommand import SelectCutmachineCommand
 from support.supportFunctions import getLinearVelocityTime
 from config import configurationMap
 
+
 class CommandGenerator:
+    """A class for building complex command instructions.
+
+    Args:
+        controller (Controller): The main controller.
+
+    """
     def __init__(self, controller):
         self.controller = controller
 
