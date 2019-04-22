@@ -8,7 +8,6 @@ from Commands.ShiftCommand import ShiftCommand
 from Commands.CombinedCommand import CombinedCommand
 from Commands.SelectFaceCommand import SelectFaceCommand
 from Commands.SelectCutmachineCommand import SelectCutmachineCommand
-
 from support.supportFunctions import getLinearVelocityTime
 from config import configurationMap
 
@@ -24,6 +23,13 @@ class CommandGenerator:
         self.controller = controller
 
     def reshapeM(self, widthHeightTuples, face):
+        """Reshapes the surface of the block based on width and heights from bottom up.
+
+        Args:
+            widthHeightTuples (tuple array): List of tuples in the form (width, height) starting from bottom.
+            face (string): The surface being used in focus and where the widthHeightTuples are based off.
+
+        """
         # Some useful variables to have
         controller = self.controller
         millSpinCommand = SpinCommand(controller.mill)
@@ -68,6 +74,15 @@ class CommandGenerator:
         controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
 
     def drill(self, face, x, z, depth):
+        """Uses the drill to drill a hole.
+
+        Args:
+            face (string): The face being worked on (front, top, left, right, back).
+            x (double): The horizontal displacement of the drill from center.
+            z (double): The vertical displacement from the face's bottom of the drill's center point.
+            depth (double): Depth of the drill into the foam.
+
+        """
         # Align to face
         controller = self.controller
         z = controller.currentFaceHeight - z
@@ -84,6 +99,14 @@ class CommandGenerator:
         controller.addCommand(PushCommand(controller.drill, 0, controller.currentFaceDepth))
 
     def lathe(self, z0, z1, radius):
+        """Uses the lathe to create a radial cut from z0 to z1.
+
+        Args:
+            z0 (double): The initial vertical displacement from the face's bottom of the circle's center point.
+            z1 (double): The final vertical displacement from the face's bottom of the circle's center point.
+            radius (double): Radius of the circle being cut out.
+
+        """
         controller = self.controller
         if z0 > z1:
             zBot = controller.currentFaceHeight - z1
@@ -128,6 +151,12 @@ class CommandGenerator:
         self.resetAll()
 
     def resetAll(self):
+        """Resets all the sub machines to their default starting state.
+
+        All the sub machines should move towards their 0 location until the limit switches are hit. This command should
+        generally be called on start and finish of a piece.
+
+        """
         # Remove all potential cutting bits from workpiece
         controller = self.controller
         controller.addCommand(CombinedCommand([
@@ -148,6 +177,22 @@ class CommandGenerator:
         ], 'Move to Home Location'))
 
     def millArcDiscrete(self, face, x, z, radius, depth, startAngle, endAngle):
+        """Uses the mill to cut out in an arc shape.
+
+        All variables are relative to the center of the mill cutting tool so functions that use this command will need
+        to keep in mind to offset by the mill cutting tool's radius if needed. The starting and ending angles are all
+        in degrees. The zero starts on the right axis and moves in the clockwise direction.
+
+        Args:
+            face (string): The surface being worked on (front, left, right, top, back).
+            x (double): The horizontal displacement of center point of the mill arc.
+            z (double): The vertical displacement of the center point of the mill arc.
+            radius (double): The radius that the mill is working around.
+            depth (double): The depth of the mill from the foam surface.
+            startAngle(double): The starting angle of the mill in degrees.
+            endAngle(double): The ending angle of the mill in degrees.
+
+        """
         # Set starting location
         self.selectFace(face)
         # Start with top right quadrant
@@ -184,6 +229,16 @@ class CommandGenerator:
         ]))
 
     def cutInCircle(self, face, x, z, radius, depth):
+        """Completely cuts out the inside of a given circle.
+
+        Args:
+            face (string): The face being worked on (front, top, left, right, back).
+            x (double): The horizontal displacement from the face's center of the center of the circle's center point.
+            z (double): The vertical displacement from the face's bottom of the circle's center point.
+            radius (double): Radius of the circle being cut out.
+            depth (double): Depth of the circle being cut out.
+
+        """
         self.selectFace(face)
         millRadius = configurationMap['mill']['diameter'] / 2
         # Go through and cut out from inner to out
@@ -192,6 +247,18 @@ class CommandGenerator:
         self.millCircleDiscrete(face, x, z, radius - millRadius, depth)
 
     def cutOutCircle(self, face, x, z, radius, depth):
+        """Cuts once around the outside of the circle.
+
+        This assumes that the mill only needs to go around the outer border once and extra foam with fall off.
+
+        Args:
+            face (string): The face being worked on (front, top, left, right, back).
+            x (double): The horizontal displacement from the face's center of the center of the circle's center point.
+            z (double): The vertical displacement from the face's bottom of the circle's center point.
+            radius (double): Radius of the circle being cut out.
+            depth (double): Depth of the circle being cut out.
+
+        """
         self.controller.addCommand(SelectFaceCommand(face, self.controller))
         millRadius = configurationMap['mill']['diameter'] / 2
         self.millCircleDiscrete(face, x, z, radius + millRadius, depth)
@@ -199,9 +266,29 @@ class CommandGenerator:
         self.retractMill()
 
     def millCircleDiscrete(self, face, x, z, radius, depth):
+        """Mills a full circle cut out from the center point of the mill using discrete steps.
+
+        Args:
+            face (string): The face being worked on (front, top, left, right, back).
+            x (double): The horizontal displacement from the face's center of the center of the circle's center point.
+            z (double): The vertical displacement from the face's bottom of the circle's center point.
+            radius (double): Radius of the circle being cut out.
+            depth (double): Depth of the circle being cut out.
+
+        """
         self.millArcDiscrete(face, x, z, radius, depth, 0, 2*math.pi)
 
     def millCircle(self, face, x, z, radius, depth):
+        """Mills a full circle cut out from the center point of the mill using smooth curves.
+
+        Args:
+            face (string): The face being worked on (front, top, left, right, back).
+            x (double): The horizontal displacement from the face's center of the center of the circle's center point.
+            z (double): The vertical displacement from the face's bottom of the circle's center point.
+            radius (double): Radius of the circle being cut out.s
+            depth (double): Depth of the circle being cut out.
+
+        """
         # Set starting location
         # Start with top right quadrant
         actualZ = self.controller.currentFaceHeight - z
@@ -248,6 +335,18 @@ class CommandGenerator:
         ]))
 
     def fillet(self, face, x, z, radius, quadrant, depth):
+        """Creates a fillet at a certain point.
+
+        Args:
+            face (string): The face being worked on (front, top, left, right, back).
+            x (double): The horizontal displacement from the face's center of the center of the circle's center point.
+            z (double): The vertical displacement from the face's bottom of the circle's center point.
+            radius (double): Radius of the circle being cut out.
+            quadrant(int): A number representing which quadrant needs to be filleted out (1 = top-right, 2 = top-left,
+                3 = bottom-left, 4 = bottom-right).
+            depth (double): Depth of the circle being cut out.
+
+        """
         if quadrant == 1:
             startAngle = 3*math.pi/2
             endAngle = 2*math.pi
@@ -277,21 +376,40 @@ class CommandGenerator:
         self.retractMill()
 
     def retractMill(self):
+        """Stops the mill spin and pulls the mill back to base position."""
         self.controller.addCommand(PushCommand(self.controller.mill, 0, self.controller.currentFaceDepth))
 
     def retractDrill(self):
+        """Stops the drill spin and pulls the drill back to base position."""
         self.controller.addCommand(PushCommand(self.controller.drill, 0, self.controller.currentFaceDepth))
 
     def retractLathe(self):
+        """Stops the handler spin and pulls the lathe back to base position."""
         self.controller.addCommand(CombinedCommand([
             PushCommand(self.controller.lathe, 0, self.controller.currentFaceDepth),
             SpinCommand(self.controller.handler, 0)
         ]))
 
     def selectFace(self, face):
+        """Rotates the handler to turn the desired face towards the cut machines.
+
+        Args:
+            face (string): The face to turn towards the cut machines.
+
+        """
         self.controller.addCommand(SelectFaceCommand(face, self.controller))
 
     def moveTo(self, cutMachine, x, z, d, face=None):
+        """Moves the handler towards the desired location.
+
+        Args:
+            cutMachine (CutMachine): The cut machine that is in focus.
+            x (double): The horizontal displacement of the cutting tool from the center of the foam.
+            z (double): The vertical displacement of the cutting tool from the bottom of the foam.
+            d (double): The depth of the cutting tool into the surface of the foam.
+            face (string): The face that is being worked on. This can be left None to use current face.
+
+        """
         moveCommand = CombinedCommand([
             ShiftCommand(cutMachine, x),
             RaiseCommand(cutMachine, z),
@@ -305,6 +423,19 @@ class CommandGenerator:
         self.controller.addCommand(moveCommand)
 
     def intrude(self, face, x0, x1, z0, z1, d0, d1, radius):
+        """Creates an intrusion from one point to another with a set radius.
+
+        Args:
+            face (string): The face being worked on (front, top, left, right, back).
+            x0 (double): The initial horizontal displacement.
+            x1 (double): The final horizontal displacement.
+            z0 (double): The initial vertical displacement from the face's bottom of the circle's center point.
+            z1 (double): The initial vertical displacement from the face's bottom of the circle's center point.
+            d0 (double): The initial depth.
+            d1 (double): The final depth.
+            radius (double): Radius of the circle being cut out.
+
+        """
         self.selectFace(face)
         controller = self.controller
         if z0 > z1:
@@ -367,6 +498,13 @@ class CommandGenerator:
         self.retractMill()
 
     def getSpinningPushCommand(self, cutMachine, d):
+        """Generates a command of a cut machine pushing while spinning.
+
+        Args:
+            cutMachine (CutMachine): The cut machine in focus.
+            d (depth): The depth of the cutting tool into the foam face.
+
+        """
         return CombinedCommand([
             PushCommand(cutMachine, d, self.controller.currentFaceDepth),
             SpinCommand(cutMachine)

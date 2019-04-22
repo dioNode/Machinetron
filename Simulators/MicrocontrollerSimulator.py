@@ -1,6 +1,7 @@
 import datetime
 from support.supportMaps import statusMap
 
+
 class MicrocontrollerSimulator:
     def __init__(self):
         # These results are purely to simulate endeffactor movement
