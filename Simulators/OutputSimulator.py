@@ -3,7 +3,14 @@ from config import configurationMap
 import pygame
 import math
 
+
 class OutputSimulator:
+    """This is the GUI that simulates how all the motors and outputs are being displayed.
+
+    Args:
+        controller (Controller): The main controller being used to get information on the motor settings.
+
+    """
     def __init__(self, controller):
         # Window variables
         self.carryOn = True
@@ -37,8 +44,14 @@ class OutputSimulator:
         if isinstance(controller, Controller):
             self.controller = controller
 
-
     def update(self):
+        """Update the display of the GUI.
+
+        Looks through and checks on the outputs returned from the controller. Note this does not directly look into the
+        MicrocontrollerSimulator class because the system should only be able to discern the end location from the
+        information relayed back to the main control unit.
+
+        """
         if self.carryOn:
             # Check events
             for event in pygame.event.get():  # User did something
@@ -72,6 +85,15 @@ class OutputSimulator:
             pygame.quit()
 
     def getEndeffactorLocations(self, cutMachines):
+        """Gets the end locations of the cut machines.
+
+        Args:
+            cutMachines (list(CutMachine)): A list of all the cut machines.
+
+        Returns:
+            A list of the end locations of the cut machines.
+
+        """
         endeffactorLocations = []
         controller = self.controller
         for cutMachine in cutMachines:
@@ -80,6 +102,15 @@ class OutputSimulator:
         return endeffactorLocations
 
     def getMotorAngles(self, cutMachines):
+        """Gets the motor angles for each cut machine.
+
+        Args:
+            cutMachines (list(CutMachine)): A list of all the cut machines.
+
+        Returns:
+            An 2D array of the angles for motor for each cut machine.
+
+        """
         motorAngles = []
         for cutMachine in cutMachines:
             motorAngles.append([cutMachine.spinMotor.currentAngle(),
@@ -88,6 +119,14 @@ class OutputSimulator:
         return motorAngles
 
     def updateHandlerDisplay(self, cutMachines):
+        """Updates the display for the handler location.
+
+        This includes the handler's location, shape and motors.
+
+        Args:
+            cutMachines(list(CutMachine)): A list of all the cut machines.
+
+        """
         win = self.win
         height = self.handlerDisplayHeight
         width = self.handlerDisplayWidth
@@ -158,8 +197,16 @@ class OutputSimulator:
             pygame.draw.rect(win, (0, 1, 1),
                              (machineX, machineY, machineWidth, machineHeight))
 
-
     def updateMotorDisplay(self, cutMachines, i, motorDisplayTop, x):
+        """Updates the motor display for each of the cut machines.
+
+        Args:
+            cutMachines (list(CutMachine)): A list of all the cut machines.
+            i (int): The index of cut machine to be focused on.
+            motorDisplayTop (double): The top offset of the motor display.
+            x (double): The left offset of the motor display.
+
+        """
         width = self.width
         motorRadius = self.motorDisplayRadius
         titleFont = self.titleFont
@@ -181,6 +228,15 @@ class OutputSimulator:
         win.blit(textsurface, (x, 0))
 
     def updateEndeffactorDisplays(self, cutMachines, displayTop, i, x):
+        """Updates the cutting tool display for each of the cut machines.
+
+        Args:
+            cutMachines (list(CutMachine)): A list of all the cut machines.
+            i (int): The index of cut machine to be focused on.
+            displayTop (double): The top offset of the cutting tool display.
+            x (double): The left offset of the cutting tool display.
+
+        """
         endeffactorLocations = self.getEndeffactorLocations(cutMachines)
         win = self.win
         height = self.height
@@ -230,6 +286,7 @@ class OutputSimulator:
 
 
     def updateCommandsDisplay(self):
+        """Displays the list of commands in the queue."""
         currentCommand = self.controller.currentCommand
         commandQueue = self.controller.commandQueue
         win = self.win
@@ -253,6 +310,7 @@ class OutputSimulator:
             win.blit(textsurface, (x+3, y + (commandNum + 1) * self.commandHeight))
 
     def simulate(self):
+        """Initialises the settings necessary to start the GUI."""
         pygame.init()
 
         self.win = pygame.display.set_mode((self.screenWidth, self.screenHeight))

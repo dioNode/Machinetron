@@ -3,6 +3,12 @@ from support.supportMaps import statusMap
 
 
 class MicrocontrollerSimulator:
+    """Class that simulates what the microcontrollers in the sub machines should do.
+
+    This class is designed to be easily swapped out with the actual microcontrollers.Note it only tracks the
+    displacement since the motor steps can be inferred from the displacement.
+
+    """
     def __init__(self):
         # These results are purely to simulate endeffactor movement
         # Actual STM microcontroller will need to monitor steps too
@@ -35,9 +41,29 @@ class MicrocontrollerSimulator:
         self.targets = {}
 
     def displaceActuator(self, submachine, motor, displacement):
+        """Offsets the current locations of the cutting tools by the given amount.
+
+        Args:
+            submachine (SubMachine): The sub machine being worked on (handler, drill, mill, lathe).
+            motor (string): The motor that is being turned (shift, flip, spin, raise, pen).
+            displacement (double): The offset to be placed on the current location in mm.
+
+        """
         self.results[submachine][motor] += displacement
 
     def addTarget(self, submachine, motor, targetValue, startSpeed, endSpeed):
+        """Adds a target location with speeds for the given sub machine.
+
+        Note that the start and end speeds are linear relative to time not displacement.
+
+        Args:
+            submachine (SubMachine): The sub machine being worked on (handler, drill, mill, lathe).
+            motor (string): The motor that is being turned (shift, flip, spin, raise, pen).
+            targetValue (double): The target offset to be placed on the current location in mm.
+            startSpeed (double): The initial speed of movement (mm/s).
+            endSpeed (double): The ending speed of movement (mm/s).
+
+        """
         self.targets[submachine] = {
             motor : {
                 'targetValue': targetValue,
@@ -48,14 +74,27 @@ class MicrocontrollerSimulator:
         }
 
     def setTargets(self, targets):
+        """Sets the current target locations and speeds.
+
+        Args:
+            targets(dict): The target locations and speeds.
+
+        """
         self.targets = targets
 
     def clearTargets(self):
+        """Clears all the targets to get ready for the next command."""
         self.targets = {}
         self.accel = {}
         self.speeds = {}
 
     def update(self):
+        """Updates the current locations of the microcontroller.
+
+        This function uses the time that has passed so far to calculate the amount of movement that the motors have
+        done.
+
+        """
         newTime = datetime.datetime.now()
         deltaTime = newTime - self.currentTime
         deltaTime = deltaTime.total_seconds()
@@ -67,12 +106,9 @@ class MicrocontrollerSimulator:
                 endSpeed = values['endSpeed']
 
                 displacement = deltaTime * startSpeed
-                # self.results[submachine][motor] = displacement
 
-
-                if targetValue == None:
+                if targetValue is None:
                     # Spinning motor no end
-
                     newValue = (currentValue + displacement)
                     self.targets[submachine][motor]['status'] = statusMap['complete']
                 else:
@@ -120,6 +156,13 @@ class MicrocontrollerSimulator:
         self.currentTime = newTime
 
     def getCommandStatus(self):
+        """Returns whether all the commands have been complete.
+
+        Returns:
+            Whether the sub machines have completed their instructions and are ready for next command.
+
+        """
+
         status = statusMap['complete']
         for submachine, motors in self.targets.items():
             for motor, values in motors.items():
