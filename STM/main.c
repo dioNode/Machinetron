@@ -15,7 +15,7 @@ int main() {
    struct Handler handler = initializeHandler();
 
    printf("%lf\n", instructions[1][3]);
-   setTargetDisp(&handler.spinMotor, 500);
+   setTargets(&handler.spinMotor, 500, 10, 20);
 
 
    while(1) {

@@ -21,9 +21,17 @@ void stepMotor(struct Motor *motor_ptr) {
     motor_ptr -> currentStep -= 1;
 }
 
-void setTargetDisp(struct Motor *motor_ptr, double disp) {
+void setTargets(struct Motor *motor_ptr, double disp, double startSpeed, double endSpeed) {
+  // Set target displacements
   int numStepsToTarget = displacement2steps(disp, *motor_ptr);
   setTargetSteps(motor_ptr, numStepsToTarget);
+  // Deal with speeds
+  // v^2 = u^2 + 2as --> a = (v^2-u^2)/(2s)
+  if (disp != 0){
+    double acceleration = (pow(startSpeed, 2) - pow(endSpeed, 2)) / (2*disp);
+  }
+  
+
 }
 
 void setTargetSteps(struct Motor *motor_ptr, int numSteps) {

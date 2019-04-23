@@ -11,7 +11,7 @@ struct Motor {
 } motor;
 
 void stepMotor(struct Motor *motor_ptr);
-void setTargetDisp(struct Motor *motor_ptr, double disp);
+void setTargets(struct Motor *motor_ptr, double disp, double startSpeed, double endSpeed);
 void setTargetSteps(struct Motor *motor_ptr, int numSteps);
 void printMotorDetails(struct Motor motor);
 double getCurrentDisplacement(struct Motor motor);

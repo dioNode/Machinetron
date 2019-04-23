@@ -103,26 +103,48 @@ class Controller:
         self.microcontrollerSimulator.setTargets(targets)
 
     def targetsDictToInstruction(self, targets):
-        instruction = {'handler': [],
-                       'drill': [],
-                       'mill': [],
-                       'lathe': []}
+        # Generate a list of instruction dictionaries to be sent off
+        instructions = []
         if type(targets) is dict:
             for submachine, motors in targets.items():
+                address = configurationMap[submachine]['id']
                 if type(motors) is dict:
                     for motor, targetVals in motors.items():
-                        instructionList = []
-                        instructionList.append(configurationMap['motorMap'][motor])
-                        # Get all the target values
+                        motorID = configurationMap['motorMap'][motor]
                         targetValue = targetVals['targetValue']
                         startSpeed = targetVals['startSpeed']
                         endSpeed = targetVals['endSpeed']
-                        instructionList.append(targetValue)
-                        instructionList.append(startSpeed)
-                        instructionList.append(endSpeed)
-                        # Append to list
-                        instruction[submachine].append(instructionList)
-        return instruction
+                        direction = 1 if targetValue >= 0 else 0
+                        # Set initByte configurations
+                        initByte = 0
+                        initByte |= motorID << 5
+                        initByte |= direction << 4
+
+
+                        # Set data values
+                        data = [abs(targetValue), startSpeed, endSpeed]
+
+                        currentInstruction = {
+                            'address': address,
+                            'initByte': initByte,
+                            'data': data
+                        }
+
+                        instructions.append(currentInstruction)
+
+
+                        # instructionList = []
+                        # instructionList.append(configurationMap['motorMap'][motor])
+                        # # Get all the target values
+                        # targetValue = targetVals['targetValue']
+                        # startSpeed = targetVals['startSpeed']
+                        # endSpeed = targetVals['endSpeed']
+                        # instructionList.append(targetValue)
+                        # instructionList.append(startSpeed)
+                        # instructionList.append(endSpeed)
+                        # # Append to list
+                        # instruction[submachine].append(instructionList)
+        return instructions
 
     def updateEndeffactorValues(self):
 
