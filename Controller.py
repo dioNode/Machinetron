@@ -58,6 +58,7 @@ class Controller:
         self.updateDirectionFaced()
 
     def start(self):
+        # TODO init bus
         self.startNextCommand()
 
         self.state = statusMap['started']
@@ -100,6 +101,11 @@ class Controller:
         targets = self.currentCommand.generateTargets()
         instructionString = self.targetsDictToInstruction(targets)
         print(instructionString)
+        for instruction in instructionString:
+            address = instruction['address']
+            initByte = instruction['initByte']
+            data  = instruction['data']
+            #TODO Liam bus send
         self.microcontrollerSimulator.setTargets(targets)
 
     def targetsDictToInstruction(self, targets):
