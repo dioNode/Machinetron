@@ -7,6 +7,7 @@ from Simulators.MicrocontrollerSimulator import MicrocontrollerSimulator
 from Commands.CommandGenerator import CommandGenerator
 
 from support.supportMaps import statusMap
+from config import configurationMap
 
 import time
 
@@ -97,7 +98,26 @@ class Controller:
 
     def startExecuteCurrentCommand(self):
         targets = self.currentCommand.generateTargets()
+        instructionString = self.targetsDictToInstruction(targets)
+        print(instructionString)
         self.microcontrollerSimulator.setTargets(targets)
+
+    def targetsDictToInstruction(self, targets):
+        instruction = {'handler': [],
+                       'drill': [],
+                       'mill': [],
+                       'lathe': []}
+        if type(targets) is dict:
+            for submachine, motors in targets.items():
+                if type(motors) is dict:
+                    for motor, targetVals in motors.items():
+                        instructionList = []
+                        instructionList.append(configurationMap['motorMap'][motor])
+                        for param, val in targetVals.items():
+                            if param != 'status':
+                                instructionList.append(val)
+                        instruction[submachine].append(instructionList)
+        return instruction
 
     def updateEndeffactorValues(self):
 
@@ -116,7 +136,6 @@ class Controller:
     def commandComplete(self):
         self.microcontrollerSimulator.update()
         return self.microcontrollerSimulator.getCommandStatus() == statusMap['complete']
-
 
     def getMicrocontrollerResults(self):
         self.microcontrollerSimulator.update()

@@ -463,10 +463,7 @@ class CommandGenerator:
         zSpeed = speed * zDiff / maxDiff if zDiff != 0 else 1
         dSpeed = speed * dDiff / maxDiff if dDiff != 0 else 1
 
-        # print(zHigh-zLow, xHigh-xLow)
-        print(xDiff, zDiff)
         tiltAngle = np.arctan2(zHigh-zLow, xHigh-xLow) + np.pi/2
-        print('tiltANgle', tiltAngle)
         r = radius-millRadius
         if r < 0:
             print('WARNING intrude radius too small')
