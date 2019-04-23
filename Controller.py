@@ -113,9 +113,14 @@ class Controller:
                     for motor, targetVals in motors.items():
                         instructionList = []
                         instructionList.append(configurationMap['motorMap'][motor])
-                        for param, val in targetVals.items():
-                            if param != 'status':
-                                instructionList.append(val)
+                        # Get all the target values
+                        targetValue = targetVals['targetValue']
+                        startSpeed = targetVals['startSpeed']
+                        endSpeed = targetVals['endSpeed']
+                        instructionList.append(targetValue)
+                        instructionList.append(startSpeed)
+                        instructionList.append(endSpeed)
+                        # Append to list
                         instruction[submachine].append(instructionList)
         return instruction
 
