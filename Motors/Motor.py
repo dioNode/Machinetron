@@ -1,6 +1,6 @@
 class Motor(object):
     """Motor object for controlling actuators.
-    
+    Test
     """
     def __init__(self, displacementPerRotation):
         self.currentDisplacement = 0
