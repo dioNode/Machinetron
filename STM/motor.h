@@ -3,6 +3,7 @@
 
 struct Motor {
    char* name;
+   int id;
    int currentStep;
    int targetStep;
    double currentSpeed;

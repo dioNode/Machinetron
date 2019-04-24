@@ -12,15 +12,19 @@ int main() {
       {3, 300, 100, 100}
    };
 
-   struct Handler handler = initializeHandler();
+   int initByte = 0b00110000;
+   double data[4] = {300, 100, 200};
 
-   printf("%lf\n", instructions[1][3]);
-   setTargets(&handler.spinMotor, 500, 10, 20);
+   struct SubMachine machine = initializeHandler();
+
+   struct Motor *motor_ptr = getMotorById(&machine, 1);
+
+   processCommand(initByte, data, &machine);
 
 
    while(1) {
-      tickHandler(&handler);
-      printHandlerDetails(handler);
+      tickSubMachine(&machine);
+      printSubMachineDetails(machine);
       Sleep(LOOP_DELAY_MS);
    }
  
