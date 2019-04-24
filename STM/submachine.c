@@ -13,6 +13,33 @@ struct SubMachine initializeHandler() {
    return handler;
 }
 
+struct SubMachine initializeDrill() {
+  struct SubMachine drill = {"Drill", 1,
+      {{"Spin Motor", 1, 0, 0, 1, 0, 1},
+      {"Raise Motor", 2, 0, 0, 1, 0, 10},
+      {"Push Motor", 3, 0, 0, 1, 0, 5}},
+   };
+   return drill;
+}
+
+struct SubMachine initializeMill() {
+  struct SubMachine mill = {"Mill", 1,
+      {{"Spin Motor", 1, 0, 0, 1, 0, 1},
+      {"Raise Motor", 2, 0, 0, 1, 0, 10},
+      {"Push Motor", 3, 0, 0, 1, 0, 5}},
+   };
+   return mill;
+}
+
+struct SubMachine initializeLathe() {
+  struct SubMachine lathe = {"Lathe", 1,
+      {{"Spin Motor", 1, 0, 0, 1, 0, 1},
+      {"Raise Motor", 2, 0, 0, 1, 0, 10},
+      {"Push Motor", 3, 0, 0, 1, 0, 5}},
+   };
+   return lathe;
+}
+
 void printSubMachineDetails(struct SubMachine submachine) {
   printf("%s: %d/%d %d/%d %d/%d\n", submachine.name, 
     submachine.motors[0].currentStep, submachine.motors[0].targetStep,
@@ -45,7 +72,7 @@ void processCommand(int initByte, double data[4], struct SubMachine *submachine_
   double targetDisp = data[0];
   double startSpeed = data[1];
   double endSpeed = data[2];
-  
+
   // Flip displacement if direction is negative (0)
   if (direction == 0) {
     targetDisp = -targetDisp;
@@ -67,4 +94,15 @@ int getDirectionBit(int initByte) {
 int getMotorIdBits(int initByte) {
   // Return the leftmost 3 bits
   return initByte >> 5;
+}
+
+int isComplete(struct SubMachine submachine) {
+  int complete = 1;
+  for (int motorNum = 0; motorNum < 3; motorNum++) {
+    struct Motor motor = submachine.motors[motorNum];
+    if (motor.currentStep != motor.targetStep) {
+      complete = 0;
+    }
+  }
+  return complete;
 }

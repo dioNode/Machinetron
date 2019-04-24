@@ -7,15 +7,10 @@
 
 int main() {
 
-   float instructions[2][4] = {
-      {0, 0, 500, 500},
-      {3, 300, 100, 100}
-   };
-
    int initByte = 0b00110000;
    double data[4] = {300, 100, 200};
 
-   struct SubMachine machine = initializeHandler();
+   struct SubMachine machine = initializeDrill();
 
    struct Motor *motor_ptr = getMotorById(&machine, 1);
 

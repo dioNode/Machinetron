@@ -30,8 +30,6 @@ void setTargets(struct Motor *motor_ptr, double disp, double startSpeed, double 
   if (disp != 0){
     double acceleration = (pow(startSpeed, 2) - pow(endSpeed, 2)) / (2*disp);
   }
-  
-
 }
 
 void setTargetSteps(struct Motor *motor_ptr, int numSteps) {
