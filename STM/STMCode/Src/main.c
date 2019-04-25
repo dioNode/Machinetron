@@ -26,6 +26,8 @@
 #include "stm32f1xx_hal_i2c.h"
 #include "stdio.h"
 #include "string.h"
+//#include "config.h"
+#include "motor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -142,33 +144,41 @@ int main(void)
   }
 	
 	printf("Started Program\n");
+	
+	struct Motor raiseMotor = {"Raise motor", 2, 0, 100, 1, 0, 10, 0};
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		// If RX Buffer contains data print it to the UART Handle
-		/*
-		for( int i = 0; i < sizeof(ReceiveBuf); i++) {
-			if(ReceiveBuf[i] != NULL) {
-				testvariable = 1;
-			}
-		}
-		if(testvariable == 1) {
-			//HAL_UART_Transmit(&UartDebugHandle,ReceiveBuf,RXBUFFERSIZE,HAL_MAX_DELAY);
-			//HAL_UART_Transmit(&UartDebugHandle,newline,RXBUFFERSIZE,HAL_MAX_DELAY);
-			printf(ReceiveBuf);
-			printf(newline);
-			//Flush_Buffer((uint8_t*)ReceiveBuf,RXBUFFERSIZE);
-			for (int i = 0; i<10; i++) {
-				HAL_GPIO_TogglePin(PC13LED_GPIO_Port,PC13LED_Pin);
-				HAL_Delay(50);
-			}
-		}
 		
-		testvariable = 0;
-		*/
+		//Test Stepper Motor Two
+		//Enable Stepper
+		/*
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_RESET);
+		// Set direction
+		HAL_GPIO_WritePin(ST2DIR_GPIO_Port,ST2DIR_Pin, GPIO_PIN_SET);
+		// for loop to run the stepper in this direction for 50 steps
+		for(int a = 0; a < 525; a = a + 1 ){
+      HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,1);
+			HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,0);
+			HAL_Delay(50);
+		}
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,1);
+		HAL_Delay(200);
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,0);
+		HAL_GPIO_WritePin(ST2DIR_GPIO_Port,ST2DIR_Pin,0);
+		for(int a = 0; a < 525; a = a + 1 ){
+      HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,1);
+			HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,0);
+			HAL_Delay(50);
+		}
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,1);
+		HAL_Delay(200);
+	*/
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_SET);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
