@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "stdio.h": "c",
+    "motor.h": "c",
+    "submachine.h": "c"
+  }
+}
