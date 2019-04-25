@@ -1,10 +1,12 @@
 #include "submachine.h"
 #include "motor.h"
 #include "config.h"
-#include<stdio.h>
+#include <stdio.h>
 #include <windows.h>
 
-
+/**
+ * Generates the handler structure.
+ */
 struct SubMachine initializeHandler() {
   struct SubMachine handler = {"Handler", 1,
       {{"Spin Motor", 1, 0, 0, 1, 0, 2, 0},
