@@ -22,6 +22,8 @@ class Controller:
     """
     def __init__(self, useSimulator=False):
         self.useSimulator = useSimulator
+        if useSimulator == False:
+            import smbus
 
         self.currentTime = 0
         self.xLength = 0
@@ -69,6 +71,8 @@ class Controller:
     def start(self):
         """Allows the controller to start issuing commands."""
         # TODO init bus
+        if not self.useSimulator:
+            self.bus = smbus.SMBus(1)
         self.startNextCommand()
         self.state = statusMap['started']
 
@@ -142,14 +146,23 @@ class Controller:
 
         """
         targets = self.currentCommand.generateTargets()
-        instructions = self.targetsDictToInstruction(targets)
-        print(instructions)
-        for instruction in instructions:
-            address = instruction['address']
-            initByte = instruction['initByte']
-            data  = instruction['data']
-            #TODO Liam bus send
-        self.microcontrollerSimulator.setTargets(targets)
+        if self.useSimulator:
+            self.microcontrollerSimulator.setTargets(targets)
+        else:
+            instructions = self.targetsDictToInstruction(targets)
+            print(instructions)
+            for instruction in instructions:
+                address = instruction['address']
+                initByte = instruction['initByte']
+                data  = instruction['data']
+                #TODO Liam bus send
+                DEVICE_ADDRESS = 0x15  # 7 bit address (will be left shifted to add the read write bit)
+                DEVICE_REG_LEDOUT0 = 0x1d
+                # Write an array of registers
+                ledout_values = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
+                self.bus.write_i2c_block_data(address, DEVICE_REG_LEDOUT0, ledout_values)
+
+
 
     def targetsDictToInstruction(self, targets):
         """Generate a list of instruction dictionaries to be sent off"""
