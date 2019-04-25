@@ -52,5 +52,7 @@ configurationMap = {
         'pen': 3,
         'rail': 4,
         'flip': 5,
+    }, 'other': {
+        'infVal': 9999,
     }
 }
