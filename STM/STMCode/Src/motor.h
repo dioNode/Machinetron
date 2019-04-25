@@ -1,11 +1,17 @@
-#ifndef MOTOR_H_
-#define MOTOR_H_
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __MOTOR_H_
+#define __MOTOR_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * A structure to represent a stepper motor
  */
-struct Motor {
+extern struct Motor {
    char* name;          // The name of the motor
+	 char* type;					// DC or STEP
    int id;              // ID used to identify in commands
    int currentStep;     // The current number of steps
    int targetStep;      // The number of steps it needs to reach
@@ -13,6 +19,7 @@ struct Motor {
    double acceleration; // The step acceleration (steps/s^2)
    double dpr;          // Displacement per revolution of motor
    int msSinceLastStep; // Number of milliseconds since last step
+	 int stepsize;				// Step size: 1/(1,2,4,8,16,32)
 } motor;
 
 /**
@@ -59,4 +66,4 @@ double displacement2steps(double displacement, struct Motor motor);
  */
 double msPerStep(struct Motor motor);
 
-#endif // MOTOR_H_
+#endif // __MOTOR_H_

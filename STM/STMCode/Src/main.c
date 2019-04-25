@@ -145,7 +145,7 @@ int main(void)
 	
 	printf("Started Program\n");
 	
-	struct Motor raiseMotor = {"Raise motor", 2, 0, 100, 1, 0, 10, 0};
+	struct Motor raiseMotor = {"Raise motor", "STEP", 2, 0, 100, 1, 0, 10, 0, 1};
 	
   /* USER CODE END 2 */
 

@@ -30,7 +30,7 @@ Rebuild target 'STMCode'
 assembling startup_stm32f103xb.s...
 compiling main.c...
 ../Src/main.c(148): warning:  #177-D: variable "raiseMotor"  was declared but never referenced
-        struct Motor raiseMotor = {"Raise motor", 2, 0, 100, 1, 0, 10, 0};
+        struct Motor raiseMotor = {"Raise motor", "STEP", 2, 0, 100, 1, 0, 10, 0, 1};
 ../Src/main.c: 1 warning, 0 errors
 compiling stm32f1xx_it.c...
 compiling stm32f1xx_hal_msp.c...
@@ -51,11 +51,9 @@ compiling stm32f1xx_hal_flash.c...
 compiling stm32f1xx_hal_flash_ex.c...
 compiling system_stm32f1xx.c...
 linking...
-STMCode\STMCode.axf: Error: L6200E: Symbol motor multiply defined (by motor.o and main.o).
-Not enough information to list image symbols.
-Not enough information to list load addresses in the image map.
-Finished: 2 information, 0 warning and 1 error messages.
-"STMCode\STMCode.axf" - 1 Error(s), 1 Warning(s).
+Program Size: Code=8276 RO-data=368 RW-data=56 ZI-data=1208  
+FromELF: creating hex file...
+"STMCode\STMCode.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -78,8 +76,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.2.0
-Target not created.
-Build Time Elapsed:  00:00:23
+Build Time Elapsed:  00:00:22
 </pre>
 </body>
 </html>
