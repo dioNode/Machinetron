@@ -110,8 +110,8 @@ void Error_Handler(void);
 #define ST2MS1_GPIO_Port GPIOB
 #define ST2EN_Pin GPIO_PIN_7
 #define ST2EN_GPIO_Port GPIOB
-#define I2CSCL_Pin GPIO_PIN_8
-#define I2CSCL_GPIO_Port GPIOB
+#define I2CCLK_Pin GPIO_PIN_8
+#define I2CCLK_GPIO_Port GPIOB
 #define I2CSDA_Pin GPIO_PIN_9
 #define I2CSDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */

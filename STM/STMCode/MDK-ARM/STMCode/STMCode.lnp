@@ -1,0 +1,24 @@
+--cpu Cortex-M3
+"stmcode\startup_stm32f103xb.o"
+"stmcode\main.o"
+"stmcode\stm32f1xx_it.o"
+"stmcode\stm32f1xx_hal_msp.o"
+"stmcode\stm32f1xx_hal_gpio_ex.o"
+"stmcode\stm32f1xx_hal_i2c.o"
+"stmcode\stm32f1xx_hal_tim.o"
+"stmcode\stm32f1xx_hal_tim_ex.o"
+"stmcode\stm32f1xx_hal_uart.o"
+"stmcode\stm32f1xx_hal.o"
+"stmcode\stm32f1xx_hal_rcc.o"
+"stmcode\stm32f1xx_hal_rcc_ex.o"
+"stmcode\stm32f1xx_hal_gpio.o"
+"stmcode\stm32f1xx_hal_dma.o"
+"stmcode\stm32f1xx_hal_cortex.o"
+"stmcode\stm32f1xx_hal_pwr.o"
+"stmcode\stm32f1xx_hal_flash.o"
+"stmcode\stm32f1xx_hal_flash_ex.o"
+"stmcode\system_stm32f1xx.o"
+--library_type=microlib --strict --scatter "STMCode\STMCode.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "STMCode.map" -o STMCode\STMCode.axf

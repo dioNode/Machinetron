@@ -261,7 +261,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = PC13LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(PC13LED_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ST1DIR_Pin ST1STEP_Pin ST3DIR_Pin ST3STEP_Pin 
@@ -270,21 +270,21 @@ static void MX_GPIO_Init(void)
                           |ST2DIR_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ST1MS3_Pin ST1MS2_Pin ST1MS1_Pin */
   GPIO_InitStruct.Pin = ST1MS3_Pin|ST1MS2_Pin|ST1MS1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ST1EN_Pin */
   GPIO_InitStruct.Pin = ST1EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(ST1EN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ST3MS3_Pin ST3MS2_Pin ST3MS1_Pin LEDGREEN_Pin 
@@ -293,14 +293,14 @@ static void MX_GPIO_Init(void)
                           |LEDRED_Pin|ST2MS3_Pin|ST2MS2_Pin|ST2MS1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ST3EN_Pin ST2EN_Pin */
   GPIO_InitStruct.Pin = ST3EN_Pin|ST2EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LIMSW1_Pin LIMSW4_Pin LIMSW5_Pin */
@@ -313,7 +313,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = ST2STEP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(ST2STEP_GPIO_Port, &GPIO_InitStruct);
 
 }
