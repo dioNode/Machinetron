@@ -24,3 +24,4 @@ stmcode\stm32f1xx_hal_i2c.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_f
 stmcode\stm32f1xx_hal_i2c.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
 stmcode\stm32f1xx_hal_i2c.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 stmcode\stm32f1xx_hal_i2c.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+stmcode\stm32f1xx_hal_i2c.o: ../Inc/main.h
