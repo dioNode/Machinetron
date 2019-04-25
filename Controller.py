@@ -46,8 +46,15 @@ class Controller:
         print(self.commandQueue)
         return str(self.currentCommand)
 
-
     def tick(self):
+        """Updates the information variables on the controller.
+
+        This involves:
+        - Checking for whether the current command has been complete
+        - Updating the current time
+        - Checking for the handler direction
+
+        """
         if self.state == statusMap['started']:
             if not self.isComplete():
                 if self.commandComplete():
@@ -58,33 +65,61 @@ class Controller:
         self.updateDirectionFaced()
 
     def start(self):
+        """Allows the controller to start issuing commands."""
         # TODO init bus
         self.startNextCommand()
-
         self.state = statusMap['started']
 
     def pause(self):
-        print("TODO: Pause controller")
+        """Pauses the current controls so no new commands can be issued."""
+        # TODO change to pause immediately
+        self.state = statusMap['stopped']
 
     def stop(self):
-        print("TODO: Stop controller")
+        """Stops the current controls so no new commands can be issued."""
+        # TODO reset commands to start
+        self.state = statusMap['stopped']
 
     def setMountFace(self, xLength, yLength, zLength):
+        """Sets the current mounting orientation.
+
+        Args:
+            xLength (double): The length of the foam along the rail direction.
+            yLength (double): The length of the foam along the cut machine penetration direction.
+            zLength (double): The vertical length of the foam.
+
+        """
         self.xLength = xLength
         self.yLength = yLength
         self.zLength = zLength
-        print("mounted")
         
     def getLengths(self):
-        return ((self.xLength, self.yLength, self.zLength))
+        """Gets the dimensions relative to the initial foam placement.
+
+        Returns:
+            Tuple of each of the lengths.
+
+        """
+        return self.xLength, self.yLength, self.zLength
 
     def addCommand(self, command):
+        """Adds a command onto the command queue.
+
+        Args:
+            command (Command): The command that you want to have added.
+
+        """
         if isinstance(command, Command):
             self.commandQueue.append(command)
         else:
             print("Throw not a command exception")
 
     def startNextCommand(self):
+        """Starts the next command.
+
+        This should only be triggered after the STM has signalled the command has finished.
+
+        """
         self.microcontrollerSimulator.clearTargets()
         if not self.commandQueue:
             # Command queue is empty
@@ -94,14 +129,20 @@ class Controller:
             self.startExecuteCurrentCommand()
 
     def isComplete(self):
+        """Checks if all the commands have been complete."""
         # Return true if list is commands are empty
-        return not self.commandQueue and self.currentCommand == None
+        return not self.commandQueue and self.currentCommand is None
 
     def startExecuteCurrentCommand(self):
+        """Starts executing the current command.
+
+        This sends the current command to be processed by the STM.
+
+        """
         targets = self.currentCommand.generateTargets()
-        instructionString = self.targetsDictToInstruction(targets)
-        print(instructionString)
-        for instruction in instructionString:
+        instructions = self.targetsDictToInstruction(targets)
+        print(instructions)
+        for instruction in instructions:
             address = instruction['address']
             initByte = instruction['initByte']
             data  = instruction['data']
@@ -109,7 +150,7 @@ class Controller:
         self.microcontrollerSimulator.setTargets(targets)
 
     def targetsDictToInstruction(self, targets):
-        # Generate a list of instruction dictionaries to be sent off
+        """Generate a list of instruction dictionaries to be sent off"""
         instructions = []
         if type(targets) is dict:
             for submachine, motors in targets.items():
@@ -118,6 +159,7 @@ class Controller:
                     for motor, targetVals in motors.items():
                         motorID = configurationMap['motorMap'][motor]
                         targetValue = targetVals['targetValue']
+                        targetValue = targetValue if targetValue is not None else configurationMap['other']['infVal']
                         startSpeed = targetVals['startSpeed']
                         endSpeed = targetVals['endSpeed']
                         direction = 1 if targetValue >= 0 else 0
@@ -138,18 +180,6 @@ class Controller:
 
                         instructions.append(currentInstruction)
 
-
-                        # instructionList = []
-                        # instructionList.append(configurationMap['motorMap'][motor])
-                        # # Get all the target values
-                        # targetValue = targetVals['targetValue']
-                        # startSpeed = targetVals['startSpeed']
-                        # endSpeed = targetVals['endSpeed']
-                        # instructionList.append(targetValue)
-                        # instructionList.append(startSpeed)
-                        # instructionList.append(endSpeed)
-                        # # Append to list
-                        # instruction[submachine].append(instructionList)
         return instructions
 
     def updateEndeffactorValues(self):
