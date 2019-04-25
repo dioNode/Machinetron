@@ -14,11 +14,12 @@ int main() {
 
    struct Motor *motor_ptr = getMotorById(&machine, 1);
 
-   processCommand(initByte, data, &machine);
+   processInstruction(initByte, data, &machine);
 
+   printf("COmplete %d\n", isComplete(machine));
 
    while(1) {
-      tickSubMachine(&machine);
+      tickSubMachine(&machine, LOOP_DELAY_MS);
       printSubMachineDetails(machine);
       Sleep(LOOP_DELAY_MS);
    }
