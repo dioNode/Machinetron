@@ -20,7 +20,9 @@ class Controller:
     everything MACHINETRON needs to do.
     
     """
-    def __init__(self):
+    def __init__(self, useSimulator=False):
+        self.useSimulator = useSimulator
+
         self.currentTime = 0
         self.xLength = 0
         self.yLength = 0
@@ -168,7 +170,6 @@ class Controller:
                         initByte |= motorID << 5
                         initByte |= direction << 4
 
-
                         # Set data values
                         data = [abs(targetValue), startSpeed, endSpeed]
 
@@ -183,7 +184,11 @@ class Controller:
         return instructions
 
     def updateEndeffactorValues(self):
+        """Updates the information for the end location for each of the actuators.
 
+        This is primarily useful for the simulation and most of the end locations should be tracked within the STM.
+
+        """
         results = self.getMicrocontrollerResults()
         for cutmachine in [self.drill, self.mill, self.lathe]:
             name = cutmachine.name.lower()
@@ -197,18 +202,45 @@ class Controller:
         self.handler.flipMotor.currentDisplacement = results[name]['flip']
 
     def commandComplete(self):
-        self.microcontrollerSimulator.update()
-        return self.microcontrollerSimulator.getCommandStatus() == statusMap['complete']
+        """Checks whether the current command has been complete."""
+        if self.useSimulator:
+            self.microcontrollerSimulator.update()
+            return self.microcontrollerSimulator.getCommandStatus() == statusMap['complete']
+        else:
+            # TODO check actual microcontroller to see if command complete
+            return False
 
     def getMicrocontrollerResults(self):
+        """Gets all the current positions of each of the motors.
+
+        Returns:
+            A dictionary of the current location of each of the motors.
+
+        """
+        # TODO fix to work with real STM
         self.microcontrollerSimulator.update()
         return self.microcontrollerSimulator.results
 
     def getMicrocontrollerTargets(self):
+        """Gets all the current target instructions for all of the motors.
+
+        Returns:
+            A dictionary of targets displacements and speeds for each motor.
+
+        """
+        # TODO fix to work with real STM
         self.microcontrollerSimulator.update()
         return self.microcontrollerSimulator.targets
 
     def setFace(self, face):
+        """Sets relative face dimensions based on which side is facing the cut machines.
+
+        This is used both as the commands are being set as well as when the machines are in action.
+
+        Args:
+            face (string): The current face turned towards the cut machines.
+
+        """
         xLength = self.xLength
         yLength = self.yLength
         zLength = self.zLength
@@ -234,6 +266,11 @@ class Controller:
             self.currentFaceDepth = zLength
 
     def updateDirectionFaced(self):
+        """Updates the direction the handler is facing based on the current motor values.
+
+        This is used mainly to track the handler position is while it is in operation.
+
+        """
 
         spinAngle = self.handler.spinMotor.currentDisplacement % 360
         flipAngle = self.handler.flipMotor.currentDisplacement % 360

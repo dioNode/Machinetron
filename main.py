@@ -1,7 +1,7 @@
 from Controller import Controller
 from Simulators.OutputSimulator import OutputSimulator
 
-controller = Controller()
+controller = Controller(True)
 
 def main():
     setMountFace(76.6, 80, 110)
