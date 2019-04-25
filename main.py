@@ -28,15 +28,17 @@ def main():
 
     controller.commandGenerator.resetAll()
     controller.setFace('front')
-    outputSimulator = OutputSimulator(controller)
-    outputSimulator.simulate()
+    if controller.useSimulator:
+        outputSimulator = OutputSimulator(controller)
+        outputSimulator.simulate()
 
 
 
     while True:
         controller.tick()
         controller.updateEndeffactorValues()
-        outputSimulator.update()
+        if controller.useSimulator:
+            outputSimulator.update()
 
 
 
