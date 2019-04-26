@@ -69,6 +69,50 @@ extern "C" {
 /* Size of Reception buffer */
 #define TXBUFFERSIZE                    32
 
+/* Intruction Type Byte Constants */
+#define NORM_INST												0x00
+#define START_INST											0x01
+#define PAUSE_INST											0x02
+
+#define READ_INST_SPEED_M1							0x03
+#define READ_INST_SPEED_M2							0x04
+#define READ_INST_SPEED_M3							0x05
+
+#define READ_INST_POS_M1								0x06
+#define READ_INST_POS_M2								0x07
+#define READ_INST_POS_M3								0x08
+
+//#define READ_INST_MOTORS_RUNNING				0x09
+//#define READ_INST_COMPLETE							0x0A
+
+/* Motor Identifier Byte Constants */
+#define MOTOR1													0x01 << 6								
+#define MOTOR2													0x02 << 6
+#define MOTOR3													0x03 << 6
+
+#define DIR_FORWARD											0x01 << 5
+#define DIR_REVERSE											0x00 << 5
+
+#define DC_MOTOR_RUN										0x01 << 4
+#define DC_MOTOR_STOP										0x00 << 4
+
+#define HOME_MOTOR											0x01 << 3
+
+#define MOTOR1_HOME											MOTOR1 || HOME_MOTOR
+#define MOTOR2_HOME											MOTOR2 || HOME_MOTOR
+#define MOTOR3_HOME											MOTOR3 || HOME_MOTOR
+
+#define MOTOR1_FWD											MOTOR1 || DIR_FORWARD
+#define MOTOR1_RVS											MOTOR1 || DIR_REVERSE	
+#define MOTOR2_FWD											MOTOR2 || DIR_FORWARD
+#define MOTOR2_RVS											MOTOR2 || DIR_REVERSE	
+#define MOTOR3_FWD											MOTOR3 || DIR_FORWARD
+#define MOTOR3_RVS											MOTOR3 || DIR_REVERSE	
+
+// Constants defining the state of the Submachine
+#define MACHINE_READY										0x01
+#define MACHINE_RUNNING									0x02
+#define MACHINE_PAUSED									0x03
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

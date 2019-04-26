@@ -73,6 +73,35 @@ UART_HandleTypeDef huart1;
 uint8_t ReceiveBuf[RXBUFFERSIZE] = {NULL};
 uint8_t TransmitBuf[] = "Test Data How is the weather? 12";
 
+// Main Instruction Array
+uint8_t instructionArray[100][28];
+int instArrNextFree = 0;
+
+// Creation of motor structure for each submachine
+#ifdef HANDLER
+struct Motor motor1 = {"Rail motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
+struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 10, 0, 1};
+struct Motor motor3 = {"Flip motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
+#endif
+#ifdef LATHE
+struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
+//struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 10, 0, 1};
+struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
+#endif
+#ifdef MILL
+struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
+struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 10, 0, 1};
+struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};	
+#endif
+#ifdef DRILL
+struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
+struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 10, 0, 1};
+struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
+#endif
+
+// Volatile variable to store the state of the submachine
+volatile uint8_t machineState;
+
 uint8_t newline[] = "\n";
 
 uint8_t testvariable = 0;
@@ -165,51 +194,35 @@ int main(void)
 	
 	// Creation of motor structure for each submachine
 	#ifdef HANDLER
-	struct Motor railMotor = {"Rail motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
-	struct Motor flipMotor = {"Flip motor", "STEP", 2, 0, 0, 1, 0, 10, 0, 1};
-	struct Motor spinMotor = {"Spin motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
-	
 	// Create an array of the motors
-	struct Motor motors_array[3] = {railMotor, flipMotor, spinMotor};
+	struct Motor motors_array[3] = {motor1, motor2, motor3};
 	// Initialise the step size for the motors if they are step motors
 	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
 	#endif
 	
 	#ifdef LATHE
-	struct Motor vertMotor = {"Vert motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
-	//struct Motor spinMotor = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 10, 0, 1};
-	struct Motor penMotor = {"Pen motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
-	
 	// Create an array of the motors
-	struct Motor motors_array[2] = {vertMotor, penMotor};
+	struct Motor motors_array[2] = {motor1, motor3};
 	// Initialise the step size for the motors if they are step motors
 	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
 	#endif
 	
 	#ifdef MILL
-	struct Motor vertMotor = {"Vert motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
-	struct Motor spinMotor = {"Spin motor", "DC", 2, 0, 0, 1, 0, 10, 0, 1};
-	struct Motor penMotor = {"Pen motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
-	
 	// Create an array of the motors
-	struct Motor motors_array[3] = {vertMotor, spinMotor, penMotor};
+	struct Motor motors_array[3] = {motor1, motor2, motor3};
 	// Initialise the step size for the motors if they are step motors
 	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
 	#endif
 	
 	#ifdef DRILL
-	struct Motor vertMotor = {"Vert motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
-	struct Motor spinMotor = {"Spin motor", "DC", 2, 0, 0, 1, 0, 10, 0, 1};
-	struct Motor penMotor = {"Pen motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
-	
 	// Create an array of the motors
-	struct Motor motors_array[3] = {vertMotor, spinMotor, penMotor};
+	struct Motor motors_array[3] = {motor1, motor2, motor3};
 	// Initialise the step size for the motors if they are step motors
 	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
 	#endif
 	
-	//Initialise motors
-	
+	// Set the machine to a ready state
+	machineState = MACHINE_READY;
 	
   /* USER CODE END 2 */
 
@@ -597,6 +610,24 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
     Error_Handler();        
   }
 	
+	// Depending on the initial instruction byte put the data in the intruction array 
+	// or put the machine into the required state
+	if(ReceiveBuf[0] == NORM_INST) {
+		// Standard straight path instruction received
+		// For every element in the receive buffer, add it to the next free element of the instructionArray
+		for(int i = 0; i < (sizeof(ReceiveBuf)/sizeof(*ReceiveBuf)) - 1; i++) {
+			instructionArray[instArrNextFree][i] = ReceiveBuf[i+1];
+		}
+		// Increment the next free position
+		instArrNextFree += 1;
+	} else if(ReceiveBuf[0] == START_INST) {
+		// A Start instruction was sent, initiate the machine into a running state
+		machineState = MACHINE_RUNNING;
+	} else if(ReceiveBuf[0] == PAUSE_INST) {
+		// A Pause instruction was sent, set the machine into a pause state
+		machineState = MACHINE_PAUSED;
+	}
+	
 	// Turn off the PC13 LED
 	HAL_GPIO_WritePin(PC13LED_GPIO_Port,PC13LED_Pin,GPIO_PIN_RESET);
 	//printf("ListenCpltCallback\n");
@@ -625,11 +656,35 @@ void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c) {
   * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
   *                the configuration information for the specified I2C.
   */
-void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *I2cHandle)
+void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c1)
 {
-  // Turn on PC13 LED
-	HAL_GPIO_WritePin(PC13LED_GPIO_Port,PC13LED_Pin,GPIO_PIN_SET);
-	//printf("SlaveRxCpltCallback\n");
+	// If the first byte written is requesting a read then put the respective data in the transmit buffer
+	switch(ReceiveBuf[0]) {
+		case READ_INST_SPEED_M1:
+			TransmitBuf[0] = (uint8_t)(((int)(motor1.currentSpeed) >> 8) & 0xFF);
+			TransmitBuf[1] = (uint8_t)((int)(motor1.currentSpeed) & 0xFF);
+			break;
+		case READ_INST_SPEED_M2:
+			TransmitBuf[0] = (uint8_t)(((int)(motor2.currentSpeed) >> 8) & 0xFF);
+			TransmitBuf[1] = (uint8_t)((int)(motor2.currentSpeed) & 0xFF);
+			break;
+		case READ_INST_SPEED_M3:
+			TransmitBuf[0] = (uint8_t)(((int)(motor3.currentSpeed) >> 8) & 0xFF);
+			TransmitBuf[1] = (uint8_t)((int)(motor3.currentSpeed) & 0xFF);
+			break;
+		case READ_INST_POS_M1:
+			TransmitBuf[0] = (uint8_t)(((int)(motor1.currentStep) >> 8) & 0xFF);
+			TransmitBuf[1] = (uint8_t)((int)(motor1.currentStep) & 0xFF);
+			break;
+		case READ_INST_POS_M2:
+			TransmitBuf[0] = (uint8_t)(((int)(motor2.currentStep) >> 8) & 0xFF);
+			TransmitBuf[1] = (uint8_t)((int)(motor2.currentStep) & 0xFF);
+			break;
+		case READ_INST_POS_M3:
+			TransmitBuf[0] = (uint8_t)(((int)(motor3.currentStep) >> 8) & 0xFF);
+			TransmitBuf[1] = (uint8_t)((int)(motor3.currentStep) & 0xFF);
+			break;
+	}
 }
 
 /**
