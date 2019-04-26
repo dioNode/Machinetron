@@ -19,8 +19,20 @@ extern struct Motor {
    double acceleration; // The step acceleration (steps/s^2)
    double dpr;          // Displacement per revolution of motor
    int msSinceLastStep; // Number of milliseconds since last step
-	 int stepsize;				// Step size: 1/(1,2,4,8,16,32)
+	 int stepsize;				// Step size: 1/(1,2,4,8,16)
 } motor;
+
+/**
+ * Initialises the motor stepsize pins
+ * @param[out] motor_array An array containing all the motors
+ */
+void initMotorsStepSize(struct Motor motors_array[], int len);
+
+/**
+ * Function to return the MS3,MS2,MS1, number based on the stepsize selected for the motor
+ * @param[out] stepSize The size of the step inverted (1,2,4,8,16)
+ */
+int getStepSizeSelector(int stepSize);
 
 /**
  * Steps the motor towards its target direction once.

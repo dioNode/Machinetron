@@ -1,7 +1,71 @@
 #include "motor.h"
 #include "config.h"
+#include "stm32f1xx_hal.h"
+#include "main.h"
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
+
+/**
+ * Initialises the motor stepsize pins
+ * @param[out] motor_array An array containing all the motors
+ */
+void initMotorsStepSize(struct Motor motors_array[], int len) {
+	int stepSelector;
+	for(int i = 0; i < len; i++) {
+		if(strncmp(motors_array[i].type, "STEP", 4) == 1) {
+			stepSelector = getStepSizeSelector(motors_array[i].stepsize);
+			switch(motors_array[i].id) {
+			case 1:
+				HAL_GPIO_WritePin(ST1MS1_GPIO_Port,ST1MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 0)) >> 0));
+				HAL_GPIO_WritePin(ST1MS2_GPIO_Port,ST1MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 1)) >> 1));
+				HAL_GPIO_WritePin(ST1MS3_GPIO_Port,ST1MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 2)) >> 2));
+				break;
+			case 2:
+				HAL_GPIO_WritePin(ST2MS1_GPIO_Port,ST2MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 0)) >> 0));
+				HAL_GPIO_WritePin(ST2MS2_GPIO_Port,ST2MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 1)) >> 1));
+				HAL_GPIO_WritePin(ST2MS3_GPIO_Port,ST2MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 2)) >> 2));
+				break;
+			case 3:
+				HAL_GPIO_WritePin(ST3MS1_GPIO_Port,ST3MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 0)) >> 0));
+				HAL_GPIO_WritePin(ST3MS2_GPIO_Port,ST3MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 1)) >> 1));
+				HAL_GPIO_WritePin(ST3MS3_GPIO_Port,ST3MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 2)) >> 2));
+				break;	
+			//default:
+				//Error_Handler();
+			}
+		}	
+	}
+}
+
+/**
+ * Function to return the MS3,MS2,MS1, number based on the stepsize selected for the motor
+ * @param[out] stepSize The size of the step inverted (1,2,4,8,16)
+ */
+int getStepSizeSelector(int stepSize) {
+	int sizeSelector;
+	// Switch statement to set the correct value to sizeSelector
+	switch(stepSize) {
+		case 1 :
+			sizeSelector = 0;
+			break;
+		case 2 :
+			sizeSelector = 1;
+			break;
+		case 4 :
+			sizeSelector = 2;
+			break;
+		case 8 :
+			sizeSelector = 3;
+			break;
+		case 16 :
+			sizeSelector = 7;
+			break;
+		default:
+			sizeSelector = 0;
+	}
+	return sizeSelector;
+}
 
 /**
  * Steps the motor towards its target direction once.

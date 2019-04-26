@@ -37,6 +37,13 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+// Definitions used to define what submachine is currently loaded
+#define HANDLER
+//#define LATHE
+//#define MILL
+//#define DRILL
+
 /* I2C Definitions */
 #define I2C_ADDRESS        	0x1F
 #define I2C_CLOCKSPEED   		400000
@@ -53,10 +60,12 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-/* I2C handler declaration */
 I2C_HandleTypeDef hi2c1;
 
-/* UART Debuugging handler declaration */
+#if defined MILL || defined DRILL
+TIM_HandleTypeDef htim4;
+#endif
+
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
@@ -75,6 +84,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
+#if defined MILL || defined DRILL
+static void MX_TIM4_Init(void);
+#endif
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 static void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength);
@@ -133,7 +145,11 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
-
+	
+	#if defined MILL || defined DRILL
+  MX_TIM4_Init();
+	#endif
+	
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
@@ -143,9 +159,57 @@ int main(void)
     Error_Handler();        
   }
 	
+	
+	// Indicate start of program
 	printf("Started Program\n");
 	
-	struct Motor raiseMotor = {"Raise motor", "STEP", 2, 0, 100, 1, 0, 10, 0, 1};
+	// Creation of motor structure for each submachine
+	#ifdef HANDLER
+	struct Motor railMotor = {"Rail motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
+	struct Motor flipMotor = {"Flip motor", "STEP", 2, 0, 0, 1, 0, 10, 0, 1};
+	struct Motor spinMotor = {"Spin motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
+	
+	// Create an array of the motors
+	struct Motor motors_array[3] = {railMotor, flipMotor, spinMotor};
+	// Initialise the step size for the motors if they are step motors
+	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
+	#endif
+	
+	#ifdef LATHE
+	struct Motor vertMotor = {"Vert motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
+	//struct Motor spinMotor = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 10, 0, 1};
+	struct Motor penMotor = {"Pen motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
+	
+	// Create an array of the motors
+	struct Motor motors_array[2] = {vertMotor, penMotor};
+	// Initialise the step size for the motors if they are step motors
+	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
+	#endif
+	
+	#ifdef MILL
+	struct Motor vertMotor = {"Vert motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
+	struct Motor spinMotor = {"Spin motor", "DC", 2, 0, 0, 1, 0, 10, 0, 1};
+	struct Motor penMotor = {"Pen motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
+	
+	// Create an array of the motors
+	struct Motor motors_array[3] = {vertMotor, spinMotor, penMotor};
+	// Initialise the step size for the motors if they are step motors
+	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
+	#endif
+	
+	#ifdef DRILL
+	struct Motor vertMotor = {"Vert motor", "STEP", 1, 0, 0, 1, 0, 10, 0, 1};
+	struct Motor spinMotor = {"Spin motor", "DC", 2, 0, 0, 1, 0, 10, 0, 1};
+	struct Motor penMotor = {"Pen motor", "STEP", 3, 0, 0, 1, 0, 10, 0, 1};
+	
+	// Create an array of the motors
+	struct Motor motors_array[3] = {vertMotor, spinMotor, penMotor};
+	// Initialise the step size for the motors if they are step motors
+	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
+	#endif
+	
+	//Initialise motors
+	
 	
   /* USER CODE END 2 */
 
@@ -156,28 +220,28 @@ int main(void)
 		
 		//Test Stepper Motor Two
 		//Enable Stepper
-		/*
+		
 		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_RESET);
 		// Set direction
 		HAL_GPIO_WritePin(ST2DIR_GPIO_Port,ST2DIR_Pin, GPIO_PIN_SET);
 		// for loop to run the stepper in this direction for 50 steps
 		for(int a = 0; a < 525; a = a + 1 ){
-      HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,1);
-			HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,0);
-			HAL_Delay(50);
+      HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)1);
+			HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)0);
+			HAL_Delay(1);
 		}
-		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,1);
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)1);
 		HAL_Delay(200);
-		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,0);
-		HAL_GPIO_WritePin(ST2DIR_GPIO_Port,ST2DIR_Pin,0);
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)0);
+		HAL_GPIO_WritePin(ST2DIR_GPIO_Port,ST2DIR_Pin,(GPIO_PinState)0);
 		for(int a = 0; a < 525; a = a + 1 ){
-      HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,1);
-			HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,0);
-			HAL_Delay(50);
+      HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)1);
+			HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)0);
+			HAL_Delay(1);
 		}
-		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,1);
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)1);
 		HAL_Delay(200);
-	*/
+		
 		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_SET);
     /* USER CODE END WHILE */
 
@@ -271,6 +335,67 @@ static void MX_I2C1_Init(void)
 
 }
 
+#if defined MILL || defined DRILL
+/**
+  * @brief TIM4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM4_Init(void)
+{
+
+  /* USER CODE BEGIN TIM4_Init 0 */
+
+  /* USER CODE END TIM4_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM4_Init 1 */
+
+  /* USER CODE END TIM4_Init 1 */
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 0;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 65535;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM4_Init 2 */
+
+  /* USER CODE END TIM4_Init 2 */
+  HAL_TIM_MspPostInit(&htim4);
+
+}
+#endif
+
 /**
   * @brief USART1 Initialization Function
   * @param None
@@ -332,9 +457,15 @@ static void MX_GPIO_Init(void)
 	
   HAL_GPIO_WritePin(GPIOB, ST3MS3_Pin|ST3MS2_Pin|ST3MS1_Pin|ST3EN_Pin 
                           |LEDGREEN_Pin|LEDRED_Pin|ST2STEP_Pin|ST2MS3_Pin 
-                          |ST2MS2_Pin|ST2MS1_Pin|ST2EN_Pin, GPIO_PIN_RESET);
+                          |ST2MS2_Pin|ST2MS1_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PC13LED_Pin */
+	#if defined HANDLER || defined LATHE
+	/*Configure GPIO pin Output Level */
+	// Used to initialise the enable pin for Motor 2 as a stepper motor
+  HAL_GPIO_WritePin(GPIOB, ST2EN_Pin, GPIO_PIN_RESET);
+  #endif
+	
+	/*Configure GPIO pin : PC13LED_Pin */
   GPIO_InitStruct.Pin = PC13LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -352,16 +483,16 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ST1MS3_Pin ST1MS2_Pin ST1MS1_Pin */
-  
-	GPIO_InitStruct.Pin = ST1MS3_Pin|ST1MS2_Pin|ST1MS1_Pin;
+	
+  GPIO_InitStruct.Pin = ST1MS3_Pin|ST1MS2_Pin|ST1MS1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ST1EN_Pin */
-  
-	GPIO_InitStruct.Pin = ST1EN_Pin;
+	
+  GPIO_InitStruct.Pin = ST1EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -369,32 +500,42 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : ST3MS3_Pin ST3MS2_Pin ST3MS1_Pin LEDGREEN_Pin 
                            LEDRED_Pin ST2MS3_Pin ST2MS2_Pin ST2MS1_Pin */
-  
-	GPIO_InitStruct.Pin = ST3MS3_Pin|ST3MS2_Pin|ST3MS1_Pin|LEDGREEN_Pin 
+													 
+  GPIO_InitStruct.Pin = ST3MS3_Pin|ST3MS2_Pin|ST3MS1_Pin|LEDGREEN_Pin 
                           |LEDRED_Pin|ST2MS3_Pin|ST2MS2_Pin|ST2MS1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ST3EN_Pin ST2EN_Pin */
-  
-	GPIO_InitStruct.Pin = ST3EN_Pin|ST2EN_Pin;
+  /*Configure GPIO pin : ST3EN_Pin */
+	
+  GPIO_InitStruct.Pin = ST3EN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
+  HAL_GPIO_Init(ST3EN_GPIO_Port, &GPIO_InitStruct);
+	
+	#if defined HANDLER || defined LATHE
+	/*Configure GPIO pin : ST2EN_Pin */
+	
+  GPIO_InitStruct.Pin = ST2EN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(ST3EN_GPIO_Port, &GPIO_InitStruct);
+	#endif
+	
   /*Configure GPIO pins : LIMSW1_Pin LIMSW4_Pin LIMSW5_Pin */
-  
-	GPIO_InitStruct.Pin = LIMSW1_Pin|LIMSW4_Pin|LIMSW5_Pin;
+	
+  GPIO_InitStruct.Pin = LIMSW1_Pin|LIMSW4_Pin|LIMSW5_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ST2STEP_Pin */
-  
-	GPIO_InitStruct.Pin = ST2STEP_Pin;
+	
+  GPIO_InitStruct.Pin = ST2STEP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
