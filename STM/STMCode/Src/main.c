@@ -69,12 +69,16 @@ TIM_HandleTypeDef htim4;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
+#if defined MILL || defined DRILL
+TIM_HandleTypeDef htim4;
+#endif
+
 // Receive and Transmit Data Buffer declarations
 uint8_t ReceiveBuf[RXBUFFERSIZE] = {NULL};
-uint8_t TransmitBuf[] = "Test Data How is the weather? 12";
+uint8_t TransmitBuf[TXBUFFERSIZE] = {NULL};
 
 // Main Instruction Array
-uint8_t instructionArray[100][28];
+uint8_t instructionArray[200][28];
 int instArrNextFree = 0;
 
 // Creation of motor structure for each submachine
@@ -118,6 +122,10 @@ static void MX_TIM4_Init(void);
 #endif
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
+#if defined MILL || defined DRILL
+static void MX_TIM4_Init(void);
+#endif
+
 static void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength);
 static void Error_Handler(void);
 /* USER CODE END PFP */
@@ -182,6 +190,10 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
+	#if defined MILL || defined DRILL
+  MX_TIM4_Init();
+	#endif
+	
 	if(HAL_I2C_EnableListen_IT(&hi2c1) != HAL_OK)
   {
     /* Transfer error in reception process */
@@ -245,6 +257,7 @@ int main(void)
 		}
 		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)1);
 		HAL_Delay(200);
+		
 		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)0);
 		HAL_GPIO_WritePin(ST2DIR_GPIO_Port,ST2DIR_Pin,(GPIO_PinState)0);
 		for(int a = 0; a < 525; a = a + 1 ){
@@ -259,6 +272,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		HAL_UART_Transmit(&huart1,(uint8_t *)instructionArray[instArrNextFree-1],sizeof(instructionArray[instArrNextFree-1]),HAL_MAX_DELAY);
+	  HAL_UART_Transmit(&huart1,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
   }
   /* USER CODE END 3 */
 }
@@ -326,7 +341,15 @@ static void MX_I2C1_Init(void)
   /* USER CODE END I2C1_Init 0 */
 
   /* USER CODE BEGIN I2C1_Init 1 */
-
+	hi2c1.Instance 							= I2Cx;
+  hi2c1.Init.ClockSpeed 			= I2C_CLOCKSPEED;
+  hi2c1.Init.DutyCycle 				= I2C_DUTYCYCLE;
+  hi2c1.Init.OwnAddress1 			= I2C_ADDRESS<<1;
+  hi2c1.Init.AddressingMode 	= I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode 	= I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 			= 0;
+  hi2c1.Init.GeneralCallMode 	= I2C_GENERALCALL_ENABLE;
+  hi2c1.Init.NoStretchMode 		= I2C_NOSTRETCH_DISABLE;
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance 							= I2Cx;
   hi2c1.Init.ClockSpeed 			= I2C_CLOCKSPEED;
@@ -422,7 +445,14 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE END USART1_Init 0 */
 
   /* USER CODE BEGIN USART1_Init 1 */
-
+	huart1.Instance 						= USART1;
+  huart1.Init.BaudRate 				= UART_BAUDRATE;
+  huart1.Init.WordLength 			= UART_WORDLENGTH_8B;
+  huart1.Init.StopBits 				= UART_STOPBITS_1;
+  huart1.Init.Parity 					= UART_PARITY_NONE;
+  huart1.Init.Mode 						= UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl 			= UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling 		= UART_OVERSAMPLING_16;
   /* USER CODE END USART1_Init 1 */
   huart1.Instance 						= USART1;
   huart1.Init.BaudRate 				= UART_BAUDRATE;
@@ -572,7 +602,7 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, ui
 	// as a transmitter
 	if (TransferDirection == I2C_DIRECTION_RECEIVE) {
 		//printf("TransferDirectionReceive\n");
-		if(HAL_I2C_Slave_Sequential_Transmit_IT(hi2c, (uint8_t *)TransmitBuf, RXBUFFERSIZE,I2C_LAST_FRAME) != HAL_OK) {
+		if(HAL_I2C_Slave_Sequential_Transmit_IT(hi2c, (uint8_t *)TransmitBuf, TXBUFFERSIZE,I2C_LAST_FRAME) != HAL_OK) {
 			// Transfer error in reception process
 			Error_Handler();
 		}
@@ -580,7 +610,7 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, ui
 	} 
 	else {
 		//printf("TransferDirectionTransmit\n");
-		if(HAL_I2C_Slave_Sequential_Receive_IT(hi2c, (uint8_t *)ReceiveBuf, TXBUFFERSIZE,I2C_FIRST_FRAME) != HAL_OK) {
+		if(HAL_I2C_Slave_Sequential_Receive_IT(hi2c, (uint8_t *)ReceiveBuf, RXBUFFERSIZE,I2C_FIRST_FRAME) != HAL_OK) {
 			// Transfer error in transmition process
 			Error_Handler();
 		}
@@ -612,6 +642,7 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 	
 	// Depending on the initial instruction byte put the data in the intruction array 
 	// or put the machine into the required state
+	
 	if(ReceiveBuf[0] == NORM_INST) {
 		// Standard straight path instruction received
 		// For every element in the receive buffer, add it to the next free element of the instructionArray
@@ -628,14 +659,16 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 		machineState = MACHINE_PAUSED;
 	}
 	
+	
 	// Turn off the PC13 LED
 	HAL_GPIO_WritePin(PC13LED_GPIO_Port,PC13LED_Pin,GPIO_PIN_RESET);
 	//printf("ListenCpltCallback\n");
-	//printf("Really long piece of text to test a theory on interrupts being interrupted_
-	//HAL_UART_Transmit(&UartDebugHandle,(uint8_t *)hi2c->pBuffPtr,sizeof(hi2c->pBuffPtr),HAL_MAX_DELAY);
-	HAL_UART_Transmit(&huart1,(uint8_t *)ReceiveBuf,sizeof(ReceiveBuf),HAL_MAX_DELAY);
-	HAL_UART_Transmit(&huart1,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
+	//HAL_UART_Transmit(&huart1,(uint8_t *)ReceiveBuf,sizeof(ReceiveBuf),HAL_MAX_DELAY);
+	//HAL_UART_Transmit(&huart1,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
+	
+	//Empty the transmit and receive buffers ready for the next transmission
 	Flush_Buffer(ReceiveBuf,sizeof(ReceiveBuf));
+	//Flush_Buffer(TransmitBuf,sizeof(TransmitBuf));
 }
 
 /**
@@ -656,9 +689,10 @@ void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c) {
   * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
   *                the configuration information for the specified I2C.
   */
-void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c1)
+void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	// If the first byte written is requesting a read then put the respective data in the transmit buffer
+
 	switch(ReceiveBuf[0]) {
 		case READ_INST_SPEED_M1:
 			TransmitBuf[0] = (uint8_t)(((int)(motor1.currentSpeed) >> 8) & 0xFF);
@@ -685,6 +719,10 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c1)
 			TransmitBuf[1] = (uint8_t)((int)(motor3.currentStep) & 0xFF);
 			break;
 	}
+	
+	// Turn on PC13 LED
+	HAL_GPIO_WritePin(PC13LED_GPIO_Port,PC13LED_Pin,GPIO_PIN_SET);
+	//printf("SlaveRxCpltCallback\n");
 }
 
 /**

@@ -67,7 +67,7 @@ extern "C" {
 #define RXBUFFERSIZE     								32
 
 /* Size of Reception buffer */
-#define TXBUFFERSIZE                    32
+#define TXBUFFERSIZE                    2
 
 /* Intruction Type Byte Constants */
 #define NORM_INST												0x00
@@ -98,16 +98,16 @@ extern "C" {
 
 #define HOME_MOTOR											0x01 << 3
 
-#define MOTOR1_HOME											MOTOR1 || HOME_MOTOR
-#define MOTOR2_HOME											MOTOR2 || HOME_MOTOR
-#define MOTOR3_HOME											MOTOR3 || HOME_MOTOR
+#define MOTOR1_HOME											MOTOR1 | HOME_MOTOR
+#define MOTOR2_HOME											MOTOR2 | HOME_MOTOR
+#define MOTOR3_HOME											MOTOR3 | HOME_MOTOR
 
-#define MOTOR1_FWD											MOTOR1 || DIR_FORWARD
-#define MOTOR1_RVS											MOTOR1 || DIR_REVERSE	
-#define MOTOR2_FWD											MOTOR2 || DIR_FORWARD
-#define MOTOR2_RVS											MOTOR2 || DIR_REVERSE	
-#define MOTOR3_FWD											MOTOR3 || DIR_FORWARD
-#define MOTOR3_RVS											MOTOR3 || DIR_REVERSE	
+#define MOTOR1_FWD											MOTOR1 | DIR_FORWARD
+#define MOTOR1_RVS											MOTOR1 | DIR_REVERSE	
+#define MOTOR2_FWD											MOTOR2 | DIR_FORWARD
+#define MOTOR2_RVS											MOTOR2 | DIR_REVERSE	
+#define MOTOR3_FWD											MOTOR3 | DIR_FORWARD
+#define MOTOR3_RVS											MOTOR3 | DIR_REVERSE	
 
 // Constants defining the state of the Submachine
 #define MACHINE_READY										0x01

@@ -34,7 +34,11 @@ void initMotorsStepSize(struct Motor motors_array[], int len) {
 			//default:
 				//Error_Handler();
 			}
-		}	
+		} else {
+			// Set the spinning direction for the DC motors
+			HAL_GPIO_WritePin(ST2MS1_GPIO_Port,ST2MS1_Pin, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(ST2MS2_GPIO_Port,ST2MS1_Pin, GPIO_PIN_SET);
+		}			
 	}
 }
 
