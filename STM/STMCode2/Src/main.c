@@ -27,7 +27,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stm32f1xx_hal_i2c.h"
+#include "stdio.h"
+#include "string.h"
+//#include "config.h"
+#include "motor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,12 +52,49 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+/*____________________Main I2C Receive/Transmit Buffers____________________*/
+uint8_t ReceiveBuf[RXBUFFERSIZE] = {NULL};
+uint8_t TransmitBuf[TXBUFFERSIZE] = {NULL};
 
+/*____________________Main Instruction Buffer____________________*/
+uint8_t instructionArray[200][28];
+int instArrNextFree = 0;
+
+/*____________________Creation of Motors for Submachines____________________*/
+#ifdef HANDLER
+struct Motor motor1 = {"Rail motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, 1};
+struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, 1};
+struct Motor motor3 = {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, 1};
+#endif
+#ifdef LATHE
+struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, 1};
+//struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, 1};
+struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, 1};
+#endif
+#ifdef MILL
+struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, 1};
+struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, 1};
+struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, 1};	
+#endif
+#ifdef DRILL
+struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, 1};
+struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, 1};
+struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, 1};
+#endif
+
+/*____________________Machine State Declaration____________________*/
+// Volatile variable used for storing the machine's state
+volatile uint8_t machineState;
+
+uint8_t newline[] = "\n";
+
+uint8_t testvariable = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_NVIC_Init(void);
+void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -170,7 +211,127 @@ static void MX_NVIC_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/*____________________Static Functions____________________*/
 
+/*____________________Global/Exported Functions____________________*/
+/**
+  * @brief  Flushes the buffer
+  * @param  pBuffer: buffers to be flushed.
+  * @param  BufferLength: buffer's length
+  * @retval None
+  */
+void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength) {
+  while (BufferLength--)
+  {
+    *pBuffer = 0;
+
+    pBuffer++;
+  }
+}
+
+/**
+  * @brief  Function to retrieve the I2C Receive Buffer 
+  * @retval The pointer to the Receive Buffer
+  */
+uint8_t* Get_I2C_Receive_Buffer(void) {
+	return ReceiveBuf;
+}
+
+/**
+  * @brief  Function to set a value to the I2C Receive Buffer at a specific index
+  * @param  The value to put in the index
+	* @param  The index of the array
+  */
+void Set_I2C_Receive_Buffer_At_Index(uint8_t value, int index) {
+	ReceiveBuf[index] = value;
+}
+
+/**
+  * @brief  Function to retrieve the I2C Transmit Buffer 
+  * @retval The pointer to the Transmit Buffer
+  */
+uint8_t* Get_I2C_Transmit_Buffer(void) {
+	return TransmitBuf;
+}
+
+/**
+  * @brief  Function to set a value to the I2C Transmit Buffer at a specific index
+  * @param  The value to put in the index
+	* @param  The index of the array
+  */
+void Set_I2C_Transmit_Buffer_At_Index(uint8_t value, int index) {
+	TransmitBuf[index] = value;
+}
+
+/**
+  * @brief  Function to retrieve the current state of the submachine 
+  * @retval The value of machineState
+  */
+uint8_t Get_Machine_State(void) {
+	return machineState;
+}
+
+/**
+  * @brief  Function to set the current state of the submachine 
+  * @param  The new value of machineState
+  */
+void Set_Machine_State(int newState) {
+	machineState = newState;
+}
+
+/**
+  * @brief  Function to retrieve the Instruction Array 
+  * @retval The value of instructionArray
+  */
+uint8_t* Get_Instruction_Array(void) {
+	return *instructionArray;
+}
+
+/**
+  * @brief  Function to set a value in the Instruction Array at a specific index
+  * @param  The value of the byte at the specific index
+	* @param	The instruction index
+	* @param	The byte index
+  */
+void Set_Instruction_Array_At_Index(uint8_t value, int intrIndex, int byteIndex) {
+	instructionArray[intrIndex][byteIndex] = value;
+}
+
+/**
+  * @brief  Function to retrieve the next free row of the Instruction Array 
+  * @retval The value of instArrNextFree
+  */
+int Get_Inst_Array_Next_Free(void) {
+	return instArrNextFree;
+}
+
+/**
+  * @brief  Function to set the next free row of the Instruction Array 
+  * @param  The new value of instArrNextFree
+  */
+void Set_Inst_Array_Next_Free(int newValue) {
+	instArrNextFree = newValue;
+}
+
+/**
+  * @brief  Function to retrieve the Motor struct instance based on the supplied motorNum 
+  * @retval The value of instArrNextFree
+  */
+struct Motor Get_Motor_Struct(int motorNum) {
+	struct Motor tempMotor;
+	switch(motorNum) {
+		case 1:
+			tempMotor = motor1;
+			break; 
+		case 2:
+			tempMotor = motor2;
+			break;
+		case 3:
+			tempMotor = motor3;
+			break;
+	}
+	return tempMotor;
+}
 /* USER CODE END 4 */
 
 /**

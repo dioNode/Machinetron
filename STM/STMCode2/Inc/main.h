@@ -29,6 +29,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
+#include "motor.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -42,7 +43,79 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
+/* Definition for I2Cx clock resources */
+#define I2Cx                            I2C1
+#define I2Cx_CLK_ENABLE()               __HAL_RCC_I2C1_CLK_ENABLE()
+#define I2Cx_SDA_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
+#define I2Cx_SCL_GPIO_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE() 
 
+#define I2Cx_FORCE_RESET()              __HAL_RCC_I2C1_FORCE_RESET()
+#define I2Cx_RELEASE_RESET()            __HAL_RCC_I2C1_RELEASE_RESET()
+
+/* Definition for I2Cx Pins */
+#define I2Cx_SCL_PIN                    GPIO_PIN_8
+#define I2Cx_SCL_GPIO_PORT              GPIOB
+#define I2Cx_SDA_PIN                    GPIO_PIN_9
+#define I2Cx_SDA_GPIO_PORT              GPIOB
+
+/* Definition for I2Cx's NVIC */
+#define I2Cx_EV_IRQn                    I2C1_EV_IRQn
+#define I2Cx_ER_IRQn                    I2C1_ER_IRQn
+#define I2Cx_EV_IRQHandler              I2C1_EV_IRQHandler
+#define I2Cx_ER_IRQHandler              I2C1_ER_IRQHandler
+
+
+/*____________________User Exported Defines____________________*/
+/* Size of Transmission buffer */
+#define RXBUFFERSIZE     								32
+
+/* Size of Reception buffer */
+#define TXBUFFERSIZE                    2
+
+/* Intruction Type Byte Constants */
+#define NORM_INST												0x00
+#define START_INST											0x01
+#define PAUSE_INST											0x02
+
+#define READ_INST_SPEED_M1							0x03
+#define READ_INST_SPEED_M2							0x04
+#define READ_INST_SPEED_M3							0x05
+
+#define READ_INST_POS_M1								0x06
+#define READ_INST_POS_M2								0x07
+#define READ_INST_POS_M3								0x08
+
+//#define READ_INST_MOTORS_RUNNING				0x09
+//#define READ_INST_COMPLETE							0x0A
+
+/* Motor Identifier Byte Constants */
+#define MOTOR1													0x01 << 6								
+#define MOTOR2													0x02 << 6
+#define MOTOR3													0x03 << 6
+
+#define DIR_FORWARD											0x01 << 5
+#define DIR_REVERSE											0x00 << 5
+
+#define DC_MOTOR_RUN										0x01 << 4
+#define DC_MOTOR_STOP										0x00 << 4
+
+#define HOME_MOTOR											0x01 << 3
+
+#define MOTOR1_HOME											MOTOR1 | HOME_MOTOR
+#define MOTOR2_HOME											MOTOR2 | HOME_MOTOR
+#define MOTOR3_HOME											MOTOR3 | HOME_MOTOR
+
+#define MOTOR1_FWD											MOTOR1 | DIR_FORWARD
+#define MOTOR1_RVS											MOTOR1 | DIR_REVERSE	
+#define MOTOR2_FWD											MOTOR2 | DIR_FORWARD
+#define MOTOR2_RVS											MOTOR2 | DIR_REVERSE	
+#define MOTOR3_FWD											MOTOR3 | DIR_FORWARD
+#define MOTOR3_RVS											MOTOR3 | DIR_REVERSE	
+
+// Constants defining the state of the Submachine
+#define MACHINE_READY										0x01
+#define MACHINE_RUNNING									0x02
+#define MACHINE_PAUSED									0x03
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -54,7 +127,29 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength);
 
+uint8_t* Get_I2C_Receive_Buffer(void);
+
+void Set_I2C_Receive_Buffer_At_Index(uint8_t value, int index);
+
+uint8_t* Get_I2C_Transmit_Buffer(void);
+
+void Set_I2C_Transmit_Buffer_At_Index(uint8_t value, int index);
+	
+uint8_t Get_Machine_State(void);
+
+void Set_Machine_State(int newState);
+	
+uint8_t* Get_Instruction_Array(void);
+
+void Set_Instruction_Array_At_Index(uint8_t value, int intrIndex, int byteIndex);
+
+int Get_Inst_Array_Next_Free(void);
+
+void Set_Inst_Array_Next_Free(int newValue);
+
+struct Motor Get_Motor_Struct(int motorNum);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -115,6 +210,11 @@ void Error_Handler(void);
 #define I2CSDA_Pin GPIO_PIN_9
 #define I2CSDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
+/*___________________Definition of current submachine____________________*/
+#define HANDLER
+//#define LATHE
+//#define MILL
+//#define DRILL
 
 /* USER CODE END Private defines */
 
