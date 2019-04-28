@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <stdlib.h>
+
+#include "usart.h"
+
 
 /**
  * Initialises the motor stepsize pins
@@ -13,23 +17,23 @@
 void initMotorsStepSize(struct Motor motors_array[], int len) {
 	int stepSelector;
 	for(int i = 0; i < len; i++) {
-		if(strncmp(motors_array[i].type, "STEP", 4) == 1) {
+		if(strcmp(motors_array[i].type, "STEP") == 0) {
 			stepSelector = getStepSizeSelector(motors_array[i].stepsize);
 			switch(motors_array[i].id) {
 			case 1:
 				HAL_GPIO_WritePin(ST1MS1_GPIO_Port,ST1MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 0)) >> 0));
-				HAL_GPIO_WritePin(ST1MS2_GPIO_Port,ST1MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 1)) >> 1));
-				HAL_GPIO_WritePin(ST1MS3_GPIO_Port,ST1MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 2)) >> 2));
+				HAL_GPIO_WritePin(ST1MS2_GPIO_Port,ST1MS2_Pin, (GPIO_PinState)((stepSelector & (1 << 1)) >> 1));
+				HAL_GPIO_WritePin(ST1MS3_GPIO_Port,ST1MS3_Pin, (GPIO_PinState)((stepSelector & (1 << 2)) >> 2));
 				break;
 			case 2:
 				HAL_GPIO_WritePin(ST2MS1_GPIO_Port,ST2MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 0)) >> 0));
-				HAL_GPIO_WritePin(ST2MS2_GPIO_Port,ST2MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 1)) >> 1));
-				HAL_GPIO_WritePin(ST2MS3_GPIO_Port,ST2MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 2)) >> 2));
+				HAL_GPIO_WritePin(ST2MS2_GPIO_Port,ST2MS2_Pin, (GPIO_PinState)((stepSelector & (1 << 1)) >> 1));
+				HAL_GPIO_WritePin(ST2MS3_GPIO_Port,ST2MS3_Pin, (GPIO_PinState)((stepSelector & (1 << 2)) >> 2));
 				break;
 			case 3:
 				HAL_GPIO_WritePin(ST3MS1_GPIO_Port,ST3MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 0)) >> 0));
-				HAL_GPIO_WritePin(ST3MS2_GPIO_Port,ST3MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 1)) >> 1));
-				HAL_GPIO_WritePin(ST3MS3_GPIO_Port,ST3MS1_Pin, (GPIO_PinState)((stepSelector & (1 << 2)) >> 2));
+				HAL_GPIO_WritePin(ST3MS2_GPIO_Port,ST3MS2_Pin, (GPIO_PinState)((stepSelector & (1 << 1)) >> 1));
+				HAL_GPIO_WritePin(ST3MS3_GPIO_Port,ST3MS3_Pin, (GPIO_PinState)((stepSelector & (1 << 2)) >> 2));
 				break;	
 			//default:
 				//Error_Handler();
@@ -37,7 +41,7 @@ void initMotorsStepSize(struct Motor motors_array[], int len) {
 		} else {
 			// Set the spinning direction for the DC motors
 			HAL_GPIO_WritePin(ST2MS1_GPIO_Port,ST2MS1_Pin, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(ST2MS2_GPIO_Port,ST2MS1_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(ST2MS2_GPIO_Port,ST2MS2_Pin, GPIO_PIN_SET);
 		}			
 	}
 }

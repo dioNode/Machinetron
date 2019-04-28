@@ -62,24 +62,24 @@ int instArrNextFree = 0;
 
 /*____________________Creation of Motors for Submachines____________________*/
 #ifdef HANDLER
-struct Motor motor1 = {"Rail motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, 1};
-struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, 1};
-struct Motor motor3 = {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, 1};
+struct Motor motor1 = {"Rail motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct Motor motor3 = {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 #endif
 #ifdef LATHE
-struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, 1};
-//struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, 1};
-struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, 1};
+struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 #endif
 #ifdef MILL
-struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, 1};
-struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, 1};
-struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, 1};	
+struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};	
 #endif
 #ifdef DRILL
-struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, 1};
-struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, 1};
-struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, 1};
+struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 #endif
 
 /*____________________Machine State Declaration____________________*/
@@ -101,7 +101,25 @@ void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// Code to allow printf to be redirected to UART1
+struct __FILE{
+  int handle;
+  /* Whatever you require here. If the only file you are using is */
+  /* standard output using printf() for debugging, no file handling */
+  /* is required. */
+};
 
+FILE __stdout;
+
+int fputc(int ch, FILE *f){
+	HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+  return ch;
+}
+
+int ferror(FILE *f){
+  /* Your implementation of ferror(). */
+  return 0;
+}
 /* USER CODE END 0 */
 
 /**
@@ -134,12 +152,59 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
+	#if defined MILL || defined DRILL
   MX_TIM4_Init();
+	#endif
   MX_TIM1_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
+	#if defined MILL || defined DRILL
+  MX_TIM4_Init();
+	#endif
+	
+	
+	if(HAL_I2C_EnableListen_IT(&hi2c1) != HAL_OK)
+  {
+    /* Transfer error in reception process */
+    Error_Handler();        
+  }
+	
+	// Indicate start of program
+	printf("Started Program\n");
+	
+	// Creation of motor structure for each submachine
+	#ifdef HANDLER
+	// Create an array of the motors
+	struct Motor motors_array[3] = {motor1, motor2, motor3};
+	// Initialise the step size for the motors if they are step motors
+	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
+	#endif
+	
+	#ifdef LATHE
+	// Create an array of the motors
+	struct Motor motors_array[2] = {motor1, motor3};
+	// Initialise the step size for the motors if they are step motors
+	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
+	#endif
+	
+	#ifdef MILL
+	// Create an array of the motors
+	struct Motor motors_array[3] = {motor1, motor2, motor3};
+	// Initialise the step size for the motors if they are step motors
+	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
+	#endif
+	
+	#ifdef DRILL
+	// Create an array of the motors
+	struct Motor motors_array[3] = {motor1, motor2, motor3};
+	// Initialise the step size for the motors if they are step motors
+	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
+	#endif
+	
+	// Set the machine to a ready state
+	machineState = MACHINE_READY;
 
   /* USER CODE END 2 */
 
@@ -147,9 +212,44 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		//Test Stepper Motor Two
+		//Enable Stepper
+		// HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_SET);
+		
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_RESET);
+		// Set direction
+		HAL_GPIO_WritePin(ST2DIR_GPIO_Port,ST2DIR_Pin, GPIO_PIN_SET);
+		// for loop to run the stepper in this direction for 50 steps
+		for(int a = 0; a < 525; a = a + 1 ){
+      HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)1);
+			HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)0);
+			HAL_Delay(1);
+		}
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)1);
+		HAL_Delay(200);
+		
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)0);
+		HAL_GPIO_WritePin(ST2DIR_GPIO_Port,ST2DIR_Pin,(GPIO_PinState)0);
+		for(int a = 0; a < 525; a = a + 1 ){
+      HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)1);
+			HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)0);
+			HAL_Delay(1);
+		}
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)1);
+		HAL_Delay(200);
+		
+		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_SET);
+		
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+		//HAL_Delay(2000);
+		HAL_UART_Transmit(&huart1,(uint8_t *)instructionArray[instArrNextFree],28,HAL_MAX_DELAY);
+	  HAL_UART_Transmit(&huart1,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart1,(uint8_t *)instructionArray[instArrNextFree-1],28,HAL_MAX_DELAY);
+	  HAL_UART_Transmit(&huart1,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart1,(uint8_t *)ReceiveBuf,sizeof(ReceiveBuf),HAL_MAX_DELAY);
+	  HAL_UART_Transmit(&huart1,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
   }
   /* USER CODE END 3 */
 }
@@ -238,6 +338,15 @@ uint8_t* Get_I2C_Receive_Buffer(void) {
 }
 
 /**
+  * @brief  Function to retrieve the size of the I2C Receive Buffer 
+  * @retval The pointer to the Receive Buffer
+  */
+int Get_I2C_Receive_Size(void) {
+	//return sizeof(ReceiveBuf)/sizeof(*ReceiveBuf);
+	return RXBUFFERSIZE;
+}
+
+/**
   * @brief  Function to set a value to the I2C Receive Buffer at a specific index
   * @param  The value to put in the index
 	* @param  The index of the array
@@ -252,6 +361,15 @@ void Set_I2C_Receive_Buffer_At_Index(uint8_t value, int index) {
   */
 uint8_t* Get_I2C_Transmit_Buffer(void) {
 	return TransmitBuf;
+}
+
+/**
+  * @brief  Function to retrieve the size of the I2C Transmit Buffer 
+  * @retval The pointer to the Receive Buffer
+  */
+int Get_I2C_Transmit_Size(void) {
+	//return sizeof(TransmitBuf)/sizeof(*TransmitBuf);
+	return TXBUFFERSIZE;
 }
 
 /**
@@ -342,7 +460,8 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-
+	HAL_GPIO_TogglePin(PC13LED_GPIO_Port,PC13LED_Pin); 
+  HAL_Delay(1000);
   /* USER CODE END Error_Handler_Debug */
 }
 

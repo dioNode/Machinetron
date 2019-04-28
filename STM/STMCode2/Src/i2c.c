@@ -19,6 +19,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "i2c.h"
+#include "usart.h"
 
 /* USER CODE BEGIN 0 */
 /*____________________I2C Constant Definitions____________________*/
@@ -165,7 +166,7 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 	if(Get_I2C_Receive_Buffer()[0] == NORM_INST) {
 		// Standard straight path instruction received
 		// For every element in the receive buffer, add it to the next free element of the instructionArray
-		for(int i = 0; i < (sizeof(Get_I2C_Receive_Buffer())/sizeof(*Get_I2C_Receive_Buffer())) - 1; i++) {
+		for(int i = 0; i < (Get_I2C_Receive_Size() - 1); i++) {
 			Set_Instruction_Array_At_Index(Get_I2C_Receive_Buffer()[i+1], Get_Inst_Array_Next_Free(), i);
 		}
 		// Increment the next free position
@@ -182,12 +183,12 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 	// Turn off the PC13 LED
 	HAL_GPIO_WritePin(PC13LED_GPIO_Port,PC13LED_Pin,GPIO_PIN_RESET);
 	//printf("ListenCpltCallback\n");
-	//HAL_UART_Transmit(&huart1,(uint8_t *)ReceiveBuf,sizeof(ReceiveBuf),HAL_MAX_DELAY);
-	//HAL_UART_Transmit(&huart1,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart1,(uint8_t *)Get_I2C_Receive_Buffer(),Get_I2C_Receive_Size(),HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart1,(uint8_t *)"\n",sizeof("\n"),HAL_MAX_DELAY);
 	
 	//Empty the transmit and receive buffers ready for the next transmission
-	Flush_Buffer(Get_I2C_Receive_Buffer(),sizeof(Get_I2C_Receive_Buffer()));
-	//Flush_Buffer(TransmitBuf,sizeof(TransmitBuf));
+	Flush_Buffer(Get_I2C_Receive_Buffer(), Get_I2C_Receive_Size());
+	Flush_Buffer(Get_I2C_Transmit_Buffer(), Get_I2C_Transmit_Size());
 }
 
 /**

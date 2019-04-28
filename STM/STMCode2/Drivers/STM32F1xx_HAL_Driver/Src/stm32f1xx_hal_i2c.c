@@ -245,6 +245,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
+#include "main.h"
 
 /** @addtogroup STM32F1xx_HAL_Driver
   * @{
@@ -4436,6 +4437,25 @@ static HAL_StatusTypeDef I2C_SlaveReceive_RXNE(I2C_HandleTypeDef *hi2c)
     (*hi2c->pBuffPtr++) = hi2c->Instance->DR;
     hi2c->XferCount--;
 
+		/*_______________User Code Check First Byte Matches Request_______________*/
+		
+		uint8_t firstByte = Get_I2C_Receive_Buffer()[0];
+		if((hi2c->XferCount == RXBUFFERSIZE - 1) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN) 
+			&&((firstByte == READ_INST_SPEED_M1) || (firstByte == READ_INST_SPEED_M2)
+				|| (firstByte == READ_INST_SPEED_M3) || (firstByte == READ_INST_POS_M1)
+				|| (firstByte == READ_INST_POS_M2) || (firstByte == READ_INST_POS_M3)))
+    {
+      // Last Byte is received, disable Interrupt
+      __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);
+
+      // Set state at HAL_I2C_STATE_LISTEN
+      hi2c->PreviousState = I2C_STATE_SLAVE_BUSY_RX;
+      hi2c->State = HAL_I2C_STATE_LISTEN;
+
+      // Call the Rx complete callback to inform upper layer of the end of receive process
+      HAL_I2C_SlaveRxCpltCallback(hi2c);
+    }
+		
     if((hi2c->XferCount == 0U) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN))
     {
       /* Last Byte is received, disable Interrupt */
@@ -4465,6 +4485,26 @@ static HAL_StatusTypeDef I2C_SlaveReceive_BTF(I2C_HandleTypeDef *hi2c)
     /* Read data from DR */
     (*hi2c->pBuffPtr++) = hi2c->Instance->DR;
     hi2c->XferCount--;
+		
+		/*_______________User Code Check First Byte Matches Request_______________*/
+		/*
+		if((hi2c->XferCount == RXBUFFERSIZE - 1) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN) 
+			&&((hi2c->pBuffPtr[0] == REQ_READ_SPEED_M1) || (hi2c->pBuffPtr[0] == REQ_READ_SPEED_M2)
+				|| (hi2c->pBuffPtr[0] == REQ_READ_SPEED_M3) || (hi2c->pBuffPtr[0] == REQ_READ_POS_M1)
+				|| (hi2c->pBuffPtr[0] == REQ_READ_POS_M2) || (hi2c->pBuffPtr[0] == REQ_READ_POS_M3)
+				|| (hi2c->pBuffPtr[0] == REQ_MOTORS_RUNNING)|| (hi2c->pBuffPtr[0] == REQ_COMPLETE)))
+    {
+      // Last Byte is received, disable Interrupt
+      __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);
+
+      // Set state at HAL_I2C_STATE_LISTEN
+      hi2c->PreviousState = I2C_STATE_SLAVE_BUSY_RX;
+      hi2c->State = HAL_I2C_STATE_LISTEN;
+
+      // Call the Rx complete callback to inform upper layer of the end of receive process
+      HAL_I2C_SlaveRxCpltCallback(hi2c);
+    }
+		*/
   }
   return HAL_OK;
 }

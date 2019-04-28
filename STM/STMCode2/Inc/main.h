@@ -67,7 +67,7 @@ extern "C" {
 
 /*____________________User Exported Defines____________________*/
 /* Size of Transmission buffer */
-#define RXBUFFERSIZE     								32
+#define RXBUFFERSIZE     								28
 
 /* Size of Reception buffer */
 #define TXBUFFERSIZE                    2
@@ -131,9 +131,13 @@ void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength);
 
 uint8_t* Get_I2C_Receive_Buffer(void);
 
+int Get_I2C_Receive_Size(void);
+
 void Set_I2C_Receive_Buffer_At_Index(uint8_t value, int index);
 
 uint8_t* Get_I2C_Transmit_Buffer(void);
+
+int Get_I2C_Transmit_Size(void);
 
 void Set_I2C_Transmit_Buffer_At_Index(uint8_t value, int index);
 	
@@ -215,7 +219,6 @@ struct Motor Get_Motor_Struct(int motorNum);
 //#define LATHE
 //#define MILL
 //#define DRILL
-
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

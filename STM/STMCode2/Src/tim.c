@@ -25,7 +25,10 @@
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim1;
+
+#if defined MILL || defined DRILL
 TIM_HandleTypeDef htim4;
+#endif
 
 /* TIM1 init function */
 void MX_TIM1_Init(void)
@@ -93,6 +96,7 @@ void MX_TIM1_Init(void)
   }
 
 }
+#if defined MILL || defined DRILL
 /* TIM4 init function */
 void MX_TIM4_Init(void)
 {
@@ -136,6 +140,7 @@ void MX_TIM4_Init(void)
   HAL_TIM_MspPostInit(&htim4);
 
 }
+#endif
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
 {
