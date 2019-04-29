@@ -29,3 +29,4 @@ stmcode2\stm32f1xx_hal_i2c.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_
 stmcode2\stm32f1xx_hal_i2c.o: ../Inc/main.h
 stmcode2\stm32f1xx_hal_i2c.o: ../Inc/motor.h
 stmcode2\stm32f1xx_hal_i2c.o: ../Inc/submachine.h
+stmcode2\stm32f1xx_hal_i2c.o: ../Inc/main.h

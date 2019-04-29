@@ -81,16 +81,54 @@ int getStepSizeSelector(int stepSize) {
  */
 void stepMotor(struct Motor *motor_ptr) {
   int targetStep = motor_ptr -> targetStep;
+	int motorID = motor_ptr -> id;
   // Step towards the direction of target
-  
-  if (motor_ptr -> currentStep < targetStep || motor_ptr -> targetStep == INF_VAL)
+  if (motor_ptr -> currentStep < targetStep || motor_ptr -> targetStep == INF_VAL) {
     motor_ptr -> currentStep += 1;
-    // TODO step forwards
+		pulseStepMotorPins(motorID, /*direction*/ 1);
+	}
     
   else if (motor_ptr -> currentStep > targetStep)
     motor_ptr -> currentStep -= 1;
-    // TODO step backwards
+    pulseStepMotorPins(motorID, /*direction*/ 0);
+}
 
+/**
+ * Steps the motor towards its target direction once.
+ * @param[out] motor_ptr The pointer for the motor.
+ */
+void pulseStepMotorPins(int motorID, int direction) {
+	switch(motorID) {
+		case 1:
+			if(direction == 1) {
+				HAL_GPIO_WritePin(ST1DIR_GPIO_Port, ST1DIR_Pin, GPIO_PIN_SET);
+			} else if(direction == 0) {
+				HAL_GPIO_WritePin(ST1DIR_GPIO_Port, ST1DIR_Pin, GPIO_PIN_RESET);
+			}
+			HAL_GPIO_WritePin(ST1STEP_GPIO_Port, ST1STEP_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(ST1STEP_GPIO_Port, ST1STEP_Pin, GPIO_PIN_RESET);
+			break;
+		case 2:
+			if(direction == 1) {
+				HAL_GPIO_WritePin(ST2DIR_GPIO_Port, ST2DIR_Pin, GPIO_PIN_SET);
+			} else if(direction == 0) {
+				HAL_GPIO_WritePin(ST2DIR_GPIO_Port, ST2DIR_Pin, GPIO_PIN_RESET);
+			}
+			HAL_GPIO_WritePin(ST2STEP_GPIO_Port, ST2STEP_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(ST2STEP_GPIO_Port, ST2STEP_Pin, GPIO_PIN_RESET);
+			break;
+		case 3:
+			if(direction == 1) {
+				HAL_GPIO_WritePin(ST3DIR_GPIO_Port, ST3DIR_Pin, GPIO_PIN_SET);
+			} else if(direction == 0) {
+				HAL_GPIO_WritePin(ST3DIR_GPIO_Port, ST3DIR_Pin, GPIO_PIN_RESET);
+			}
+			HAL_GPIO_WritePin(ST3STEP_GPIO_Port, ST3STEP_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(ST3STEP_GPIO_Port, ST3STEP_Pin, GPIO_PIN_RESET);
+			break;
+		default:
+			Error_Handler();
+	}
 }
 
 /**
@@ -164,7 +202,7 @@ double msPerStep(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The motor name
  */
-char* Get_Motor_Name(struct Motor *motor) {
+char* getMotorName(struct Motor *motor) {
 	// Return the motor's Name
 	return motor -> name;
 }
@@ -174,7 +212,7 @@ char* Get_Motor_Name(struct Motor *motor) {
  * @param[in] motor The motor being examined.
  * @return  The motor type
  */
-char* Get_Motor_Type(struct Motor *motor) {
+char* getMotorType(struct Motor *motor) {
 	// Return the motor's Type
 	return motor -> type;
 }
@@ -184,7 +222,7 @@ char* Get_Motor_Type(struct Motor *motor) {
  * @param[in] motor The motor being examined.
  * @return  The motor ID
  */
-int Get_Motor_ID(struct Motor *motor) {
+int getMotorID(struct Motor *motor) {
 	// Return the motor's ID
 	int IDTemp = motor ->id;
   return IDTemp;
@@ -195,7 +233,7 @@ int Get_Motor_ID(struct Motor *motor) {
  * @param[in] motor The motor being examined.
  * @return  The Current Step of the motor
  */
-double Get_Motor_Current_Step(struct Motor *motor) {
+double getMotorCurrentStep(struct Motor *motor) {
   // Return the motor's current step
 	double currentStepTemp = motor -> currentStep;
   return currentStepTemp;
@@ -206,7 +244,7 @@ double Get_Motor_Current_Step(struct Motor *motor) {
  * @param[in] motor The motor being examined.
  * @return  The Target Step of the motor
  */
-int Get_Motor_Target_Step(struct Motor *motor) {
+int getMotorTargetStep(struct Motor *motor) {
 	// Return the motor's Target Step
 	double targetStepTemp = motor -> targetStep;
   return targetStepTemp;
@@ -217,7 +255,7 @@ int Get_Motor_Target_Step(struct Motor *motor) {
  * @param[in] motor The motor being examined.
  * @return  The Current Speed of the motor
  */
-double Get_Motor_Current_Speed(struct Motor *motor) {
+double getMotorCurrentSpeed(struct Motor *motor) {
   // Return the motor's current speed
 	double currentSpeedTemp = motor -> currentSpeed;
   return currentSpeedTemp;
@@ -229,7 +267,7 @@ double Get_Motor_Current_Speed(struct Motor *motor) {
  * @param[in] motor The motor being examined.
  * @return  The Target Speed of the motor
  */
-double Get_Motor_Target_Speed(struct Motor *motor) {
+double getMotorTargetSpeed(struct Motor *motor) {
 	// Return the motor's Target Speed
 	double currentTargetTemp = motor -> targetSpeed;
 	return currentTargetTemp;
@@ -240,7 +278,7 @@ double Get_Motor_Target_Speed(struct Motor *motor) {
  * @param[in] motor The motor being examined.
  * @return  The current Acceleration of the motor
  */
-double Get_Motor_Accel(struct Motor *motor) {
+double getMotorAccel(struct Motor *motor) {
 	// Return the motor's Acceleration
 	double accelTemp = motor -> acceleration;
   return accelTemp;
@@ -251,7 +289,7 @@ double Get_Motor_Accel(struct Motor *motor) {
  * @param[in] motor The motor being examined.
  * @return  The motor DPR
  */
-double Get_Motor_DPR(struct Motor *motor) {
+double getMotorDPR(struct Motor *motor) {
 	// Return the motor's Displacement per Revolution
 	double dprTemp = motor -> dpr;
   return dprTemp;
@@ -262,7 +300,7 @@ double Get_Motor_DPR(struct Motor *motor) {
  * @param[in] motor The motor being examined.
  * @return  The current uS Delay of the motor
  */
-int Get_Motor_uS_Delay(struct Motor *motor) {
+int getMotoruSDelay(struct Motor *motor) {
 	// Return the motor's current uS Delay
 	int uSDelayTemp = motor -> usSinceLastStep;
   return uSDelayTemp;
@@ -273,8 +311,50 @@ int Get_Motor_uS_Delay(struct Motor *motor) {
  * @param[in] motor The motor being examined.
  * @return  The motor Step Size
  */
-int Get_Motor_Step_Size(struct Motor *motor) {
+int getMotorStepSize(struct Motor *motor) {
 	// Return the motor's Step Size
 	int stepSizeTemp = motor -> stepsize;
   return stepSizeTemp;
+}
+
+/**
+ * Function to check if the motor is at its target step
+ * @param[in] motor The motor being examined.
+ * @return  The 1 if the motor has finished its entire movement
+ */
+int isMotorFinished(struct Motor *motor) {
+	// Return a 1 if the motor has finished moving else return a 0
+	int isComplete = 0;
+	if(motor -> currentStep == motor -> targetStep) {
+		isComplete = 1;
+	}
+	return isComplete;
+}
+
+/**
+ * Function to calculate the duration (in Sec) of an instruction given the 
+ * start and end speeds in mm/s and the distance to travel in mm.
+ * @param[in] startSpeedMM The start speed in mm/s
+ * @param[in] endSpeedMM The end speed in mm/s
+ * @param[in] distanceMM the distance to travel in mm
+ * @return  Double containing the total duration of the entire movement
+ */
+double calculateDurationMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM) {
+	double duration = 0;
+	duration = 2 * distanceMM/(startSpeedMM+endSpeedMM);
+	return duration;
+}
+
+/**
+ * Function to calculate the acceleration (in mm/s^2) of an instruction given the 
+ * start and end speeds in mm/s and the distance to travel in mm.
+ * @param[in] startSpeedMM The start speed in mm/s
+ * @param[in] endSpeedMM The end speed in mm/s
+ * @param[in] distanceMM the distance to travel in mm
+ * @return  Double containing the constant acceleration of the entire movement
+ */
+double calculateAccelMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM) {
+	double accel = 0;
+	accel = (endSpeedMM^2-startSpeedMM^2)/(2*distanceMM);
+	return accel;
 }

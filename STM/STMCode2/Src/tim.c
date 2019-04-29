@@ -41,7 +41,7 @@ void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 31;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 50000;
+  htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -233,7 +233,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
   * @retval None
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	Increment_Timer_Upper_Half();
+	incrementTimerMSHalf();
 }
 
 /**
@@ -249,8 +249,16 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
   {
     if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_CC1) !=RESET)
     {
-			// TODO Step Motor 1 if motor not yet at target pos
-			// HAL_StatusTypeDef HAL_TIM_OC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
+			if(getTimerMSHalf() == getCompareMSHalf(/*Channel*/ 1)) {
+				//Step Motor 1 if motor not yet at target pos
+				if(isMotorFinished(getMotorById(&subMachine, /*ID*/ 1)) != 1) {
+					//Step Motor 1
+					stepMotor(getMotorById(&subMachine, /*ID*/ 1));
+					//TODOSet next Compare Timer Value
+				} else {
+					HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 1);
+				}
+			}
     }
   }
   /* Capture compare 2 event */
@@ -258,8 +266,16 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
   {
     if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_CC2) !=RESET)
     {
-      // TODO Step Motor 2 if motor not yet at target pos
-			// HAL_StatusTypeDef HAL_TIM_OC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
+			if(getTimerMSHalf() == getCompareMSHalf(/*Channel*/ 2)) {
+				//Step Motor 2 if motor not yet at target pos
+				if(isMotorFinished(getMotorById(&subMachine, /*ID*/ 2)) != 1) {
+					//Step Motor 2
+					stepMotor(getMotorById(&subMachine, /*ID*/ 2));
+					//TODOSet next Compare Timer Value
+				} else {
+					HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 2);
+				}
+			}
     }
   }
   /* Capture compare 3 event */
@@ -267,8 +283,16 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
   {
     if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_CC3) !=RESET)
     {
-      // TODO Step Motor 3 if motor not yet at target pos
-			// HAL_StatusTypeDef HAL_TIM_OC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
+			if(getTimerMSHalf() == getCompareMSHalf(/*Channel*/ 3)) {
+				//Step Motor 3 if motor not yet at target pos
+				if(isMotorFinished(getMotorById(&subMachine, /*ID*/ 3)) != 1) {
+					//Step Motor 3
+					stepMotor(getMotorById(&subMachine, /*ID*/ 3));
+					//TODOSet next Compare Timer Value
+				} else {
+					HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 3);
+				}
+			}
     }
   }
 	
