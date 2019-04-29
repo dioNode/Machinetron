@@ -275,18 +275,6 @@
 #define I2C_STATE_SLAVE_BUSY_TX   ((uint32_t)((HAL_I2C_STATE_BUSY_TX & I2C_STATE_MSK) | HAL_I2C_MODE_SLAVE))             /*!< Slave Busy TX, combinaison of State LSB and Mode enum  */
 #define I2C_STATE_SLAVE_BUSY_RX   ((uint32_t)((HAL_I2C_STATE_BUSY_RX & I2C_STATE_MSK) | HAL_I2C_MODE_SLAVE))             /*!< Slave Busy RX, combinaison of State LSB and Mode enum  */
 
-
-/*___________________User Addition of Constants__________________*/
-#define REQ_READ_SPEED_M1					0x01
-#define REQ_READ_SPEED_M2					0x02
-#define REQ_READ_SPEED_M3					0x03
-
-#define REQ_READ_POS_M1						0x04
-#define REQ_READ_POS_M2						0x05
-#define REQ_READ_POS_M3						0x06
-
-#define REQ_MOTORS_RUNNING				0x08
-#define REQ_COMPLETE							0x0F
 /**
   * @}
   */
@@ -4428,26 +4416,6 @@ static HAL_StatusTypeDef I2C_SlaveTransmit_BTF(I2C_HandleTypeDef *hi2c)
     /* Write data to DR */
     hi2c->Instance->DR = (*hi2c->pBuffPtr++);
     hi2c->XferCount--;
-		
-		/*_______________User Code Check First Byte Matches Request_______________*/
-		/*
-		if((hi2c->XferCount == RXBUFFERSIZE - 1) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN) 
-			&&((hi2c->pBuffPtr[0] == REQ_READ_SPEED_M1) || (hi2c->pBuffPtr[0] == REQ_READ_SPEED_M2)
-				|| (hi2c->pBuffPtr[0] == REQ_READ_SPEED_M3) || (hi2c->pBuffPtr[0] == REQ_READ_POS_M1)
-				|| (hi2c->pBuffPtr[0] == REQ_READ_POS_M2) || (hi2c->pBuffPtr[0] == REQ_READ_POS_M3)
-				|| (hi2c->pBuffPtr[0] == REQ_MOTORS_RUNNING)|| (hi2c->pBuffPtr[0] == REQ_COMPLETE)))
-    {
-      // Last Byte is received, disable Interrupt
-      __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);
-
-      // Set state at HAL_I2C_STATE_LISTEN
-      hi2c->PreviousState = I2C_STATE_SLAVE_BUSY_RX;
-      hi2c->State = HAL_I2C_STATE_LISTEN;
-
-      // Call the Rx complete callback to inform upper layer of the end of receive process
-      HAL_I2C_SlaveRxCpltCallback(hi2c);
-    }
-		*/
   }
   return HAL_OK;
 }
@@ -4473,10 +4441,9 @@ static HAL_StatusTypeDef I2C_SlaveReceive_RXNE(I2C_HandleTypeDef *hi2c)
 		
 		uint8_t firstByte = Get_First_Byte_of_Receive();
 		if((hi2c->XferCount == RXBUFFERSIZE - 1) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN) 
-			&&((firstByte == REQ_READ_SPEED_M1) || (firstByte == REQ_READ_SPEED_M2)
-				|| (firstByte == REQ_READ_SPEED_M3) || (firstByte == REQ_READ_POS_M1)
-				|| (firstByte == REQ_READ_POS_M2) || (firstByte == REQ_READ_POS_M3)
-				|| (firstByte == REQ_MOTORS_RUNNING)|| (firstByte == REQ_COMPLETE)))
+			&&((firstByte == READ_INST_SPEED_M1) || (firstByte == READ_INST_SPEED_M2)
+				|| (firstByte == READ_INST_SPEED_M3) || (firstByte == READ_INST_POS_M1)
+				|| (firstByte == READ_INST_POS_M2) || (firstByte == READ_INST_POS_M3)))
     {
       // Last Byte is received, disable Interrupt
       __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);
@@ -4518,6 +4485,26 @@ static HAL_StatusTypeDef I2C_SlaveReceive_BTF(I2C_HandleTypeDef *hi2c)
     /* Read data from DR */
     (*hi2c->pBuffPtr++) = hi2c->Instance->DR;
     hi2c->XferCount--;
+		
+		/*_______________User Code Check First Byte Matches Request_______________*/
+		/*
+		if((hi2c->XferCount == RXBUFFERSIZE - 1) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN) 
+			&&((hi2c->pBuffPtr[0] == REQ_READ_SPEED_M1) || (hi2c->pBuffPtr[0] == REQ_READ_SPEED_M2)
+				|| (hi2c->pBuffPtr[0] == REQ_READ_SPEED_M3) || (hi2c->pBuffPtr[0] == REQ_READ_POS_M1)
+				|| (hi2c->pBuffPtr[0] == REQ_READ_POS_M2) || (hi2c->pBuffPtr[0] == REQ_READ_POS_M3)
+				|| (hi2c->pBuffPtr[0] == REQ_MOTORS_RUNNING)|| (hi2c->pBuffPtr[0] == REQ_COMPLETE)))
+    {
+      // Last Byte is received, disable Interrupt
+      __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);
+
+      // Set state at HAL_I2C_STATE_LISTEN
+      hi2c->PreviousState = I2C_STATE_SLAVE_BUSY_RX;
+      hi2c->State = HAL_I2C_STATE_LISTEN;
+
+      // Call the Rx complete callback to inform upper layer of the end of receive process
+      HAL_I2C_SlaveRxCpltCallback(hi2c);
+    }
+		*/
   }
   return HAL_OK;
 }

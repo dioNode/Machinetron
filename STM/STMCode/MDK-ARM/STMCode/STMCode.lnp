@@ -1,5 +1,6 @@
 --cpu Cortex-M3
 "stmcode\startup_stm32f103xb.o"
+"stmcode\motor.o"
 "stmcode\main.o"
 "stmcode\stm32f1xx_it.o"
 "stmcode\stm32f1xx_hal_msp.o"
