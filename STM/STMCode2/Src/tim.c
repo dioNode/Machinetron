@@ -226,7 +226,53 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+/**
+  * @brief  This function is the callback from the timer update event, used to increment the sudo 32 bit timer
+  * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
+  *                the configuration information for the specified Timer.
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	Increment_Timer_Upper_Half();
+}
 
+/**
+  * @brief  This function is the callback from the timer Output Compare event, used to step the corresponding 
+	* 				motor depending on which compare register matched.
+  * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
+  *                the configuration information for the specified Timer.
+  * @retval None
+  */
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
+	/* Capture compare 1 event */
+  if(__HAL_TIM_GET_FLAG(htim, TIM_FLAG_CC1) != RESET)
+  {
+    if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_CC1) !=RESET)
+    {
+			// TODO Step Motor 1 if motor not yet at target pos
+			// HAL_StatusTypeDef HAL_TIM_OC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
+    }
+  }
+  /* Capture compare 2 event */
+  if(__HAL_TIM_GET_FLAG(htim, TIM_FLAG_CC2) != RESET)
+  {
+    if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_CC2) !=RESET)
+    {
+      // TODO Step Motor 2 if motor not yet at target pos
+			// HAL_StatusTypeDef HAL_TIM_OC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
+    }
+  }
+  /* Capture compare 3 event */
+  if(__HAL_TIM_GET_FLAG(htim, TIM_FLAG_CC3) != RESET)
+  {
+    if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_CC3) !=RESET)
+    {
+      // TODO Step Motor 3 if motor not yet at target pos
+			// HAL_StatusTypeDef HAL_TIM_OC_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
+    }
+  }
+	
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

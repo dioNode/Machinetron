@@ -154,6 +154,10 @@ int Get_Inst_Array_Next_Free(void);
 void Set_Inst_Array_Next_Free(int newValue);
 
 struct Motor Get_Motor_Struct(int motorNum);
+
+uint16_t Get_Timer_Upper_Half(void);
+
+void Increment_Timer_Upper_Half(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

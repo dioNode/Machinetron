@@ -86,6 +86,10 @@ struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Siz
 // Volatile variable used for storing the machine's state
 volatile uint8_t machineState;
 
+/*____________________32 bit Sudo Timer MS Half____________________*/
+// Volatile variable used for storing the MS Half of the sudo 32 bit Timer
+volatile uint16_t timerMSHalf;
+
 uint8_t newline[] = "\n";
 
 uint8_t testvariable = 0;
@@ -449,6 +453,26 @@ struct Motor Get_Motor_Struct(int motorNum) {
 			break;
 	}
 	return tempMotor;
+}
+
+/**
+  * @brief  Function to return the upper half of the sudo 32 bit timer 
+	* @retval The value of the sudo 32bit timer MS Half
+  */
+uint16_t Get_Timer_Upper_Half(void) {
+	return timerMSHalf;
+}
+
+/**
+  * @brief  Function to increment the upper half of the sudo 32 bit timer
+	* @retval None
+  */
+void Increment_Timer_Upper_Half(void) {
+	if(timerMSHalf == 0xFFFF) {
+		timerMSHalf = 0x0000;
+	} else {
+		timerMSHalf += 1;
+	}
 }
 /* USER CODE END 4 */
 
