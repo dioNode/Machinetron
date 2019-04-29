@@ -5,7 +5,7 @@ import sys, re
 from optparse import OptionParser
 from STL.trianglezslice import TriZSlice
 
-def generateSlices(filename):
+def generateSlices(filename, throughFace):
     parser = OptionParser()
     parser.add_option("-s", "--stl",        dest="stlfiles",     action="append",metavar="FILE",   help="Input STL file")
     parser.add_option("-o", "--output",     dest="outputfile",   default=None,metavar="FILE",      help="Output image name (can contain %d or %f) for multiple names")
@@ -66,12 +66,12 @@ def generateSlices(filename):
     if options.nslices != 0:
         for i in range(options.nslices):
             z = tzs.zlo + (tzs.zhi - tzs.zlo)*(i + 0.5)/options.nslices
-            tzs.SliceToPNG(z, pngname(options.outputfile, i, z))
+            tzs.SliceToPNG(z, pngname(options.outputfile, i, z), throughFace)
 
     i = options.nslices
     for sz in options.zlevels or []:
         z = float(z)
-        tzs.SliceToPNG(z, pngname(options.outputfile, i, z))
+        tzs.SliceToPNG(z, pngname(options.outputfile, i, z), throughFace)
         i += 1
 
     if options.cinputs:
@@ -83,5 +83,5 @@ def generateSlices(filename):
                 break
             lcl = cl.split(None, 1)
             z = float(lcl[0])
-            tzs.SliceToPNG(z, pngname(lcl[1] if len(lcl) == 2 else options.outputfile, i, z))
+            tzs.SliceToPNG(z, pngname(lcl[1] if len(lcl) == 2 else options.outputfile, i, z), throughFace)
             i += 1
