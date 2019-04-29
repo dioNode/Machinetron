@@ -52,6 +52,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
 /*____________________Main I2C Receive/Transmit Buffers____________________*/
 uint8_t ReceiveBuf[RXBUFFERSIZE] = {NULL};
 uint8_t TransmitBuf[TXBUFFERSIZE] = {NULL};
@@ -62,24 +63,44 @@ int instArrNextFree = 0;
 
 /*____________________Creation of Motors for Submachines____________________*/
 #ifdef HANDLER
-struct Motor motor1 = {"Rail motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-struct Motor motor3 = {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor1 = {"Rail motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor3 = {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct SubMachine subMachine = {"Handler", 1,
+      {{"Rail motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+   };
 #endif
 #ifdef LATHE
-struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 //struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct SubMachine subMachine = {"Lathe", 1,
+      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+   };
 #endif
 #ifdef MILL
-struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};	
+//struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct SubMachine subMachine = {"Mill", 1,
+      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+   };
 #endif
 #ifdef DRILL
-struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+//struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
+struct SubMachine subMachine = {"Drill", 1,
+      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+   };
 #endif
 
 /*____________________Machine State Declaration____________________*/
@@ -178,34 +199,10 @@ int main(void)
 	// Indicate start of program
 	printf("Started Program\n");
 	
-	// Creation of motor structure for each submachine
-	#ifdef HANDLER
 	// Create an array of the motors
-	struct Motor motors_array[3] = {motor1, motor2, motor3};
+	struct Motor motors_array[3] = {*getMotorById(&subMachine, 1), *getMotorById(&subMachine, 2), *getMotorById(&subMachine, 3)};
 	// Initialise the step size for the motors if they are step motors
 	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
-	#endif
-	
-	#ifdef LATHE
-	// Create an array of the motors
-	struct Motor motors_array[2] = {motor1, motor3};
-	// Initialise the step size for the motors if they are step motors
-	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
-	#endif
-	
-	#ifdef MILL
-	// Create an array of the motors
-	struct Motor motors_array[3] = {motor1, motor2, motor3};
-	// Initialise the step size for the motors if they are step motors
-	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
-	#endif
-	
-	#ifdef DRILL
-	// Create an array of the motors
-	struct Motor motors_array[3] = {motor1, motor2, motor3};
-	// Initialise the step size for the motors if they are step motors
-	initMotorsStepSize(motors_array, sizeof(motors_array)/sizeof(*motors_array));
-	#endif
 	
 	// Set the machine to a ready state
 	machineState = MACHINE_READY;
@@ -436,9 +433,10 @@ void Set_Inst_Array_Next_Free(int newValue) {
 }
 
 /**
-  * @brief  Function to retrieve the Motor struct instance based on the supplied motorNum 
+  * @brief  Function to retrieve the Motor struct instance (not pointer) based on the supplied motorNum 
   * @retval The value of instArrNextFree
   */
+/*
 struct Motor Get_Motor_Struct(int motorNum) {
 	struct Motor tempMotor;
 	switch(motorNum) {
@@ -454,7 +452,28 @@ struct Motor Get_Motor_Struct(int motorNum) {
 	}
 	return tempMotor;
 }
-
+*/
+/**
+  * @brief  Function to retrieve the Motor struct pointer based on the supplied motorNum 
+  * @retval The value of instArrNextFree
+  */
+	/*
+struct Motor *Get_Motor_Pointer(int motorNum) {
+	struct Motor *tempMotorPointer;
+	switch(motorNum) {
+		case 1:
+			tempMotorPointer = &motor1;
+			break; 
+		case 2:
+			tempMotorPointer = &motor2;
+			break;
+		case 3:
+			tempMotorPointer = &motor3;
+			break;
+	}
+	return tempMotorPointer;
+}
+*/
 /**
   * @brief  Function to return the upper half of the sudo 32 bit timer 
 	* @retval The value of the sudo 32bit timer MS Half

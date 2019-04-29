@@ -1,9 +1,13 @@
-#ifndef SUBMACHINE_H_
-#define SUBMACHINE_H_
+#ifndef __SUBMACHINE_H_
+#define __SUBMACHINE_H_
 
-//#include "motor.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-struct SubMachine {
+#include "motor.h"
+
+extern struct SubMachine {
    char* name;
    int id;
    struct Motor motors[3];
@@ -21,4 +25,4 @@ int getDirectionBit(int initByte);
 int getMotorIdBits(int initByte);
 int isComplete(struct SubMachine submachine);
 
-#endif // SUBMACHINE_H_
+#endif // __SUBMACHINE_H_
