@@ -85,5 +85,3 @@ def generateSlices(filename):
             z = float(lcl[0])
             tzs.SliceToPNG(z, pngname(lcl[1] if len(lcl) == 2 else options.outputfile, i, z))
             i += 1
-
-generateSlices('part2.STL')
