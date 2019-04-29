@@ -47,11 +47,11 @@ configurationMap = {
     }, 'coordination': {
         'speed': 20,
     }, 'motorMap': {
-        'spin': 1,
-        'vert': 2,
-        'pen': 3,
-        'rail': 4,
-        'flip': 5,
+        'spin': 2,
+        'vert': 3,
+        'pen': 1,
+        'rail': 1,
+        'flip': 3,
     }, 'other': {
         'infVal': 9999,
     }

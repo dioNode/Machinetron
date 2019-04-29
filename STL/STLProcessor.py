@@ -5,32 +5,46 @@ from scipy import ndimage, misc
 import numpy as np
 import os
 import cv2
+from support.supportFunctions import clearFolder
+
 
 class STLProcessor:
+    def __init__(self):
+        self.controller = None
+        self.path = None
+        self.sliceDepth = 10
+
     def generateCommands(self, filename, controller):
         self.controller = controller
-        # generateSlices(filename)
-        outPath = "STL\output"
-        path = "STL\output"
-        commands = []
+        self._clearFolders()
+        generateSlices(filename, 'leftright')
+        self.path = 'STL/output'
+        self.generateDrillCommands()
 
+    def generateDrillCommands(self):
         # iterate through the names of contents of the folder
+        throughFace = 'leftright'
+        sliceDepth = self.sliceDepth
         totalDrillPoints = []
-        for image_path in os.listdir(path):
+        facePath = self.path + '/' + throughFace
+        for image_path in os.listdir(facePath):
             # create the full input path and read the file
-            input_path = os.path.join(path, image_path)
+            input_path = os.path.join(facePath, image_path)
             img = cv2.imread(input_path, 0)
             drillPoints = detectDrill(img)
             totalDrillPoints.append(drillPoints)
 
-        sliceDepth = 10
         totalDrillPoints.reverse()
+        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'top')
+
+    def _parseDrillPoints(self, totalDrillPoints, sliceDepth, face):
 
         trackingPoints = []
-
-        print(totalDrillPoints)
-
         backwardsDrillHoleLengths = {}
+
+        self.controller.setFace(face)
+        foamWidth = self.controller.currentFaceWidth
+        foamHeight = self.controller.currentFaceHeight
 
         # Get initial holes from surface
         for drillPoint in totalDrillPoints[0]:
@@ -46,7 +60,14 @@ class STLProcessor:
             trackingPoints = updatedTrackingPoints
 
         for drillPoint, depth in backwardsDrillHoleLengths.items():
-            foamWidth = controller.xLength
-            foamHeight = controller.zLength
-            print('test', drillPoint, depth)
-            controller.commandGenerator.drill('front', drillPoint[0]*foamWidth - foamWidth/2, drillPoint[1]*foamHeight, depth)
+
+            self.controller.commandGenerator.drill(
+                face, drillPoint[0]*foamWidth - foamWidth/2, drillPoint[1]*foamHeight, depth)
+
+    def _clearFolders(self):
+        clearFolder('STL/output/frontback')
+        clearFolder('STL/output/leftright')
+        clearFolder('STL/output/topdown')
+
+    def _storeImageSlices(self):
+        pass

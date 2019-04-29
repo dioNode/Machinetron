@@ -164,11 +164,11 @@ class TriZSlice:
         fout.write(struct.pack("!I4sI", 0, block, bcrc&0xFFFFFFFF))
         fout.close()
 
-    def SliceToPNG(self, z, pngname):
+    def SliceToPNG(self, z, pngname, throughFace):
         stime = time.time()
         ysegrasters = self.CalcYsegrasters(z)
         lcompressed = self.CalcNakedCompressedBitmap(ysegrasters)
-        dirpngname = 'STL/output/' + pngname
+        dirpngname = 'STL/output/' + throughFace + '/' + pngname
         self.WritePNG(open(dirpngname, "wb"), lcompressed)
         if self.optionverbose:
             print("Sliced at z=%f to file %s  compressbytes=%d %dms" % (z, pngname, sum(map(len, lcompressed)), (time.time()-stime)*1000))
