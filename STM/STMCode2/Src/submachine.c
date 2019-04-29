@@ -1,5 +1,5 @@
 #include "submachine.h"
-//#include "motor.h"
+#include "motor.h"
 #include "config.h"
 #include <stdio.h>
 //#include <windows.h>
@@ -9,47 +9,48 @@
  */
 struct SubMachine initializeHandler() {
   struct SubMachine handler = {"Handler", 1,
-      {{"Spin Motor", 1, 0, 0, 1, 0, 2, 0},
-      {"Flip Motor", 5, 0, 0, 1, 0, 0.5, 0},
-      {"Shift Motor", 4, 0, 0, 1, 0, 0.1, 0}},
+      {{"Rail motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
    return handler;
 }
 
 struct SubMachine initializeDrill() {
   struct SubMachine drill = {"Drill", 1,
-      {{"Spin Motor", 1, 0, 0, 1, 0, 1, 0},
-      {"Raise Motor", 2, 0, 0, 1, 0, 10, 0},
-      {"Push Motor", 3, 0, 0, 1, 0, 5, 0}},
+      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
    return drill;
 }
 
 struct SubMachine initializeMill() {
   struct SubMachine mill = {"Mill", 1,
-      {{"Spin Motor", 1, 0, 0, 1, 0, 1, 0},
-      {"Raise Motor", 2, 0, 0, 1, 0, 10, 0},
-      {"Push Motor", 3, 0, 0, 1, 0, 5, 0}},
+      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
    return mill;
 }
 
 struct SubMachine initializeLathe() {
   struct SubMachine lathe = {"Lathe", 1,
-      {{"Spin Motor", 1, 0, 0, 1, 0, 1, 0},
-      {"Raise Motor", 2, 0, 0, 1, 0, 10, 0},
-      {"Push Motor", 3, 0, 0, 1, 0, 5, 0}},
+      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
    return lathe;
 }
 
 void printSubMachineDetails(struct SubMachine submachine) {
-  printf("%s: %d/%d %d/%d %d/%d\n", submachine.name, 
-    submachine.motors[0].currentStep, submachine.motors[0].targetStep,
-    submachine.motors[1].currentStep, submachine.motors[1].targetStep,
-    submachine.motors[2].currentStep, submachine.motors[2].targetStep);
+  //printf("%s: %d/%d %d/%d %d/%d\n", submachine.name, 
+    //submachine.motors[0].currentStep, submachine.motors[0].targetStep,
+    //submachine.motors[1].currentStep, submachine.motors[1].targetStep,
+    //submachine.motors[2].currentStep, submachine.motors[2].targetStep);
 }
 
+/*
 void tickSubMachine(struct SubMachine *submachine_ptr, double delay) {
   for (int motorNum = 0; motorNum < 3; motorNum++) {
     // Update time for motor
@@ -65,6 +66,7 @@ void tickSubMachine(struct SubMachine *submachine_ptr, double delay) {
     }
   }
 }
+*/
 
 struct Motor * getMotorById(struct SubMachine *submachine_ptr, int id) {
   struct Motor *motor_ptr;
@@ -74,7 +76,7 @@ struct Motor * getMotorById(struct SubMachine *submachine_ptr, int id) {
       return motor_ptr;
     }
   }
-  printf("Motor not found\n");
+  //printf("Motor not found\n");
   return NULL;
 }
 

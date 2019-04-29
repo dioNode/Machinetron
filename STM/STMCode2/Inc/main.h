@@ -30,6 +30,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
 #include "motor.h"
+#include "submachine.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -153,7 +154,7 @@ int Get_Inst_Array_Next_Free(void);
 
 void Set_Inst_Array_Next_Free(int newValue);
 
-struct Motor Get_Motor_Struct(int motorNum);
+//struct Motor Get_Motor_Struct(int motorNum);
 
 uint16_t Get_Timer_Upper_Half(void);
 
@@ -223,6 +224,8 @@ void Increment_Timer_Upper_Half(void);
 //#define LATHE
 //#define MILL
 //#define DRILL
+
+extern struct SubMachine subMachine;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

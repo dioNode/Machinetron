@@ -8,6 +8,7 @@
 "stmcode2\stm32f1xx_it.o"
 "stmcode2\stm32f1xx_hal_msp.o"
 "stmcode2\motor.o"
+"stmcode2\submachine.o"
 "stmcode2\stm32f1xx_hal_gpio_ex.o"
 "stmcode2\stm32f1xx_hal_i2c.o"
 "stmcode2\stm32f1xx_hal_tim.o"

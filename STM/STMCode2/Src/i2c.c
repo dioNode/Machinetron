@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "i2c.h"
 #include "usart.h"
+#include "main.h"
 
 /* USER CODE BEGIN 0 */
 /*____________________I2C Constant Definitions____________________*/
@@ -214,28 +215,28 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 	// If the first byte written is requesting a read then put the respective data in the transmit buffer
 	switch(Get_I2C_Receive_Buffer()[0]) {
 		case READ_INST_SPEED_M1:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Speed(Get_Motor_Struct(1))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Speed(Get_Motor_Struct(1))) & 0xFF), 1);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 1))) >> 8) & 0xFF), 0);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 1))) & 0xFF), 1);
 			break;
 		case READ_INST_SPEED_M2:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Speed(Get_Motor_Struct(2))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Speed(Get_Motor_Struct(2))) & 0xFF), 1);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 2))) >> 8) & 0xFF), 0);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 2))) & 0xFF), 1);
 			break;
 		case READ_INST_SPEED_M3:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Speed(Get_Motor_Struct(3))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Speed(Get_Motor_Struct(3))) & 0xFF), 1);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 3))) >> 8) & 0xFF), 0);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 3))) & 0xFF), 1);
 			break;
 		case READ_INST_POS_M1:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Step(Get_Motor_Struct(1))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Step(Get_Motor_Struct(1))) & 0xFF), 1);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 1))) >> 8) & 0xFF), 0);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 1))) & 0xFF), 1);
 			break;
 		case READ_INST_POS_M2:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Step(Get_Motor_Struct(2))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Step(Get_Motor_Struct(2))) & 0xFF), 1);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 2))) >> 8) & 0xFF), 0);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 2))) & 0xFF), 1);
 			break;
 		case READ_INST_POS_M3:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Step(Get_Motor_Struct(3))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Step(Get_Motor_Struct(3))) & 0xFF), 1);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 3))) >> 8) & 0xFF), 0);
+			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 3))) & 0xFF), 1);
 			break;
 	}
 	

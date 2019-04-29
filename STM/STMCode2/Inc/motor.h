@@ -85,42 +85,42 @@ double msPerStep(struct Motor motor);
  * @param[in] motor The motor being examined.
  * @return  The motor name
  */
-char* Get_Motor_Name(struct Motor motor);
+char* Get_Motor_Name(struct Motor *motor);
 
 /**
  * Function to return the type of the specific motor
  * @param[in] motor The motor being examined.
  * @return  The motor type
  */
-char* Get_Motor_Type(struct Motor motor);
+char* Get_Motor_Type(struct Motor *motor);
 
 /**
  * Function to return the ID of the specific motor
  * @param[in] motor The motor being examined.
  * @return  The motor ID
  */
-int Get_Motor_ID(struct Motor motor);
+int Get_Motor_ID(struct Motor *motor);
 
 /**
  * Function to return the Current Step of the specific motor
  * @param[in] motor The motor being examined.
  * @return  The Current Step of the motor
  */
-double Get_Motor_Current_Step(struct Motor motor);
+double Get_Motor_Current_Step(struct Motor *motor);
 
 /**
  * Function to return the target Step of the specific motor
  * @param[in] motor The motor being examined.
  * @return  The Target Step of the motor
  */
-int Get_Motor_Target_Step(struct Motor motor);
+int Get_Motor_Target_Step(struct Motor *motor);
 
 /**
  * Function to return the Current Speed of the specific motor
  * @param[in] motor The motor being examined.
  * @return  The Current Speed of the motor
  */
-double Get_Motor_Current_Speed(struct Motor motor);
+double Get_Motor_Current_Speed(struct Motor *motor);
 
 
 /**
@@ -128,34 +128,34 @@ double Get_Motor_Current_Speed(struct Motor motor);
  * @param[in] motor The motor being examined.
  * @return  The Target Speed of the motor
  */
-double Get_Motor_Target_Speed(struct Motor motor);
+double Get_Motor_Target_Speed(struct Motor *motor);
 
 /**
  * Function to return the current Acceleration of the specific motor
  * @param[in] motor The motor being examined.
  * @return  The current Acceleration of the motor
  */
-double Get_Motor_Accel(struct Motor motor);
+double Get_Motor_Accel(struct Motor *motor);
 
 /**
  * Function to return the Displacement per Revolution of the specific motor
  * @param[in] motor The motor being examined.
  * @return  The motor DPR
  */
-double Get_Motor_DPR(struct Motor motor);
+double Get_Motor_DPR(struct Motor *motor);
 
 /**
- * Function to return curretn uS Delay between steps of the specific motor
+ * Function to return current uS Delay between steps of the specific motor
  * @param[in] motor The motor being examined.
  * @return  The current uS Delay of the motor
  */
-int Get_Motor_uS_Delay(struct Motor motor);
+int Get_Motor_uS_Delay(struct Motor *motor);
 
 /**
  * Function to return the Step Size of the specific motor
  * @param[in] motor The motor being examined.
  * @return  The motor Step Size
  */
-int Get_Motor_Step_Size(struct Motor motor);
+int Get_Motor_Step_Size(struct Motor *motor);
 
 #endif // __MOTOR_H_

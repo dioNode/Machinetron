@@ -85,7 +85,7 @@ void stepMotor(struct Motor *motor_ptr) {
   
   if (motor_ptr -> currentStep < targetStep || motor_ptr -> targetStep == INF_VAL)
     motor_ptr -> currentStep += 1;
-    // TODO step forward
+    // TODO step forwards
     
   else if (motor_ptr -> currentStep > targetStep)
     motor_ptr -> currentStep -= 1;
@@ -164,8 +164,9 @@ double msPerStep(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The motor name
  */
-char* Get_Motor_Name(struct Motor motor) {
-	return motor.name;
+char* Get_Motor_Name(struct Motor *motor) {
+	// Return the motor's Name
+	return motor -> name;
 }
 
 /**
@@ -173,8 +174,9 @@ char* Get_Motor_Name(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The motor type
  */
-char* Get_Motor_Type(struct Motor motor) {
-	return motor.type;
+char* Get_Motor_Type(struct Motor *motor) {
+	// Return the motor's Type
+	return motor -> type;
 }
 
 /**
@@ -182,8 +184,10 @@ char* Get_Motor_Type(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The motor ID
  */
-int Get_Motor_ID(struct Motor motor) {
-	return motor.id;
+int Get_Motor_ID(struct Motor *motor) {
+	// Return the motor's ID
+	int IDTemp = motor ->id;
+  return IDTemp;
 }
 
 /**
@@ -191,9 +195,10 @@ int Get_Motor_ID(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The Current Step of the motor
  */
-double Get_Motor_Current_Step(struct Motor motor) {
-  // Return the motor's current speed
-  return motor.currentStep;
+double Get_Motor_Current_Step(struct Motor *motor) {
+  // Return the motor's current step
+	double currentStepTemp = motor -> currentStep;
+  return currentStepTemp;
 }
 
 /**
@@ -201,8 +206,10 @@ double Get_Motor_Current_Step(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The Target Step of the motor
  */
-int Get_Motor_Target_Step(struct Motor motor) {
-	return motor.targetStep;
+int Get_Motor_Target_Step(struct Motor *motor) {
+	// Return the motor's Target Step
+	double targetStepTemp = motor -> targetStep;
+  return targetStepTemp;
 }
 
 /**
@@ -210,9 +217,10 @@ int Get_Motor_Target_Step(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The Current Speed of the motor
  */
-double Get_Motor_Current_Speed(struct Motor motor) {
+double Get_Motor_Current_Speed(struct Motor *motor) {
   // Return the motor's current speed
-  return motor.currentSpeed;
+	double currentSpeedTemp = motor -> currentSpeed;
+  return currentSpeedTemp;
 }
 
 
@@ -221,8 +229,10 @@ double Get_Motor_Current_Speed(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The Target Speed of the motor
  */
-double Get_Motor_Target_Speed(struct Motor motor) {
-	return motor.targetSpeed;
+double Get_Motor_Target_Speed(struct Motor *motor) {
+	// Return the motor's Target Speed
+	double currentTargetTemp = motor -> targetSpeed;
+	return currentTargetTemp;
 }
 
 /**
@@ -230,8 +240,10 @@ double Get_Motor_Target_Speed(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The current Acceleration of the motor
  */
-double Get_Motor_Accel(struct Motor motor) {
-	return motor.acceleration;
+double Get_Motor_Accel(struct Motor *motor) {
+	// Return the motor's Acceleration
+	double accelTemp = motor -> acceleration;
+  return accelTemp;
 }
 
 /**
@@ -239,17 +251,21 @@ double Get_Motor_Accel(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The motor DPR
  */
-double Get_Motor_DPR(struct Motor motor) {
-	return motor.dpr;
+double Get_Motor_DPR(struct Motor *motor) {
+	// Return the motor's Displacement per Revolution
+	double dprTemp = motor -> dpr;
+  return dprTemp;
 }
 
 /**
- * Function to return curretn uS Delay between steps of the specific motor
+ * Function to return current uS Delay between steps of the specific motor
  * @param[in] motor The motor being examined.
  * @return  The current uS Delay of the motor
  */
-int Get_Motor_uS_Delay(struct Motor motor) {
-	return motor.usSinceLastStep;
+int Get_Motor_uS_Delay(struct Motor *motor) {
+	// Return the motor's current uS Delay
+	int uSDelayTemp = motor -> usSinceLastStep;
+  return uSDelayTemp;
 }
 
 /**
@@ -257,6 +273,8 @@ int Get_Motor_uS_Delay(struct Motor motor) {
  * @param[in] motor The motor being examined.
  * @return  The motor Step Size
  */
-int Get_Motor_Step_Size(struct Motor motor) {
-	return motor.stepsize;
+int Get_Motor_Step_Size(struct Motor *motor) {
+	// Return the motor's Step Size
+	int stepSizeTemp = motor -> stepsize;
+  return stepSizeTemp;
 }

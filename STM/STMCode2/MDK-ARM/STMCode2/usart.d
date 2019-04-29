@@ -29,3 +29,4 @@ stmcode2\usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 stmcode2\usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 stmcode2\usart.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 stmcode2\usart.o: ../Inc/motor.h
+stmcode2\usart.o: ../Inc/submachine.h
