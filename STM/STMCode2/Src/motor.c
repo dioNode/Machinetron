@@ -140,29 +140,48 @@ void pulseStepMotorPins(int motorID, int direction) {
  * @param[in]   endSpeed    The speed which you stop moving at when you reach target (mm/s or degrees/s).
  */
 void setMotorParams(struct Motor *motor_ptr, int motorRun, int dir, double newPos, double startSpeed, double endSpeed) {
-  // Set target displacements
+  // Create local variables to store all necessary values
+	int displacementMM = newPos - getCurrentPosition(*motor_ptr); //Calculates the displacement in mm or degrees
+	int displacementStep = worldUnitsToStepUnits(displacementMM, *motor_ptr);
+	double startStepSpeed;
+	double endStepSpeed;
+	
+	// Set the speeds as negative or positive depending on the direction of travel
+	if(displacementStep >= 0) {
+		startStepSpeed = worldUnitsToStepUnits(startSpeed, *motor_ptr);
+		endStepSpeed = worldUnitsToStepUnits(endSpeed, *motor_ptr);
+	} else {
+		startStepSpeed = worldUnitsToStepUnits(-1 * startSpeed, *motor_ptr);
+		endStepSpeed = worldUnitsToStepUnits(-1 * endSpeed, *motor_ptr);
+	}
+	
+	double accelerationStep = (pow(endStepSpeed, 2) - pow(startStepSpeed, 2)) / (2*displacementStep);
+	
+	// Set all motor parameters
 	motor_ptr -> motorRun = motorRun;
 	motor_ptr -> direction = dir;
-	motor_ptr -> displacement = newPos - motor_ptr -> currentStep;
+	motor_ptr -> duration = calculateDurationMMSEC(startSpeed, endSpeed, displacementMM);
+	motor_ptr -> displacement = displacementStep;
+	motor_ptr -> startStep = motor_ptr -> currentStep;
+	motor_ptr -> targetStep = worldUnitsToStepUnits(newPos, *motor_ptr);
+	motor_ptr -> startSpeed = startStepSpeed;
+	motor_ptr -> currentSpeed = startStepSpeed;
+	motor_ptr -> targetSpeed = endStepSpeed;
+  motor_ptr -> acceleration = accelerationStep;
 	
-	if(dir == 1 && motor_ptr -> displacement >= 0) {
-		motor_ptr -> targetStep = worldUnitsToStepUnits(newPos, *motor_ptr);
-	} else if(dir == 0 && motor_ptr -> displacement < 0) {
-		motor_ptr -> targetStep = worldUnitsToStepUnits(newPos, *motor_ptr);
-	} else {
-		//Direction and new Position dont match, go to error handler
-		Error_Handler();
-	}
+	int uSDelay = calculateuSDelay(motor_ptr -> currentSpeed);
+	
+	motor_ptr -> currentuSDelay = uSDelay;
   // Deal with speeds
   // v^2 = u^2 + 2as --> a = (v^2-u^2)/(2s)
-  int startStepSpeed = worldUnitsToStepUnits(startSpeed, *motor_ptr);
-  int endStepSpeed = worldUnitsToStepUnits(endSpeed, *motor_ptr);
+	/*
   if (newPos != 0){
-    double accelerationStep = (pow(endStepSpeed, 2) - pow(startStepSpeed, 2)) / (2*motor_ptr -> displacement);
+		double accelerationStep = (pow(endStepSpeed, 2) - pow(startStepSpeed, 2)) / (2*displacementStep);
     motor_ptr -> currentSpeed = startStepSpeed;
 		motor_ptr -> targetSpeed = endStepSpeed;
     motor_ptr -> acceleration = accelerationStep;
   }
+	*/
 }
 
 /**
@@ -179,7 +198,7 @@ void printMotorDetails(struct Motor motor) {
  * @return    The motor's position (mm or degrees).
  */
 double getCurrentPosition(struct Motor motor) {
-  return motor.currentStep * motor.dpr / NUM_STEPPER_STEPS;
+  return motor.currentStep * motor.dpr / (NUM_STEPPER_STEPS * motor.stepsize);
 }
 
 /**
@@ -195,7 +214,7 @@ double worldUnitsToStepUnits(double worldUnitValue, struct Motor motor) {
     return INF_VAL;
   }
   // Finds the equivalent number of step units to get as close as possible to the world units
-  int stepUnitValue = round(worldUnitValue * NUM_STEPPER_STEPS / motor.dpr);
+  int stepUnitValue = round(worldUnitValue * (NUM_STEPPER_STEPS * motor.stepsize) / motor.dpr);
   return stepUnitValue;
 }
 
@@ -352,9 +371,9 @@ int isMotorFinished(struct Motor *motor) {
  * @param[in] distanceMM the distance to travel in mm
  * @return  Double containing the total duration of the entire movement
  */
-double calculateDurationMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM) {
+double calculateDurationMMSEC(int startSpeedMM, int endSpeedMM, int displacementMM) {
 	double duration = 0;
-	duration = 2 * distanceMM/(startSpeedMM+endSpeedMM);
+	duration = 2 * displacementMM/(startSpeedMM+endSpeedMM);
 	return duration;
 }
 
@@ -372,3 +391,11 @@ double calculateAccelMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM) {
 	return accel;
 }
 
+/**
+ * Function to calculate the required uS Delay between motor steps based on the current speed 
+ * @param[in] currentSpeed The current speed of the stepper motor in steps/sec
+ * @return  int containing the required step delay in uS
+ */
+int calculateuSDelay(double currentSpeed) {
+	return round(1000000 / currentSpeed);
+}

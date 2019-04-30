@@ -86,10 +86,11 @@ struct Motor * getMotorById(struct SubMachine *submachine_ptr, int id) {
 void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr) {
   // Extract important variables
 	int motorByteLocations[3] = {0,7,14};
+	/*
 	uint8_t motor1Byte = instData[MOTOR1_BYTE_LOC];
 	uint8_t motor2Byte = instData[MOTOR2_BYTE_LOC];
 	uint8_t motor3Byte = instData[MOTOR3_BYTE_LOC];
-	
+	*/
 	for(int i = 0; i < sizeof(motorByteLocations)/sizeof(*motorByteLocations); i++) {
 		uint8_t motorByte = instData[motorByteLocations[i]];
 		int motorID = (int)((motorByte & MOTOR_BITS_MASK) >> MOTOR_BITS_SHIFT);
@@ -103,9 +104,9 @@ void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr)
 		uint8_t startSpeedLSH = instData[motorByteLocations[i] + 4];
 		uint8_t endSpeedMSH = instData[motorByteLocations[i] + 5];
 		uint8_t endSpeedLSH = instData[motorByteLocations[i] + 6];
-		int newPos = (int)((newPosMSH << 16) | newPosLSH);
-		int startSpeed = (int)((startSpeedMSH << 16) | startSpeedLSH);
-		int endSpeed = (int)((endSpeedMSH << 16) | endSpeedLSH);
+		int newPos = (int)((newPosMSH << 8) | newPosLSH);
+		int startSpeed = (int)((startSpeedMSH << 8) | startSpeedLSH);
+		int endSpeed = (int)((endSpeedMSH << 8) | endSpeedLSH);
 		
 		setMotorParams(getMotorById(submachine_ptr,motorID), motorRun, direction, newPos, startSpeed, endSpeed);
 	}

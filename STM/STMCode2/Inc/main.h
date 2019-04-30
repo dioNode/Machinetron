@@ -265,4 +265,3 @@ extern struct SubMachine subMachine;
 #endif /* __MAIN_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-                                                      
