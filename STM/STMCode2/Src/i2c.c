@@ -123,7 +123,7 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, ui
 	// as a transmitter
 	if (TransferDirection == I2C_DIRECTION_RECEIVE) {
 		//printf("TransferDirectionReceive\n");
-		if(HAL_I2C_Slave_Sequential_Transmit_IT(hi2c, Get_I2C_Transmit_Buffer(), TXBUFFERSIZE,I2C_LAST_FRAME) != HAL_OK) {
+		if(HAL_I2C_Slave_Sequential_Transmit_IT(hi2c, getI2CTransmitBuffer(), TXBUFFERSIZE,I2C_LAST_FRAME) != HAL_OK) {
 			// Transfer error in reception process
 			Error_Handler();
 		}
@@ -131,7 +131,7 @@ void HAL_I2C_AddrCallback(I2C_HandleTypeDef *hi2c, uint8_t TransferDirection, ui
 	} 
 	else {
 		//printf("TransferDirectionTransmit\n");
-		if(HAL_I2C_Slave_Sequential_Receive_IT(hi2c, Get_I2C_Receive_Buffer(), RXBUFFERSIZE,I2C_FIRST_FRAME) != HAL_OK) {
+		if(HAL_I2C_Slave_Sequential_Receive_IT(hi2c, getI2CReceiveBuffer(), RXBUFFERSIZE,I2C_FIRST_FRAME) != HAL_OK) {
 			// Transfer error in transmition process
 			Error_Handler();
 		}
@@ -164,32 +164,32 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 	// Depending on the initial instruction byte put the data in the intruction array 
 	// or put the machine into the required state
 	
-	if(Get_I2C_Receive_Buffer()[0] == NORM_INST) {
+	if(getI2CReceiveBuffer()[0] == NORM_INST) {
 		// Standard straight path instruction received
 		// For every element in the receive buffer, add it to the next free element of the instructionArray
-		for(int i = 0; i < (Get_I2C_Receive_Size() - 1); i++) {
-			Set_Instruction_Array_At_Index(Get_I2C_Receive_Buffer()[i+1], Get_Inst_Array_Next_Free(), i);
+		for(int i = 0; i < (getI2CReceiveSize() - 1); i++) {
+			setInstructionArrayAtIndex(getI2CReceiveBuffer()[i+1], getInstArrayNextFree(), i);
 		}
 		// Increment the next free position
-		Set_Inst_Array_Next_Free(Get_Inst_Array_Next_Free() + 1);
-	} else if(Get_I2C_Receive_Buffer()[0] == START_INST) {
+		setInstArrayNextFree(getInstArrayNextFree() + 1);
+	} else if(getI2CReceiveBuffer()[0] == START_INST) {
 		// A Start instruction was sent, initiate the machine into a running state
-		Set_Machine_State(MACHINE_RUNNING);
-	} else if(Get_I2C_Receive_Buffer()[0] == PAUSE_INST) {
+		setMachineState(MACHINE_RUNNING);
+	} else if(getI2CReceiveBuffer()[0] == PAUSE_INST) {
 		// A Pause instruction was sent, set the machine into a pause state
-		Set_Machine_State(MACHINE_PAUSED);
+		setMachineState(MACHINE_PAUSED);
 	}
 	
 	
 	// Turn off the PC13 LED
 	HAL_GPIO_WritePin(PC13LED_GPIO_Port,PC13LED_Pin,GPIO_PIN_RESET);
 	//printf("ListenCpltCallback\n");
-	HAL_UART_Transmit(&huart1,(uint8_t *)Get_I2C_Receive_Buffer(),Get_I2C_Receive_Size(),HAL_MAX_DELAY);
+	HAL_UART_Transmit(&huart1,(uint8_t *)getI2CReceiveBuffer(),getI2CReceiveSize(),HAL_MAX_DELAY);
 	HAL_UART_Transmit(&huart1,(uint8_t *)"\n",sizeof("\n"),HAL_MAX_DELAY);
 	
 	//Empty the transmit and receive buffers ready for the next transmission
-	Flush_Buffer(Get_I2C_Receive_Buffer(), Get_I2C_Receive_Size());
-	Flush_Buffer(Get_I2C_Transmit_Buffer(), Get_I2C_Transmit_Size());
+	Flush_Buffer(getI2CReceiveBuffer(), getI2CReceiveSize());
+	Flush_Buffer(getI2CTransmitBuffer(), getI2CTransmitSize());
 }
 
 /**
@@ -213,30 +213,30 @@ void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	// If the first byte written is requesting a read then put the respective data in the transmit buffer
-	switch(Get_I2C_Receive_Buffer()[0]) {
+	switch(getI2CReceiveBuffer()[0]) {
 		case READ_INST_SPEED_M1:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 1))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 1))) & 0xFF), 1);
+			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMotorCurrentSpeed(getMotorById(&subMachine, 1))) >> 8) & 0xFF), 0);
+			setI2CTransmitBufferAtIndex((uint8_t)((int)(getMotorCurrentSpeed(getMotorById(&subMachine, 1))) & 0xFF), 1);
 			break;
 		case READ_INST_SPEED_M2:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 2))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 2))) & 0xFF), 1);
+			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMotorCurrentSpeed(getMotorById(&subMachine, 2))) >> 8) & 0xFF), 0);
+			setI2CTransmitBufferAtIndex((uint8_t)((int)(getMotorCurrentSpeed(getMotorById(&subMachine, 2))) & 0xFF), 1);
 			break;
 		case READ_INST_SPEED_M3:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 3))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Speed(getMotorById(&subMachine, 3))) & 0xFF), 1);
+			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMotorCurrentSpeed(getMotorById(&subMachine, 3))) >> 8) & 0xFF), 0);
+			setI2CTransmitBufferAtIndex((uint8_t)((int)(getMotorCurrentSpeed(getMotorById(&subMachine, 3))) & 0xFF), 1);
 			break;
 		case READ_INST_POS_M1:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 1))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 1))) & 0xFF), 1);
+			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMotorCurrentStep(getMotorById(&subMachine, 1))) >> 8) & 0xFF), 0);
+			setI2CTransmitBufferAtIndex((uint8_t)((int)(getMotorCurrentStep(getMotorById(&subMachine, 1))) & 0xFF), 1);
 			break;
 		case READ_INST_POS_M2:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 2))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 2))) & 0xFF), 1);
+			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMotorCurrentStep(getMotorById(&subMachine, 2))) >> 8) & 0xFF), 0);
+			setI2CTransmitBufferAtIndex((uint8_t)((int)(getMotorCurrentStep(getMotorById(&subMachine, 2))) & 0xFF), 1);
 			break;
 		case READ_INST_POS_M3:
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)(((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 3))) >> 8) & 0xFF), 0);
-			Set_I2C_Transmit_Buffer_At_Index((uint8_t)((int)(Get_Motor_Current_Step(getMotorById(&subMachine, 3))) & 0xFF), 1);
+			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMotorCurrentStep(getMotorById(&subMachine, 3))) >> 8) & 0xFF), 0);
+			setI2CTransmitBufferAtIndex((uint8_t)((int)(getMotorCurrentStep(getMotorById(&subMachine, 3))) & 0xFF), 1);
 			break;
 	}
 	

@@ -117,6 +117,32 @@ extern "C" {
 #define MACHINE_READY										0x01
 #define MACHINE_RUNNING									0x02
 #define MACHINE_PAUSED									0x03
+
+// Constant to define the location of various Bytes in the Instruction Array
+#define MOTOR1_BYTE_LOC										0
+#define MOTOR2_BYTE_LOC										7
+#define MOTOR3_BYTE_LOC										14
+
+#define M1_TARGET_POS_MSHALF_LOC					1				
+#define M1_TARGET_POS_LSHALF_LOC					2
+#define M1_START_SPEED_MSHALF_LOC					3
+#define M1_START_SPEED_LSHALF_LOC					4
+#define M1_END_SPEED_MSHALF_LOC						5
+#define M1_END_SPEED_LSHALF_LOC						6
+
+#define M2_TARGET_POS_MSHALF_LOC					8				
+#define M2_TARGET_POS_LSHALF_LOC					9
+#define M2_START_SPEED_MSHALF_LOC					10
+#define M2_START_SPEED_LSHALF_LOC					11
+#define M2_END_SPEED_MSHALF_LOC						12
+#define M2_END_SPEED_LSHALF_LOC						13
+
+#define M3_TARGET_POS_MSHALF_LOC					15				
+#define M3_TARGET_POS_LSHALF_LOC					16
+#define M3_START_SPEED_MSHALF_LOC					17
+#define M3_START_SPEED_LSHALF_LOC					18
+#define M3_END_SPEED_MSHALF_LOC						19
+#define M3_END_SPEED_LSHALF_LOC						20
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
@@ -130,35 +156,41 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength);
 
-uint8_t* Get_I2C_Receive_Buffer(void);
+uint8_t* getI2CReceiveBuffer(void);
 
-int Get_I2C_Receive_Size(void);
+int getI2CReceiveSize(void);
 
-void Set_I2C_Receive_Buffer_At_Index(uint8_t value, int index);
+void setI2CReceiveBufferAtIndex(uint8_t value, int index);
 
-uint8_t* Get_I2C_Transmit_Buffer(void);
+uint8_t* getI2CTransmitBuffer(void);
 
-int Get_I2C_Transmit_Size(void);
+int getI2CTransmitSize(void);
 
-void Set_I2C_Transmit_Buffer_At_Index(uint8_t value, int index);
+void setI2CTransmitBufferAtIndex(uint8_t value, int index);
 	
-uint8_t Get_Machine_State(void);
+uint8_t getMachineState(void);
 
-void Set_Machine_State(int newState);
+void setMachineState(int newState);
 	
-uint8_t* Get_Instruction_Array(void);
+uint8_t* getInstructionArray(void);
 
-void Set_Instruction_Array_At_Index(uint8_t value, int intrIndex, int byteIndex);
+void setInstructionArrayAtIndex(uint8_t value, int intrIndex, int byteIndex);
 
-int Get_Inst_Array_Next_Free(void);
+int getInstArrayNextFree(void);
 
-void Set_Inst_Array_Next_Free(int newValue);
+void setInstArrayNextFree(int newValue);
 
 //struct Motor Get_Motor_Struct(int motorNum);
 
-uint16_t Get_Timer_Upper_Half(void);
+uint16_t getTimerMSHalf(void);
 
-void Increment_Timer_Upper_Half(void);
+void setTimerMSHalf(uint16_t newValue);
+	
+void incrementTimerMSHalf(void);
+
+uint16_t getCompareMSHalf(int channel);
+
+void setCompareMSHalf(int channel, uint16_t value);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -225,6 +257,7 @@ void Increment_Timer_Upper_Half(void);
 //#define MILL
 //#define DRILL
 
+// Define the submachine variable as global across files
 extern struct SubMachine subMachine;
 /* USER CODE END Private defines */
 

@@ -67,9 +67,9 @@ int instArrNextFree = 0;
 //struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 //struct Motor motor3 = {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 struct SubMachine subMachine = {"Handler", 1,
-      {{"Rail motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{"Rail motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "STEP", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Flip motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
 #endif
 #ifdef LATHE
@@ -77,9 +77,9 @@ struct SubMachine subMachine = {"Handler", 1,
 //struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 //struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 struct SubMachine subMachine = {"Lathe", 1,
-      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{"Pen motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "STEP", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
 #endif
 #ifdef MILL
@@ -87,9 +87,9 @@ struct SubMachine subMachine = {"Lathe", 1,
 //struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 //struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 struct SubMachine subMachine = {"Mill", 1,
-      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{"Pen motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "DC", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
 #endif
 #ifdef DRILL
@@ -97,9 +97,9 @@ struct SubMachine subMachine = {"Mill", 1,
 //struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 //struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 struct SubMachine subMachine = {"Drill", 1,
-      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{"Pen motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "DC", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
 #endif
 
@@ -110,6 +110,10 @@ volatile uint8_t machineState;
 /*____________________32 bit Sudo Timer MS Half____________________*/
 // Volatile variable used for storing the MS Half of the sudo 32 bit Timer
 volatile uint16_t timerMSHalf;
+
+volatile uint16_t compare1MSHalf;
+volatile uint16_t compare2MSHalf;
+volatile uint16_t compare3MSHalf;
 
 uint8_t newline[] = "\n";
 
@@ -334,7 +338,7 @@ void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength) {
   * @brief  Function to retrieve the I2C Receive Buffer 
   * @retval The pointer to the Receive Buffer
   */
-uint8_t* Get_I2C_Receive_Buffer(void) {
+uint8_t* getI2CReceiveBuffer(void) {
 	return ReceiveBuf;
 }
 
@@ -342,7 +346,7 @@ uint8_t* Get_I2C_Receive_Buffer(void) {
   * @brief  Function to retrieve the size of the I2C Receive Buffer 
   * @retval The pointer to the Receive Buffer
   */
-int Get_I2C_Receive_Size(void) {
+int getI2CReceiveSize(void) {
 	//return sizeof(ReceiveBuf)/sizeof(*ReceiveBuf);
 	return RXBUFFERSIZE;
 }
@@ -352,7 +356,7 @@ int Get_I2C_Receive_Size(void) {
   * @param  The value to put in the index
 	* @param  The index of the array
   */
-void Set_I2C_Receive_Buffer_At_Index(uint8_t value, int index) {
+void setI2CReceiveBufferAtIndex(uint8_t value, int index) {
 	ReceiveBuf[index] = value;
 }
 
@@ -360,7 +364,7 @@ void Set_I2C_Receive_Buffer_At_Index(uint8_t value, int index) {
   * @brief  Function to retrieve the I2C Transmit Buffer 
   * @retval The pointer to the Transmit Buffer
   */
-uint8_t* Get_I2C_Transmit_Buffer(void) {
+uint8_t* getI2CTransmitBuffer(void) {
 	return TransmitBuf;
 }
 
@@ -368,7 +372,7 @@ uint8_t* Get_I2C_Transmit_Buffer(void) {
   * @brief  Function to retrieve the size of the I2C Transmit Buffer 
   * @retval The pointer to the Receive Buffer
   */
-int Get_I2C_Transmit_Size(void) {
+int getI2CTransmitSize(void) {
 	//return sizeof(TransmitBuf)/sizeof(*TransmitBuf);
 	return TXBUFFERSIZE;
 }
@@ -378,7 +382,7 @@ int Get_I2C_Transmit_Size(void) {
   * @param  The value to put in the index
 	* @param  The index of the array
   */
-void Set_I2C_Transmit_Buffer_At_Index(uint8_t value, int index) {
+void setI2CTransmitBufferAtIndex(uint8_t value, int index) {
 	TransmitBuf[index] = value;
 }
 
@@ -386,7 +390,7 @@ void Set_I2C_Transmit_Buffer_At_Index(uint8_t value, int index) {
   * @brief  Function to retrieve the current state of the submachine 
   * @retval The value of machineState
   */
-uint8_t Get_Machine_State(void) {
+uint8_t getMachineState(void) {
 	return machineState;
 }
 
@@ -394,15 +398,19 @@ uint8_t Get_Machine_State(void) {
   * @brief  Function to set the current state of the submachine 
   * @param  The new value of machineState
   */
-void Set_Machine_State(int newState) {
+void setMachineState(int newState) {
 	machineState = newState;
+	//TODO Handle Pausing by stopping motor timers, but not reseting them
+	// Stop DC Motors
+	// Set the LED to the correct colour
+	
 }
 
 /**
   * @brief  Function to retrieve the Instruction Array 
   * @retval The value of instructionArray
   */
-uint8_t* Get_Instruction_Array(void) {
+uint8_t* getInstructionArray(void) {
 	return *instructionArray;
 }
 
@@ -412,7 +420,7 @@ uint8_t* Get_Instruction_Array(void) {
 	* @param	The instruction index
 	* @param	The byte index
   */
-void Set_Instruction_Array_At_Index(uint8_t value, int intrIndex, int byteIndex) {
+void setInstructionArrayAtIndex(uint8_t value, int intrIndex, int byteIndex) {
 	instructionArray[intrIndex][byteIndex] = value;
 }
 
@@ -420,7 +428,7 @@ void Set_Instruction_Array_At_Index(uint8_t value, int intrIndex, int byteIndex)
   * @brief  Function to retrieve the next free row of the Instruction Array 
   * @retval The value of instArrNextFree
   */
-int Get_Inst_Array_Next_Free(void) {
+int getInstArrayNextFree(void) {
 	return instArrNextFree;
 }
 
@@ -428,7 +436,7 @@ int Get_Inst_Array_Next_Free(void) {
   * @brief  Function to set the next free row of the Instruction Array 
   * @param  The new value of instArrNextFree
   */
-void Set_Inst_Array_Next_Free(int newValue) {
+void setInstArrayNextFree(int newValue) {
 	instArrNextFree = newValue;
 }
 
@@ -478,19 +486,73 @@ struct Motor *Get_Motor_Pointer(int motorNum) {
   * @brief  Function to return the upper half of the sudo 32 bit timer 
 	* @retval The value of the sudo 32bit timer MS Half
   */
-uint16_t Get_Timer_Upper_Half(void) {
+uint16_t getTimerMSHalf(void) {
 	return timerMSHalf;
+}
+
+/**
+  * @brief  Function to set the upper half of the sudo 32 bit timer 
+	* @param newValue the new value to set to the MS Half of the timer
+	* @retval None
+  */
+void setTimerMSHalf(uint16_t newValue) {
+	timerMSHalf = newValue;
 }
 
 /**
   * @brief  Function to increment the upper half of the sudo 32 bit timer
 	* @retval None
   */
-void Increment_Timer_Upper_Half(void) {
+void incrementTimerMSHalf(void) {
 	if(timerMSHalf == 0xFFFF) {
 		timerMSHalf = 0x0000;
 	} else {
 		timerMSHalf += 1;
+	}
+}
+
+/**
+  * @brief  Function to return the MS half of the specified compare register 
+	* @param[in] channel The channel of the compare register
+	* @retval The value of the corresponding compare register MS Half
+  */
+uint16_t getCompareMSHalf(int channel) {
+	uint16_t compareRegValue;
+	switch(channel) {
+		case 1:
+			compareRegValue =  compare1MSHalf;
+			break;
+		case 2:
+			compareRegValue =  compare2MSHalf;
+			break;
+		case 3:
+			compareRegValue =  compare3MSHalf;
+			break;
+		default:
+			Error_Handler();
+	}
+	return compareRegValue;
+}
+
+/**
+  * @brief  Function to set the value of the MS half of the specified compare register 
+	* @param[in] channel The channel of the compare register
+	* @param[in] value The new value of the compare register
+	* @retval None
+  */
+void setCompareMSHalf(int channel, uint16_t value) {
+	switch(channel) {
+		case 1:
+			compare1MSHalf = value;
+			break;
+		case 2:
+			compare2MSHalf = value;
+			break;
+		case 3:
+			compare3MSHalf = value;
+			break;
+		default:
+			Error_Handler();
 	}
 }
 /* USER CODE END 4 */

@@ -4439,7 +4439,7 @@ static HAL_StatusTypeDef I2C_SlaveReceive_RXNE(I2C_HandleTypeDef *hi2c)
 
 		/*_______________User Code Check First Byte Matches Request_______________*/
 		
-		uint8_t firstByte = Get_I2C_Receive_Buffer()[0];
+		uint8_t firstByte = getI2CReceiveBuffer()[0];
 		if((hi2c->XferCount == RXBUFFERSIZE - 1) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN) 
 			&&((firstByte == READ_INST_SPEED_M1) || (firstByte == READ_INST_SPEED_M2)
 				|| (firstByte == READ_INST_SPEED_M3) || (firstByte == READ_INST_POS_M1)

@@ -9,36 +9,36 @@
  */
 struct SubMachine initializeHandler() {
   struct SubMachine handler = {"Handler", 1,
-      {{"Rail motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{"Rail motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "STEP", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Flip motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
    return handler;
 }
 
 struct SubMachine initializeDrill() {
   struct SubMachine drill = {"Drill", 1,
-      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{"Pen motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "DC", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
    return drill;
 }
 
 struct SubMachine initializeMill() {
   struct SubMachine mill = {"Mill", 1,
-      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{"Pen motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "DC", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
    return mill;
 }
 
 struct SubMachine initializeLathe() {
   struct SubMachine lathe = {"Lathe", 1,
-      {{"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{"Pen motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Spin motor", "STEP", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
+      {"Vert motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
    };
    return lathe;
 }
@@ -80,14 +80,16 @@ struct Motor * getMotorById(struct SubMachine *submachine_ptr, int id) {
   return NULL;
 }
 
-void processInstruction(int initByte, double data[4], struct SubMachine *submachine_ptr) {
+//TODO Set up processInstruction to handle Stepper/DC motors and different variables plus do not rely
+// on definitie positions for each motor
+/*
+void processInstruction(uint8_t instData[27], struct SubMachine *submachine_ptr) {
   // Extract important variables
-  int motorID = getMotorIdBits(initByte);
-  int direction = getDirectionBit(initByte);
-  double targetDisp = data[0];
-  double startSpeed = data[1];
-  double endSpeed = data[2];
-
+	uint8_t motor1Byte = instData[MOTOR1_BYTE_LOC];
+	uint8_t motor2Byte = instData[MOTOR2_BYTE_LOC];
+	uint8_t motor3Byte = instData[MOTOR3_BYTE_LOC];
+	
+	
   // Flip displacement if direction is negative (0)
   if (direction == 0) {
     targetDisp = -targetDisp;
@@ -98,7 +100,7 @@ void processInstruction(int initByte, double data[4], struct SubMachine *submach
   setTargets(motor_ptr, targetDisp, startSpeed, endSpeed);
 
 }
-
+*/
 int getDirectionBit(int initByte) {
   // Need to read the 5th bit
   initByte = initByte >> 4;

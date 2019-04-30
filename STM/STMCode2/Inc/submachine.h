@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include "motor.h"
+#include "main.h"
 
 extern struct SubMachine {
    char* name;
