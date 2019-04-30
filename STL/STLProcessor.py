@@ -3,8 +3,6 @@ from STL.Drill6mmCircleDetection import detectDrill
 from STL.stl2png import generateSlices
 from stl import mesh
 import math
-from scipy import ndimage, misc
-import numpy as np
 import os
 import cv2
 from support.supportFunctions import clearFolder
@@ -16,6 +14,9 @@ class STLProcessor:
         self.path = None
         self.sliceDepth = 10
         self.filename = ''
+        self.imageSlicesLeftRight = []
+        self.imageSlicesTopDown = []
+        self.imageSlicesFrontBack = []
 
     def generateCommands(self, filename, controller):
         self.controller = controller
@@ -28,17 +29,38 @@ class STLProcessor:
     def generateDrillCommands(self):
         # iterate through the names of contents of the folder
         sliceDepth = self.sliceDepth
+
+        # Detect top down drills
         totalDrillPoints = []
         for img in self.imageSlicesTopDown:
             drillPoints = detectDrill(img)
             totalDrillPoints.append(drillPoints)
-
         self._parseDrillPoints(totalDrillPoints, sliceDepth, 'top')
+
+        # Detect front drills
+        totalDrillPoints = []
+        for img in self.imageSlicesFrontBack:
+            drillPoints = detectDrill(img)
+            totalDrillPoints.append(drillPoints)
+        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'front')
+        # Detect back drills
+        totalDrillPoints.reverse()
+        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'back')
+
+        # Detect left right drills
+        totalDrillPoints = []
+        for img in self.imageSlicesLeftRight:
+            drillPoints = detectDrill(img)
+            totalDrillPoints.append(drillPoints)
+        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'left')
+        # Detect right drills
+        totalDrillPoints.reverse()
+        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'right')
 
     def _parseDrillPoints(self, totalDrillPoints, sliceDepth, face):
 
         trackingPoints = []
-        backwardsDrillHoleLengths = {}
+        drillHoleLengths = {}
 
         self.controller.setFace(face)
         foamWidth = self.controller.currentFaceWidth
@@ -46,18 +68,18 @@ class STLProcessor:
 
         # Get initial holes from surface
         for drillPoint in totalDrillPoints[0]:
-            backwardsDrillHoleLengths[drillPoint] = 0
+            drillHoleLengths[drillPoint] = 0
             trackingPoints.append(drillPoint)
 
         for drillPoints in totalDrillPoints:
             updatedTrackingPoints = []
             for trackedPoint in trackingPoints:
                 if trackedPoint in drillPoints:
-                    backwardsDrillHoleLengths[trackedPoint] += sliceDepth
+                    drillHoleLengths[trackedPoint] += sliceDepth
                     updatedTrackingPoints.append(trackedPoint)
             trackingPoints = updatedTrackingPoints
 
-        for drillPoint, depth in backwardsDrillHoleLengths.items():
+        for drillPoint, depth in drillHoleLengths.items():
             self.controller.commandGenerator.drill(
                 face, drillPoint[0]*foamWidth - foamWidth/2, drillPoint[1]*foamHeight, depth)
 
@@ -80,7 +102,7 @@ class STLProcessor:
         self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright')
         # Generate slices for front back
         generateSlices('face2.stl', 'frontback')
-        self.imageSlicesLeftRight = self._getImageSlices('STL/output/frontback')
+        self.imageSlicesFrontBack = self._getImageSlices('STL/output/frontback')
 
     def _getImageSlices(self, facePath):
         imageSlices = []
@@ -99,10 +121,10 @@ class STLProcessor:
 
         # Change this name to the required file
         # (example: for part2.stl just type in 'part2')
-        stl_filename = 'part2'
+        stl_filename = self.filename
 
         for i in range(4):
-            your_mesh = mesh.Mesh.from_file(stl_filename + '.stl')
+            your_mesh = mesh.Mesh.from_file(stl_filename)
             your_mesh.rotate([1.0, 0.0, 0.0], math.radians(rx))
             your_mesh.rotate([0.0, 1.0, 0.0], math.radians(ry))
             your_mesh.rotate([0.0, 0.0, 1.0], math.radians(rz))
