@@ -12,7 +12,7 @@ def main():
 
 
     ################ Commands go here ################
-    stlProcessor.generateCommands('part2.STL', controller)
+    stlProcessor.generateCommands('part0.STL', controller)
 
 
     # lathe(50, 80, 25)
