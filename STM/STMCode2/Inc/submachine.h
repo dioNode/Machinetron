@@ -21,9 +21,9 @@ struct SubMachine initializeLathe(void);
 void printSubMachineDetails(struct SubMachine submachine);
 void tickSubMachine(struct SubMachine *submachine_ptr, double delay);
 struct Motor * getMotorById(struct SubMachine *submachine_ptr, int id);
-void processInstruction(int initByte, double data[4], struct SubMachine *submachine_ptr);
+void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr);
 int getDirectionBit(int initByte);
 int getMotorIdBits(int initByte);
 int isComplete(struct SubMachine submachine);
 
-#endif // __SUBMACHINE_H_
+#endif // __SUBMAC
