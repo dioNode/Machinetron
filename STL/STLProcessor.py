@@ -1,6 +1,8 @@
 from STL.Drill6mmCircleDetection import detectDrill
 
 from STL.stl2png import generateSlices
+from stl import mesh
+import math
 from scipy import ndimage, misc
 import numpy as np
 import os
@@ -63,15 +65,22 @@ class STLProcessor:
         clearFolder('STL/output/frontback')
         clearFolder('STL/output/leftright')
         clearFolder('STL/output/topdown')
-        clearFolder('STL/stlRotations')
 
     def _storeImageSlices(self):
         self._clearFolders()
         self._getRotated()
+        # Generate slices for topdown
         throughFace = 'topdown'
         generateSlices(self.filename, throughFace)
         facePath = self.path + '/' + throughFace
         self.imageSlicesTopDown = self._getImageSlices(facePath)
+        print(self.filename)
+        # Generate slices for left right
+        generateSlices('face3.stl', 'leftright')
+        self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright')
+        # Generate slices for front back
+        generateSlices('face2.stl', 'frontback')
+        self.imageSlicesLeftRight = self._getImageSlices('STL/output/frontback')
 
     def _getImageSlices(self, facePath):
         imageSlices = []
@@ -84,12 +93,9 @@ class STLProcessor:
         return imageSlices
 
     def _getRotated(self):
-        from stl import mesh
-        import math
-
         rx = 90
         ry = 0
-        rz = 0
+        rz = 180
 
         # Change this name to the required file
         # (example: for part2.stl just type in 'part2')
@@ -100,6 +106,6 @@ class STLProcessor:
             your_mesh.rotate([1.0, 0.0, 0.0], math.radians(rx))
             your_mesh.rotate([0.0, 1.0, 0.0], math.radians(ry))
             your_mesh.rotate([0.0, 0.0, 1.0], math.radians(rz))
-            your_mesh.save('STL/stlRotations/face' + str(i + 2) + '.stl')
+            your_mesh.save('face' + str(i + 2) + '.stl')
             i += 1
             ry += 90
