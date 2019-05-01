@@ -6,6 +6,8 @@
 extern "C" {
 #endif
 
+//#include "main.h"
+
 /**
  * A structure to represent a stepper motor
  */

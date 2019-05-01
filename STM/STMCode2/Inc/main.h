@@ -209,6 +209,10 @@ uint16_t getCompareMSHalf(int channel);
 void setCompareMSHalf(int channel, uint16_t value);
 
 void setLEDColour(char* colour);
+
+char* arrayToStr(char * str, uint8_t *array, unsigned int n);
+	
+void printArray(uint8_t *array);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -238,10 +242,10 @@ void setLEDColour(char* colour);
 #define ST3MS1_GPIO_Port GPIOB
 #define ST3EN_Pin GPIO_PIN_11
 #define ST3EN_GPIO_Port GPIOB
-#define LEDGREEN_Pin GPIO_PIN_14
-#define LEDGREEN_GPIO_Port GPIOB
-#define LEDRED_Pin GPIO_PIN_15
+#define LEDRED_Pin GPIO_PIN_14
 #define LEDRED_GPIO_Port GPIOB
+#define LEDGREEN_Pin GPIO_PIN_15
+#define LEDGREEN_GPIO_Port GPIOB
 #define LIMSW1_Pin GPIO_PIN_8
 #define LIMSW1_GPIO_Port GPIOA
 #define USARTTX_Pin GPIO_PIN_9

@@ -1,6 +1,7 @@
 stmcode2\motor.o: ..\Src\motor.c
 stmcode2\motor.o: ../Inc/motor.h
 stmcode2\motor.o: ../Inc/config.h
+stmcode2\motor.o: ../Inc/main.h
 stmcode2\motor.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h
 stmcode2\motor.o: ../Inc/stm32f1xx_hal_conf.h
 stmcode2\motor.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h
@@ -28,7 +29,6 @@ stmcode2\motor.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 stmcode2\motor.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 stmcode2\motor.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 stmcode2\motor.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
-stmcode2\motor.o: ../Inc/main.h
 stmcode2\motor.o: ../Inc/submachine.h
 stmcode2\motor.o: ../Inc/main.h
 stmcode2\motor.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

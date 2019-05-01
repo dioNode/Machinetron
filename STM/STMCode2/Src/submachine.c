@@ -1,4 +1,5 @@
 #include "submachine.h"
+#include "main.h"
 #include "motor.h"
 #include "config.h"
 #include <stdio.h>
@@ -128,6 +129,7 @@ void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr)
 	uint8_t motor2Byte = instData[MOTOR2_BYTE_LOC];
 	uint8_t motor3Byte = instData[MOTOR3_BYTE_LOC];
 	*/
+	printf("SIze of motor Id Locs %d",sizeof(motorByteLocations)/sizeof(*motorByteLocations));
 	for(int i = 0; i < sizeof(motorByteLocations)/sizeof(*motorByteLocations); i++) {
 		uint8_t motorByte = instData[motorByteLocations[i]];
 		int motorID = (int)((motorByte & MOTOR_BITS_MASK) >> MOTOR_BITS_SHIFT);
@@ -135,6 +137,8 @@ void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr)
 		int motorRun = (int)((motorByte & MOTOR_RUN_BIT_MASK) >> MOTOR_RUN_BIT_SHIFT);
 		int motorHome = (int)((motorByte & HOME_MOTOR_BIT_MASK) >> HOME_MOTOR_BIT_SHIFT);
 		int motorInfSpin = (int)((motorByte & INF_SPIN_BIT_MASK) >> INF_SPIN_BIT_SHIFT);
+		printf("motorID %d, direction %d, motorRun %d, motorHome %d, motorInfSpin %d\n", 
+		motorID,direction,motorRun,motorHome,motorInfSpin);
 		
 		uint8_t newPosMSH = instData[motorByteLocations[i] + 1];
 		uint8_t newPosLSH = instData[motorByteLocations[i] + 2];
@@ -142,13 +146,18 @@ void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr)
 		uint8_t startSpeedLSH = instData[motorByteLocations[i] + 4];
 		uint8_t endSpeedMSH = instData[motorByteLocations[i] + 5];
 		uint8_t endSpeedLSH = instData[motorByteLocations[i] + 6];
+		
 		int newPos = (int)((newPosMSH << 8) | newPosLSH);
 		int startSpeed = (int)((startSpeedMSH << 8) | startSpeedLSH);
 		int endSpeed = (int)((endSpeedMSH << 8) | endSpeedLSH);
-		
+		printf("newPos %d, startSpeed %d, endSpeed %d\n", 
+		newPos,startSpeed,endSpeed);
 		// Based on whether the motor is Homing or In Infinite Spin mode or normal mode 
 		// set the parameters accordingly
-		setMotorParams(getMotorById(submachine_ptr,motorID), motorRun, motorHome, motorInfSpin, direction, newPos, startSpeed, endSpeed);
+		// As a test only set the motor parameters if the motor is running
+		if(motorRun == 1) {
+			setMotorParams(getMotorById(submachine_ptr,motorID), motorRun, motorHome, motorInfSpin, direction, newPos, startSpeed, endSpeed);
+		}
 	}
 }
 

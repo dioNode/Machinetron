@@ -59,15 +59,15 @@ uint8_t TransmitBuf[TXBUFFERSIZE] = {NULL};
 
 /*____________________Main Instruction Buffer____________________*/
 uint8_t instructionArray[INST_ARRAY_LENGTH][INST_LENGTH];
-int instArrFirstIndex = 0;
-int instArrFirstEmptyIndex = 0;
+volatile int instArrFirstIndex = 0;
+volatile int instArrFirstEmptyIndex = 0;
 
 /*____________________Creation of Motors for Submachines____________________*/
 #ifdef HANDLER
 struct SubMachine subMachine = {"Handler", 1,
       {{/*Name*/ "Rail motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 360,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1},
       {/*Name*/ "Spin motor",/*Type*/ "STEP",/*Mode*/ "ROT",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
@@ -236,21 +236,49 @@ int main(void)
 	// Set the machine to a ready state
 	setMachineState(MACHINE_READY);
 
+	//Temporarily set the stepper enable to disabled
+	enableStepperDriver(1, 0);
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		for( int i = 0; i < RXBUFFERSIZE; i++) {
+			printf("%x", getInstructionAtIndex(0)[i]);
+			printf(",");
+		}
+		printf("\n");
+		printf("%d", getInstArrayFirstIndex());
+		printf("\n");
+		printf("%d", getInstArrayFirstEmptyIndex());
+		printf("\n");
+		HAL_Delay(500);
+		// print the 
 		// Is the machine in a running state (should be processing instructions
 		if(getMachineState() == MACHINE_RUNNING) {
+			printf("Machine Running");
+			printf("\n");
 			// Check if there are instructions to process in the Instruction Array
 			if(getInstArrayFirstIndex() != getInstArrayFirstEmptyIndex()) {
+				printf("Instruction to process");
+				printf("\n");
 				// So the instruction array contains new instructions that have not yet been processed
 				// So process the instruction at the First Instruction Index
+				for( int i = 0; i < RXBUFFERSIZE; i++) {
+					printf("%x", getInstructionAtIndex(getInstArrayFirstIndex())[i]);
+					printf(",");
+				}
 				processInstruction(getInstructionAtIndex(getInstArrayFirstIndex()),&subMachine);
+				printf("Processed Instruction");
+				printf("\n");
+				
 				//Reset and initialise timer and its interrupts
 				stepperTimerResetAndSetUp(&htim1, &subMachine);
+				
+				printf("Set Up Stepper Timer");
+				printf("\n");
 				#if defined MILL || defined DRILL
 				DCTimerResetAndSetup(&htim4, &subMachine);
 				#endif
@@ -261,7 +289,11 @@ int main(void)
 				#endif
 				while(isComplete(subMachine) != 1) {
 					// Waiting for instruction to finish
+					printf("Test");
+					printf("\n");
+					
 				}
+				setLEDColour("ORANGE");
 				// Instruction has finished processing, increment the Instruction Index
 				incrementFirstIndex();
 				// Stop all timer interrupts and the timers
@@ -484,11 +516,6 @@ void setMachineState(int newState) {
 		setLEDColour("RED");
 		machineState = newState;
 	}
-	
-	//TODO Handle Pausing by stopping motor timers, but not reseting them
-	// Stop DC Motors
-	// Set the LED to the correct colour
-	
 }
 
 /**
@@ -540,7 +567,7 @@ int getInstArrayFirstEmptyIndex(void) {
 void incrementFirstEmptyIndex(void) {
 	if((getInstArrayFirstEmptyIndex() == INST_ARRAY_LENGTH) && (getInstArrayFirstIndex() == 0)) {
 		Error_Handler();
-	} else if((getInstArrayFirstEmptyIndex() == INST_ARRAY_LENGTH) && (getInstArrayFirstIndex() == 0)) {
+	} else {
 		instArrFirstEmptyIndex += 1;
 	}
 }
@@ -708,6 +735,31 @@ void setLEDColour(char* colour) {
 		default:
 			Error_Handler();
 	}
+}
+
+/**
+  * @brief Function to turn an array into a string
+	* @param str The output String
+	* @param array the input array
+	* @param len the length of the array
+	* @retval string of characters
+  */
+char* arrayToStr(char * str, uint8_t *array, unsigned int n) {
+  int r;
+  if (n == 0) return 0;
+  if (n == 1) r = sprintf(str, "%d", array[0]);
+  else        r = sprintf(str, "%d, ", array[0]);
+  arrayToStr(str + r, array + 1, n - 1); 
+  return str;
+}
+
+/**
+  * @brief Function to print an array
+	* @param array the input array
+  */
+void printArray(uint8_t *array) {
+	char buffer[sizeof(array)/sizeof(*array)];
+  HAL_UART_Transmit(&huart1, (uint8_t *)arrayToStr(buffer, array, sizeof(array)/sizeof(*array)), sizeof(array)/sizeof(*array), HAL_MAX_DELAY);
 }
 /* USER CODE END 4 */
 

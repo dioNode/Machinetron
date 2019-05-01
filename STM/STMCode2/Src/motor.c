@@ -1,11 +1,12 @@
 #include "motor.h"
 #include "config.h"
-#include "stm32f1xx_hal.h"
+//#include "stm32f1xx_hal.h"
 #include "main.h"
 #include <stdio.h>
 #include <math.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+
 
 #include "usart.h"
 
@@ -199,6 +200,10 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int mo
   // First check if the motor is in NORM or ROT mode
 	double displacementWU;
 	double targetPos;
+	
+	//printf("test\n");
+	//printf("motorMode %s", motor_ptr -> mode);
+	//printf("\n");
 	if(strcmp(motor_ptr -> mode, "ROT") == 0) {
 		// Motor is in ROT mode meaning displacement and newPos need to be calculated based on input data
 		double modPos = fmod(getCurrentPosition(*motor_ptr), (motor_ptr -> dpr));
