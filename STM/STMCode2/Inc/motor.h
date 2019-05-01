@@ -12,17 +12,21 @@ extern "C" {
 extern struct Motor {
    char* name;          // The name of the motor
 	 char* type;					// DC or STEP
+	 char* mode;					// Mode defines whether the stepper motor is infinitely rotational ("ROT" or "NORM")
    int id;              // ID used to identify in commands
 	 int motorRun;				// Variable used to determine if the motor is running or not
+	 int motorHome;				// Variable used to determine if the motor is to home its position
+	 int infSpin;					// Variable used to determine if the motor is to spin indefinitely or not
 	 int direction;				// The current Direction of the motor
 	 int duration;				// The duration of the current path in seconds
+	 double timePassed;		// Variable to store the time that has passed in the current path (in sec)
 	 int displacement;    // The displacement of the path in steps
 	 int startStep;				// The Start Step 
    int currentStep;     // The current number of steps
    int targetStep;      // The number of steps it needs to reach
-	 double startSpeed; 	// The start step speed (steps/s)
-   double currentSpeed; // The current step speed (steps/s)
-	 double targetSpeed;  // The target step speed (steps/s)
+	 double startSpeed; 	// The start step speed (steps/s) (rev/s if a DC Motor)
+   double currentSpeed; // The current step speed (steps/s) (rev/s if a DC Motor)
+	 double targetSpeed;  // The target step speed (steps/s) (rev/s if a DC Motor)
    double acceleration; // The step acceleration (steps/s^2)
    double dpr;          // Displacement per revolution of motor
    int currentuSDelay;  // The Current uS Delay between steps
@@ -48,22 +52,32 @@ int getStepSizeSelector(int stepSize);
 void stepMotor(struct Motor *motor_ptr);
 
 /**
- * Steps the motor towards its target direction once.
- * @param[out] motor_ptr The pointer for the motor.
+ * Fuction to pulse the necessary motor pins based on ID and direction
+ * @param motorID The ID for the motor.
+ * @param direction The direction to step the motor
  */
 void pulseStepMotorPins(int motorID, int direction);
+	
+/**
+ * Enables or disables the stepper driver of the stepper that is being pointed to
+ * @param motorID The ID for the motor.
+ * @param enable Value of 1 indicates enable, Value of 0 indicates Disable
+ */
+void enableStepperDriver(int motorID, int enable);
 	
 /**
  * Sets the correct targets for the motor. This requires converting
  * displacement values to number of steps.
  * @param[out]  motor_ptr   The pointer for the motor you want to set targets for.
  * @param[in]   motorRun    Specifies if the motor is running or is not being used
+ * @param[in]		motorHome		Specifies if the motor is to home is position
+ * @param[in]		motorInfSpin Used to determine of the motor is to spin indefinitely
  * @param[in]   dir         The direction of the motor
- * @param[in]   newPos        The displacement you want to reach (mm or degrees). (positive or negative)
+ * @param[in]   newPos      The displacement you want to reach (mm or degrees). (positive or negative)
  * @param[in]   startSpeed  The speed which you start moving at (mm/s or degrees/s).
  * @param[in]   endSpeed    The speed which you stop moving at when you reach target (mm/s or degrees/s).
  */
-void setMotorParams(struct Motor *motor_ptr, int motorRun, int dir, double newPos, double startSpeed, double endSpeed);
+void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int motorInfSpin, int dir, double newPos, double startSpeed, double endSpeed);
 
 /**
  * Prints the details about the current motor.
@@ -206,4 +220,27 @@ double calculateAccelMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM);
  * @return  int containing the required step delay in uS
  */
 int calculateuSDelay(double currentSpeed);
+
+/**
+ * Function to calculate the new speed based on the time Passed in the instruction 
+ * and adjust the motor's parameters accordingly
+ * @param[in] timePassed The current speed of the stepper motor in steps/sec
+ * @return  None
+ */
+void setSpeedStepsAnduSDelay(struct Motor *motor);
+
+/**
+ * Function to calculate the duty Cycle of PWM for the DC motor based on the speed input
+ * @param[in] motor_ptr The pointer to the motor
+ * @param[in] desiredSpeed The required speed of the motor in revs/s
+ * @return  PWM Duty Cycle as a value from 0 to 100
+ */
+int calculatePWMDutyCycle(struct Motor *motor_ptr, double desiredSpeed);
+
+/**
+ * Function to determine if the limit switch specified by the motor ID is closed or open
+ * @param[in] motorID The ID for the motor
+ * @return  The state of the Limit Switch (1 indicating closed, 0 indicating open)
+ */
+int isLimitSwitchClosed(int motorID);
 #endif // __MOTOR_H_

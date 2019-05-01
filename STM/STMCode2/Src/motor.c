@@ -82,18 +82,39 @@ int getStepSizeSelector(int stepSize) {
 void stepMotor(struct Motor *motor_ptr) {
   int targetStep = motor_ptr -> targetStep;
 	int motorID = motor_ptr -> id;
-  // Step towards the direction of target
-  if (motor_ptr -> currentStep < targetStep || motor_ptr -> targetStep == INF_VAL) {
-    motor_ptr -> currentStep += 1;
+	int dir;
+	int motorHome = motor_ptr -> motorHome;
+	if(motor_ptr -> infSpin != 1) {
+		dir = motor_ptr -> direction;
+	} else if(motorHome == 1){
+		dir = 0;
+	} else {
+		if(((targetStep - motor_ptr -> currentStep)/abs(targetStep - motor_ptr -> currentStep)) == 1) {
+			dir = 1;
+		} else {
+			dir = 0;
+		}
+	}
+	// Step the motor in the specified direction
+	if (dir == 1) {
+		motor_ptr -> currentStep += 1;
+		motor_ptr -> timePassed += (motor_ptr -> currentuSDelay)/1000000;
+		// Calculate the new speed based on the time increment
+		setSpeedStepsAnduSDelay(motor_ptr);
 		pulseStepMotorPins(motorID, /*direction*/ 1);
-	} else if (motor_ptr -> currentStep > targetStep)
-    motor_ptr -> currentStep -= 1;
-    pulseStepMotorPins(motorID, /*direction*/ 0);
+	} else if(dir == 0) {
+		motor_ptr -> currentStep -= 1;
+		motor_ptr -> timePassed += (motor_ptr -> currentuSDelay)/1000000;
+		// Calculate the new speed based on the time increment
+		setSpeedStepsAnduSDelay(motor_ptr);
+		pulseStepMotorPins(motorID, /*direction*/ 0);
+	}
 }
 
 /**
- * Steps the motor towards its target direction once.
- * @param[out] motor_ptr The pointer for the motor.
+ * Fuction to pulse the necessary motor pins based on ID and direction
+ * @param motorID The ID for the motor.
+ * @param direction The direction to step the motor
  */
 void pulseStepMotorPins(int motorID, int direction) {
 	switch(motorID) {
@@ -130,19 +151,71 @@ void pulseStepMotorPins(int motorID, int direction) {
 }
 
 /**
+ * Enables or disables the stepper driver of the stepper that is being pointed to
+ * @param motorID The ID for the motor.
+ * @param enable Value of 1 indicates enable, Value of 0 indicates Disable
+ */
+void enableStepperDriver(int motorID, int enable) {
+	switch(motorID) {
+		case 1:
+			if(enable == 1) {
+				HAL_GPIO_WritePin(ST1EN_GPIO_Port, ST1EN_Pin, GPIO_PIN_RESET);
+			} else if(enable == 0) {
+				HAL_GPIO_WritePin(ST1EN_GPIO_Port, ST1EN_Pin, GPIO_PIN_SET);
+			}
+			break;
+		case 2:
+			if(enable == 1) {
+				HAL_GPIO_WritePin(ST2EN_GPIO_Port, ST2EN_Pin, GPIO_PIN_RESET);
+			} else if(enable == 0) {
+				HAL_GPIO_WritePin(ST2EN_GPIO_Port, ST2EN_Pin, GPIO_PIN_SET);
+			}
+			break;
+		case 3:
+			if(enable == 1) {
+				HAL_GPIO_WritePin(ST3EN_GPIO_Port, ST3EN_Pin, GPIO_PIN_RESET);
+			} else if(enable == 0) {
+				HAL_GPIO_WritePin(ST3EN_GPIO_Port, ST3EN_Pin, GPIO_PIN_SET);
+			}
+			break;
+		default:
+			Error_Handler();
+	}
+}
+
+/**
  * Sets the correct targets for the motor. This requires converting
  * displacement values to number of steps.
  * @param[out]  motor_ptr   The pointer for the motor you want to set targets for.
  * @param[in]   motorRun    Specifies if the motor is running or is not being used
+ * @param[in]		motorHome		Specifies if the motor is to home is position
+ * @param[in]		motorInfSpin Used to determine of the motor is to spin indefinitely
  * @param[in]   dir         The direction of the motor
  * @param[in]   newPos      The displacement you want to reach (mm or degrees). (positive or negative)
  * @param[in]   startSpeed  The speed which you start moving at (mm/s or degrees/s).
  * @param[in]   endSpeed    The speed which you stop moving at when you reach target (mm/s or degrees/s).
  */
-void setMotorParams(struct Motor *motor_ptr, int motorRun, int dir, double newPos, double startSpeed, double endSpeed) {
-  // Create local variables to store all necessary values
-	int displacementMM = newPos - getCurrentPosition(*motor_ptr); //Calculates the displacement in mm or degrees
-	int displacementStep = worldUnitsToStepUnits(displacementMM, *motor_ptr);
+void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int motorInfSpin, int dir, double newPos, double startSpeed, double endSpeed) {
+  // First check if the motor is in NORM or ROT mode
+	double displacementWU;
+	double targetPos;
+	if(strcmp(motor_ptr -> mode, "ROT") == 0) {
+		// Motor is in ROT mode meaning displacement and newPos need to be calculated based on input data
+		double modPos = fmod(getCurrentPosition(*motor_ptr), (motor_ptr -> dpr));
+		double newPosNegRev = newPos - motor_ptr -> dpr;
+		if(fabs(newPos-modPos) <= fabs(newPosNegRev-modPos)) {
+			displacementWU = newPos-modPos;
+			targetPos = getCurrentPosition(*motor_ptr) + displacementWU;
+		} else {
+			displacementWU = newPosNegRev-modPos;
+			targetPos = getCurrentPosition(*motor_ptr) + displacementWU;
+		}
+	} else if(strcmp(motor_ptr -> mode, "NORM") == 0){
+		displacementWU = newPos - getCurrentPosition(*motor_ptr); //Calculates the displacement in mm or degrees
+		targetPos = newPos;
+	}
+	
+	int displacementStep = worldUnitsToStepUnits(displacementWU, *motor_ptr);
 	double startStepSpeed;
 	double endStepSpeed;
 	
@@ -159,11 +232,14 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int dir, double newPo
 	
 	// Set all motor parameters
 	motor_ptr -> motorRun = motorRun;
+	motor_ptr -> motorHome = motorHome;
+	motor_ptr -> infSpin = motorInfSpin;
 	motor_ptr -> direction = dir;
-	motor_ptr -> duration = calculateDurationMMSEC(startSpeed, endSpeed, displacementMM);
+	motor_ptr -> duration = calculateDurationMMSEC(startSpeed, endSpeed, displacementWU);
+	motor_ptr -> timePassed = 0;
 	motor_ptr -> displacement = displacementStep;
 	motor_ptr -> startStep = motor_ptr -> currentStep;
-	motor_ptr -> targetStep = worldUnitsToStepUnits(newPos, *motor_ptr);
+	motor_ptr -> targetStep = worldUnitsToStepUnits(targetPos, *motor_ptr);
 	motor_ptr -> startSpeed = startStepSpeed;
 	motor_ptr -> currentSpeed = startStepSpeed;
 	motor_ptr -> targetSpeed = endStepSpeed;
@@ -356,8 +432,27 @@ int getMotorStepSize(struct Motor *motor) {
  */
 int isMotorFinished(struct Motor *motor) {
 	// Return a 1 if the motor has finished moving else return a 0
-	int isComplete = 0;
-	if(motor -> currentStep == motor -> targetStep) {
+	int isComplete = 1;
+	if(motor -> motorRun != 0) {
+		if(motor -> motorHome == 1) {
+			if(isLimitSwitchClosed(motor -> id) == 1) {
+				isComplete = 1;
+				motor -> motorHome = 0;
+			} else {
+				isComplete = 0;
+			}
+		} else {
+			if(motor -> infSpin == 1) {
+				isComplete = 0;
+			} else {
+				if(motor -> currentStep == motor -> targetStep) {
+					isComplete = 1;
+				} else {
+					isComplete = 0;
+				}
+			}
+		}
+	} else {
 		isComplete = 1;
 	}
 	return isComplete;
@@ -398,4 +493,57 @@ double calculateAccelMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM) {
  */
 int calculateuSDelay(double currentSpeed) {
 	return round(1000000 / currentSpeed);
+}
+
+/**
+ * Function to calculate the new speed based on the time Passed in the instruction 
+ * and adjust the motor's parameters accordingly
+ * @param[in] timePassed The current speed of the stepper motor in steps/sec
+ * @return  None
+ */
+void setSpeedStepsAnduSDelay(struct Motor *motor) {
+	double newSpeed = (motor -> startSpeed) + (motor -> acceleration)*(motor -> timePassed);
+	motor -> currentSpeed = newSpeed;
+	motor -> currentuSDelay = calculateuSDelay(newSpeed);
+}
+
+/**
+ * Function to calculate the duty Cycle of PWM for the DC motor based on the speed input
+ * @param[in] motor_ptr The pointer to the motor
+ * @param[in] desiredSpeed The required speed of the motor in revs/s
+ * @return  PWM Duty Cycle as a value from 0 to 100
+ */
+int calculatePWMDutyCycle(struct Motor *motor_ptr, double desiredSpeed) {
+	// Make sure that the motor is a DC Motor
+	// Assume max rps is 83.333 revs/s (5000rpm) which equates to 4.5V on the motor
+	double PWMDutyCycle;
+	if(strcmp(motor_ptr -> type, "DC") == 0) {
+		//Take the current speed in the motor struct
+		double percentOfMaxSpeed = desiredSpeed/83.333;
+		PWMDutyCycle = 4.5/12*percentOfMaxSpeed*100;
+	} else {
+		PWMDutyCycle = 0;
+	}
+	return (int)round(PWMDutyCycle);
+}
+
+/**
+ * Function to determine if the limit switch specified by the motor ID is closed or open
+ * @param[in] motorID The ID for the motor
+ * @return  The state of the Limit Switch (1 indicating closed, 0 indicating open)
+ */
+int isLimitSwitchClosed(int motorID) {
+	int limSwitchState;
+	switch(motorID) {
+		case 1:
+			limSwitchState = HAL_GPIO_ReadPin(LIMSW1_GPIO_Port,LIMSW1_Pin);
+			break;
+		case 2:
+			limSwitchState = HAL_GPIO_ReadPin(LIMSW4_GPIO_Port,LIMSW4_Pin);
+			break;
+		case 3:
+			limSwitchState = HAL_GPIO_ReadPin(LIMSW5_GPIO_Port,LIMSW5_Pin);
+			break;
+	}
+	return limSwitchState;
 }

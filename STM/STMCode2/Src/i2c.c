@@ -166,12 +166,12 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 	
 	if(getI2CReceiveBuffer()[0] == NORM_INST) {
 		// Standard straight path instruction received
-		// For every element in the receive buffer, add it to the next free element of the instructionArray
+		// For every element in the receive buffer, add it to the First Empty Index of the instructionArray
 		for(int i = 0; i < (getI2CReceiveSize() - 1); i++) {
-			setInstructionArrayAtIndex(getI2CReceiveBuffer()[i+1], getInstArrayNextFree(), i);
+			setInstructionArrayAtIndex(getI2CReceiveBuffer()[i+1], getInstArrayFirstEmptyIndex(), i);
 		}
-		// Increment the next free position
-		setInstArrayNextFree(getInstArrayNextFree() + 1);
+		// Increment the first empty index
+		incrementFirstEmptyIndex();
 	} else if(getI2CReceiveBuffer()[0] == START_INST) {
 		// A Start instruction was sent, initiate the machine into a running state
 		setMachineState(MACHINE_RUNNING);
@@ -237,6 +237,10 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 		case READ_INST_POS_M3:
 			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMotorCurrentStep(getMotorById(&subMachine, 3))) >> 8) & 0xFF), 0);
 			setI2CTransmitBufferAtIndex((uint8_t)((int)(getMotorCurrentStep(getMotorById(&subMachine, 3))) & 0xFF), 1);
+			break;
+		case READ_MACHINE_STATE:
+			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMachineState()) >> 8) & 0xFF), 0);
+			setI2CTransmitBufferAtIndex((uint8_t)((int)(0x00) & 0xFF), 1);
 			break;
 	}
 	

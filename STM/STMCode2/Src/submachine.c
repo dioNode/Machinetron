@@ -2,6 +2,7 @@
 #include "motor.h"
 #include "config.h"
 #include <stdio.h>
+#include <string.h>
 //#include <windows.h>
 
 /**
@@ -9,36 +10,72 @@
  */
 struct SubMachine initializeHandler() {
   struct SubMachine handler = {"Handler", 1,
-      {{"Rail motor", "STEP", 1, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "STEP", 2, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Flip motor", "STEP", 3, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{/*Name*/ "Rail motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Spin motor",/*Type*/ "STEP",/*Mode*/ "ROT",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Flip motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 3,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1}},
    };
    return handler;
 }
 
 struct SubMachine initializeDrill() {
   struct SubMachine drill = {"Drill", 1,
-      {{"Pen motor", "STEP", 1, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "DC", 2, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{/*Name*/ "Pen motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Spin motor",/*Type*/ "DC",/*Mode*/ "NORM",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Vert motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 3,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1}},
    };
    return drill;
 }
 
 struct SubMachine initializeMill() {
   struct SubMachine mill = {"Mill", 1,
-      {{"Pen motor", "STEP", 1, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "DC", 2, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{/*Name*/ "Pen motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Spin motor",/*Type*/ "DC",/*Mode*/ "NORM",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Vert motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 3,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1}},
    };
    return mill;
 }
 
 struct SubMachine initializeLathe() {
   struct SubMachine lathe = {"Lathe", 1,
-      {{"Pen motor", "STEP", 1, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "STEP", 2, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 0, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{/*Name*/ "Pen motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Spin motor",/*Type*/ "STEP",/*Mode*/ "ROT",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Vert motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 3,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1}},
    };
    return lathe;
 }
@@ -97,6 +134,7 @@ void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr)
 		int direction = (int)((motorByte & DIR_BIT_MASK) >> DIR_BIT_SHIFT);
 		int motorRun = (int)((motorByte & MOTOR_RUN_BIT_MASK) >> MOTOR_RUN_BIT_SHIFT);
 		int motorHome = (int)((motorByte & HOME_MOTOR_BIT_MASK) >> HOME_MOTOR_BIT_SHIFT);
+		int motorInfSpin = (int)((motorByte & INF_SPIN_BIT_MASK) >> INF_SPIN_BIT_SHIFT);
 		
 		uint8_t newPosMSH = instData[motorByteLocations[i] + 1];
 		uint8_t newPosLSH = instData[motorByteLocations[i] + 2];
@@ -108,7 +146,9 @@ void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr)
 		int startSpeed = (int)((startSpeedMSH << 8) | startSpeedLSH);
 		int endSpeed = (int)((endSpeedMSH << 8) | endSpeedLSH);
 		
-		setMotorParams(getMotorById(submachine_ptr,motorID), motorRun, direction, newPos, startSpeed, endSpeed);
+		// Based on whether the motor is Homing or In Infinite Spin mode or normal mode 
+		// set the parameters accordingly
+		setMotorParams(getMotorById(submachine_ptr,motorID), motorRun, motorHome, motorInfSpin, direction, newPos, startSpeed, endSpeed);
 	}
 }
 
@@ -128,7 +168,8 @@ int isComplete(struct SubMachine submachine) {
   int complete = 1;
   for (int motorNum = 0; motorNum < 3; motorNum++) {
     struct Motor motor = submachine.motors[motorNum];
-    if (motor.currentStep != motor.targetStep && INF_VAL != motor.targetStep) {
+    if (((motor.currentStep != motor.targetStep) && (motor.infSpin != 1) 
+			&& (motor.motorRun == 1) && (strcmp(motor.type, "DC") != 0)) || (motor.motorHome == 1)){
       complete = 0;
     }
   }
