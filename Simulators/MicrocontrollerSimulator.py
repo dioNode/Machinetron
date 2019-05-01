@@ -65,7 +65,7 @@ class MicrocontrollerSimulator:
 
         """
         self.targets[submachine] = {
-            motor : {
+            motor: {
                 'targetValue': targetValue,
                 'startSpeed': startSpeed,
                 'endSpeed': endSpeed,
