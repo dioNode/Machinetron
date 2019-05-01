@@ -63,43 +63,67 @@ int instArrNextFree = 0;
 
 /*____________________Creation of Motors for Submachines____________________*/
 #ifdef HANDLER
-//struct Motor motor1 = {"Rail motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-//struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-//struct Motor motor3 = {"Flip motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 struct SubMachine subMachine = {"Handler", 1,
-      {{"Rail motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "STEP", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Flip motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{/*Name*/ "Rail motor",/*Type*/ "STEP",/*ID*/ 1,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Spin motor",/*Type*/ "STEP",/*ID*/ 2,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Flip motor",/*Type*/ "STEP",/*ID*/ 3,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1}},
    };
 #endif
 #ifdef LATHE
-//struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-//struct Motor motor2 = {"Spin motor", "STEP", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-//struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 struct SubMachine subMachine = {"Lathe", 1,
-      {{"Pen motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "STEP", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{/*Name*/ "Pen motor",/*Type*/ "STEP",/*ID*/ 1,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Spin motor",/*Type*/ "STEP",/*ID*/ 2,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Vert motor",/*Type*/ "STEP",/*ID*/ 3,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1}},
    };
 #endif
 #ifdef MILL
-//struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-//struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-//struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 struct SubMachine subMachine = {"Mill", 1,
-      {{"Pen motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "DC", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{/*Name*/ "Pen motor",/*Type*/ "STEP",/*ID*/ 1,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Spin motor",/*Type*/ "DC",/*ID*/ 2,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Vert motor",/*Type*/ "STEP",/*ID*/ 3,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1}},
    };
 #endif
 #ifdef DRILL
-//struct Motor motor1 = {"Pen motor", "STEP", 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-//struct Motor motor2 = {"Spin motor", "DC", 2, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
-//struct Motor motor3 = {"Vert motor", "STEP", 3, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1};
 struct SubMachine subMachine = {"Drill", 1,
-      {{"Pen motor", "STEP", 1, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Spin motor", "DC", 2, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1},
-      {"Vert motor", "STEP", 3, 1, 0, 0, 1, 0, 0, 10, 0, /*Step Size*/ 1}},
+      {{/*Name*/ "Pen motor",/*Type*/ "STEP",/*ID*/ 1,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Spin motor",/*Type*/ "DC",/*ID*/ 2,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Vert motor",/*Type*/ "STEP",/*ID*/ 3,/*motorRun*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1}},
    };
 #endif
 
@@ -550,6 +574,44 @@ void setCompareMSHalf(int channel, uint16_t value) {
 			break;
 		case 3:
 			compare3MSHalf = value;
+			break;
+		default:
+			Error_Handler();
+	}
+}
+
+/**
+  * @brief  Function to set the colour of the onboard LED 
+	* @param[in] colour The channel of the compare register
+	* @retval None
+  */
+void setLEDColour(char* colour) {
+	int colourNum = 0;
+	if(strcmp(colour,"RED") == 0) {
+		colourNum = 1;
+	} else if(strcmp(colour,"GREEN") == 0) {
+		colourNum = 2;
+	} else if(strcmp(colour,"ORANGE") == 0) {
+		colourNum = 3;
+	} else {
+		colourNum = 0;
+	}
+	switch(colourNum) {
+		case 0:
+			HAL_GPIO_WritePin(LEDRED_GPIO_Port,LEDRED_Pin,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(LEDGREEN_GPIO_Port,LEDGREEN_Pin,GPIO_PIN_RESET);
+			break;
+		case 1:
+			HAL_GPIO_WritePin(LEDRED_GPIO_Port,LEDRED_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(LEDGREEN_GPIO_Port,LEDGREEN_Pin,GPIO_PIN_RESET);
+			break;
+		case 2:
+			HAL_GPIO_WritePin(LEDRED_GPIO_Port,LEDRED_Pin,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(LEDGREEN_GPIO_Port,LEDGREEN_Pin,GPIO_PIN_SET);
+			break;
+		case 3:
+			HAL_GPIO_WritePin(LEDRED_GPIO_Port,LEDRED_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(LEDGREEN_GPIO_Port,LEDGREEN_Pin,GPIO_PIN_SET);
 			break;
 		default:
 			Error_Handler();

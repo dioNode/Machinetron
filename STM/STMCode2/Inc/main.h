@@ -90,28 +90,25 @@ extern "C" {
 //#define READ_INST_COMPLETE							0x0A
 
 /* Motor Identifier Byte Constants */
-#define MOTOR1													0x01 << 6								
-#define MOTOR2													0x02 << 6
-#define MOTOR3													0x03 << 6
+#define MOTOR_BITS_SHIFT								6
+#define MOTOR1													0x01 << MOTOR_BITS_SHIFT							
+#define MOTOR2													0x02 << MOTOR_BITS_SHIFT
+#define MOTOR3													0x03 << MOTOR_BITS_SHIFT
+#define MOTOR_BITS_MASK									0xC0
 
-#define DIR_FORWARD											0x01 << 5
-#define DIR_REVERSE											0x00 << 5
+#define DIR_BIT_SHIFT										5
+#define DIR_FORWARD											0x01 << DIR_BIT_SHIFT
+#define DIR_REVERSE											0x00 << DIR_BIT_SHIFT
+#define DIR_BIT_MASK										0x01 << DIR_BIT_SHIFT
 
-#define DC_MOTOR_RUN										0x01 << 4
-#define DC_MOTOR_STOP										0x00 << 4
+#define MOTOR_RUN_BIT_SHIFT							4
+#define MOTOR_RUN												0x01 << MOTOR_RUN_BIT_SHIFT
+#define MOTOR_STOP											0x00 << MOTOR_RUN_BIT_SHIFT
+#define MOTOR_RUN_BIT_MASK							0x01 << MOTOR_RUN_BIT_SHIFT
 
-#define HOME_MOTOR											0x01 << 3
-
-#define MOTOR1_HOME											MOTOR1 | HOME_MOTOR
-#define MOTOR2_HOME											MOTOR2 | HOME_MOTOR
-#define MOTOR3_HOME											MOTOR3 | HOME_MOTOR
-
-#define MOTOR1_FWD											MOTOR1 | DIR_FORWARD
-#define MOTOR1_RVS											MOTOR1 | DIR_REVERSE	
-#define MOTOR2_FWD											MOTOR2 | DIR_FORWARD
-#define MOTOR2_RVS											MOTOR2 | DIR_REVERSE	
-#define MOTOR3_FWD											MOTOR3 | DIR_FORWARD
-#define MOTOR3_RVS											MOTOR3 | DIR_REVERSE	
+#define HOME_MOTOR_BIT_SHIFT						3
+#define HOME_MOTOR											0x01 << HOME_MOTOR_BIT_SHIFT
+#define HOME_MOTOR_BIT_MASK							0x01 << HOME_MOTOR_BIT_SHIFT
 
 // Constants defining the state of the Submachine
 #define MACHINE_READY										0x01

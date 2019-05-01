@@ -13,14 +13,19 @@ extern struct Motor {
    char* name;          // The name of the motor
 	 char* type;					// DC or STEP
    int id;              // ID used to identify in commands
-	 int direction;				// The current Direction of the motor 
+	 int motorRun;				// Variable used to determine if the motor is running or not
+	 int direction;				// The current Direction of the motor
+	 int duration;				// The duration of the current path in seconds
+	 int displacement;    // The displacement of the path in steps
+	 int startStep;				// The Start Step 
    int currentStep;     // The current number of steps
    int targetStep;      // The number of steps it needs to reach
+	 double startSpeed; 	// The start step speed (steps/s)
    double currentSpeed; // The current step speed (steps/s)
 	 double targetSpeed;  // The target step speed (steps/s)
    double acceleration; // The step acceleration (steps/s^2)
    double dpr;          // Displacement per revolution of motor
-   int usSinceLastStep; // Number of microseconds since last step
+   int currentuSDelay;  // The Current uS Delay between steps
 	 int stepsize;				// Step size: 1/(1,2,4,8,16)
 } motor;
 
@@ -52,11 +57,13 @@ void pulseStepMotorPins(int motorID, int direction);
  * Sets the correct targets for the motor. This requires converting
  * displacement values to number of steps.
  * @param[out]  motor_ptr   The pointer for the motor you want to set targets for.
- * @param[in]   disp        The displacement you want to reach (mm).
- * @param[in]   startSpeed  The speed which you start moving at (mm/s).
- * @param[in]   endSpeed    The speed which you stop moving at when you reach target (mm/s).
+ * @param[in]   motorRun    Specifies if the motor is running or is not being used
+ * @param[in]   dir         The direction of the motor
+ * @param[in]   newPos        The displacement you want to reach (mm or degrees). (positive or negative)
+ * @param[in]   startSpeed  The speed which you start moving at (mm/s or degrees/s).
+ * @param[in]   endSpeed    The speed which you stop moving at when you reach target (mm/s or degrees/s).
  */
-void setTargets(struct Motor *motor_ptr, double disp, double startSpeed, double endSpeed);
+void setMotorParams(struct Motor *motor_ptr, int motorRun, int dir, double newPos, double startSpeed, double endSpeed);
 
 /**
  * Prints the details about the current motor.
@@ -65,19 +72,20 @@ void setTargets(struct Motor *motor_ptr, double disp, double startSpeed, double 
 void printMotorDetails(struct Motor motor);
 
 /**
- * Finds the current displacement of your motor (mm or degrees).
+ * Finds the current position of the motor (mm or degrees).
  * @param[in] motor The motor you want to read from.
- * @return    The motor's displacement (mm or degrees).
+ * @return    The motor's position (mm or degrees).
  */
-double getCurrentDisplacement(struct Motor motor);
+double getCurrentPosition(struct Motor motor);
 
 /**
- * Converts the displacement of the motor to step number.
- * @param[in] displacement  The displacement you want to convert.
- * @param[in] motor         The motor you wish to examine.
- * @return  The equivalent number of steps taken to move displacement.
+* Converts the world units (displacement:mm,deg, speed: mm/s,deg/s, acceleration: mm/s^2,deg/s^2) 
+ * of the motor to step units (displacement:steps, speed: steps/s, acceleration: steps/s^2).
+ * @param[in] worldUnitValue  The value in World units to be converted
+ * @param[in] motor         	The motor for which this conversion is being done
+ * @return  The equivalent value in steps Units ot produce the Value Units.
  */
-double displacement2steps(double displacement, struct Motor motor);
+double worldUnitsToStepUnits(double worldUnitValue, struct Motor motor);
 
 /**
  * Calculates the number of milliseconds before each step.
@@ -192,4 +200,10 @@ double calculateDurationMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM);
  */
 double calculateAccelMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM);
 
+/**
+ * Function to calculate the required uS Delay between motor steps based on the current speed 
+ * @param[in] currentSpeed The current speed of the stepper motor in steps/sec
+ * @return  int containing the required step delay in uS
+ */
+int calculateuSDelay(double currentSpeed);
 #endif // __MOTOR_H_

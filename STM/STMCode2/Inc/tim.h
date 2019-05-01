@@ -43,7 +43,42 @@ void MX_TIM4_Init(void);
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                     
 /* USER CODE BEGIN Prototypes */
+/**
+  * @brief  This function is the callback from the timer update event, used to increment the sudo 32 bit timer
+  * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
+  *                the configuration information for the specified Timer.
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 
+/**
+  * @brief  This function is the callback from the timer Output Compare event, used to step the corresponding 
+	* 				motor depending on which compare register matched.
+  * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
+  *                the configuration information for the specified Timer.
+  * @retval None
+  */
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim);
+
+/**
+  * @brief  This function is used to reset the motor interrupt timer. 
+	* It disables the timer, and interrupts, sets the timer register to zero 
+	* and sets the required interrupts for the currently running motors
+  * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
+  *                the configuration information for the specified Timer.
+  * @param  submachine_ptr Pointer to the submachine struct 
+  * @retval None
+  */
+void timerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine_ptr);
+	
+/**
+  * @brief  This function is used to set the sudo 32 bit timer counter to a specific value. 
+  * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
+  *                the configuration information for the Least Significant Half of the timer.
+  * @param  newValue The new value to be put into the timer 
+  * @retval None
+  */
+void setSudoTimerCounter(TIM_HandleTypeDef *htim, uint32_t newValue);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
