@@ -64,3 +64,11 @@ def clearFolder(folder):
             # elif os.path.isdir(file_path): shutil.rmtree(file_path)
         except Exception as e:
             print(e)
+
+
+def unique(myArray):
+    output = []
+    for ele in myArray:
+        if ele not in output:
+            output.append(ele)
+    return output

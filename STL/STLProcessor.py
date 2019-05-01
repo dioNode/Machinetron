@@ -5,7 +5,7 @@ from stl import mesh
 import math
 import os
 import cv2
-from support.supportFunctions import clearFolder
+from support.supportFunctions import clearFolder, unique
 
 
 class STLProcessor:
@@ -35,6 +35,9 @@ class STLProcessor:
         for img in self.imageSlicesTopDown:
             drillPoints = detectDrill(img)
             totalDrillPoints.append(drillPoints)
+        # Detect holes
+        for drillPoint in unique(totalDrillPoints):
+            continue
         self._parseDrillPoints(totalDrillPoints, sliceDepth, 'top')
 
         # Detect front drills
@@ -56,6 +59,7 @@ class STLProcessor:
         # Detect right drills
         totalDrillPoints.reverse()
         self._parseDrillPoints(totalDrillPoints, sliceDepth, 'right')
+
 
     def _parseDrillPoints(self, totalDrillPoints, sliceDepth, face):
 
@@ -136,6 +140,6 @@ class STLProcessor:
         x, y = pos
         return False
 
-    def _fillHole(self, img, pos, radius):
+    def _fillHole(self, img, pos, radius, state): # state is 1 for white, 0 for black
         x, y = pos
         return img
