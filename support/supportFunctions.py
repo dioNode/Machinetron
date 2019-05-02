@@ -1,3 +1,5 @@
+from config import configurationMap
+
 
 def real2PlotDim(axValues):
     """Converts real coordinates to values to be plotted.
@@ -73,3 +75,36 @@ def unique(myArray): # Used for 2d array
             if ele not in output:
                 output.append(ele)
     return output
+
+
+def mm2pixel(val, ratio=None):
+    if ratio is None:
+        ratio = configurationMap['other']['mmPerPixelRatio']
+    return val / ratio
+
+
+def pixel2mm(val, ratio=None): # Ratio is mm/pixel
+    if ratio is None:
+        ratio = configurationMap['other']['mmPerPixelRatio']
+    return val * ratio
+
+
+def mmPos2PixelPos(pos, im, ratio=None):
+    if ratio is None:
+        ratio = configurationMap['other']['mmPerPixelRatio']
+    pxheight, pxwidth = im.shape
+    posX = mm2pixel(pos(0), ratio) + pxwidth/2
+    posY = mm2pixel(pos(1), ratio)
+    return posX, posY
+
+
+def pixelPos2mmPos(pos, im, ratio=None):
+    if ratio is None:
+        ratio = configurationMap['other']['mmPerPixelRatio']
+    pxheight, pxwidth = im.shape
+    posX = pixel2mm(pos[0] - pxwidth/2, ratio)
+    posY = pixel2mm(pos[1], ratio)
+    return posX, posY
+
+
+
