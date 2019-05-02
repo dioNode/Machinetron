@@ -1,4 +1,5 @@
 from config import configurationMap
+import numpy as np
 
 
 def real2PlotDim(axValues):
@@ -107,4 +108,14 @@ def pixelPos2mmPos(pos, im, ratio=None):
     return posX, posY
 
 
+def inRange(currentPos, desiredPos, errorRange):
+    differenceX, differenceY = tuple(np.subtract(desiredPos, currentPos))
+    return abs(differenceX) < errorRange and abs(differenceY) < errorRange
+
+
+def cropImage(img):
+    h, w = img.shape
+    offset = 10
+    crop_img = img[offset: h-offset, offset: w-offset]
+    return crop_img
 

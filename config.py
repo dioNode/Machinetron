@@ -18,6 +18,7 @@ configurationMap = {
         'diameter': 6,
         'depth': 80,
         'id': 0x02,
+        'detectionTolerance': 5,
     }, 'lathe': {
         'homeX': 300,
         'raiseSpeed': 20,
@@ -30,6 +31,8 @@ configurationMap = {
         'depth': 60,
         'pushIncrement': 5,
         'id': 0x03,
+        'minDetectionRadius': 10,
+        'maxDetectionRadius': 80,
     }, 'mill': {
         'homeX': 500,
         'raiseSpeed': 20,
@@ -54,6 +57,7 @@ configurationMap = {
         'flip': 3,
     }, 'other': {
         'infVal': 9999,
-        'mmPerPixelRatio': 80/1200
+        'mmPerPixelRatio': 80/1200,
+        'mmError': 0.2
     }
 }
