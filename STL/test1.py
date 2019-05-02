@@ -63,6 +63,8 @@ def _fillHole(img, pos, radius, state): # state is 1 for white, 0 for black
 
 im = cv2.imread('output/frontback/face2_0000.png')
 
+#test
+
 height = np.size(im, 0)
 print('height', height)
 width = np.size(im, 1)
