@@ -26,4 +26,4 @@ int getDirectionBit(int initByte);
 int getMotorIdBits(int initByte);
 int isComplete(struct SubMachine submachine);
 
-#endif // __SUBMAC
+#endif // __SUBMACHINE_H_
