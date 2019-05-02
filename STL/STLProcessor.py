@@ -2,10 +2,11 @@ from STL.Drill6mmCircleDetection import detectDrill
 
 from STL.stl2png import generateSlices
 from stl import mesh
+import numpy as np
 import math
 import os
 import cv2
-from support.supportFunctions import clearFolder, unique
+from support.supportFunctions import clearFolder, unique, pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel
 
 
 class STLProcessor:
@@ -33,33 +34,53 @@ class STLProcessor:
         # Detect top down drills
         totalDrillPoints = []
         for img in self.imageSlicesTopDown:
-            drillPoints = detectDrill(img)
+            drillPoints = self._detectDrill(img)
             totalDrillPoints.append(drillPoints)
         # Detect holes
-        for drillPoint in unique(totalDrillPoints):
-            continue
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'top')
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesTopDown)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'top')
 
         # Detect front drills
         totalDrillPoints = []
         for img in self.imageSlicesFrontBack:
-            drillPoints = detectDrill(img)
+            drillPoints = self._detectDrill(img)
             totalDrillPoints.append(drillPoints)
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'front')
+        # Detect holes
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesFrontBack)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'front')
         # Detect back drills
         totalDrillPoints.reverse()
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'back')
+        # Detect holes
+        imageSlicesBackFront = self.imageSlicesFrontBack
+        imageSlicesBackFront.reverse()
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, imageSlicesBackFront)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'back')
 
         # Detect left right drills
         totalDrillPoints = []
         for img in self.imageSlicesLeftRight:
-            drillPoints = detectDrill(img)
+            drillPoints = self._detectDrill(img)
             totalDrillPoints.append(drillPoints)
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'left')
+        # Detect holes
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesLeftRight)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'left')
         # Detect right drills
         totalDrillPoints.reverse()
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'right')
+        # Detect holes
+        imageSlicesRightLeft = self.imageSlicesLeftRight
+        imageSlicesRightLeft.reverse()
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, imageSlicesRightLeft)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'right')
 
+    def _getTotalDrillPointsWithHoles(self, totalDrillPoints, imageSlices):
+        totalDrillPointsWithHoles = []
+        for img in imageSlices:
+            drillPointsWithHoles = []
+            for drillPoint in unique(totalDrillPoints):
+                if self._containsHole(img, drillPoint, 1):
+                    drillPointsWithHoles.append(drillPoint)
+            totalDrillPointsWithHoles.append(drillPointsWithHoles)
+        return totalDrillPoints
 
     def _parseDrillPoints(self, totalDrillPoints, sliceDepth, face):
 
@@ -85,7 +106,7 @@ class STLProcessor:
 
         for drillPoint, depth in drillHoleLengths.items():
             self.controller.commandGenerator.drill(
-                face, drillPoint[0]*foamWidth - foamWidth/2, drillPoint[1]*foamHeight, depth)
+                face, drillPoint[0], drillPoint[1], depth)
 
     def _clearFolders(self):
         clearFolder('STL/output/frontback')
@@ -100,7 +121,6 @@ class STLProcessor:
         generateSlices(self.filename, throughFace)
         facePath = self.path + '/' + throughFace
         self.imageSlicesTopDown = self._getImageSlices(facePath)
-        print(self.filename)
         # Generate slices for left right
         generateSlices('face3.stl', 'leftright')
         self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright')
@@ -143,3 +163,29 @@ class STLProcessor:
     def _fillHole(self, img, pos, radius, state): # state is 1 for white, 0 for black
         x, y = pos
         return img
+
+    def _detectDrill(self, img):
+
+        cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 2.2, 100,
+                                    param1=100, param2=30, minRadius=40, maxRadius=47)
+        drillPoints = []
+        if circles is not None:
+            circles = np.uint16(np.around(circles))
+            for i in circles[0, :]:
+                # draw the outer circle
+                cv2.circle(cimg, (i[0], i[1]), i[2], (0, 255, 0), 2)
+                # draw the center of the circle
+                cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
+
+                drillPoints.append((i[0], i[1]))
+
+        # Convert from pixel to mm
+        drillPointsMM = []
+        for drillPoint in drillPoints:
+            drillPointsMM.append(pixelPos2mmPos(drillPoint, img))
+
+        print(drillPointsMM)
+
+        return drillPointsMM

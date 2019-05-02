@@ -24,7 +24,7 @@ def detectDrill(img):
             # draw the center of the circle
             cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
 
-            drillPoints.append((i[0]/width, i[1]/height))
+            drillPoints.append((i[0], i[1]))
 
     return drillPoints
     # cv2.namedWindow('detected circles', cv2.WINDOW_NORMAL)

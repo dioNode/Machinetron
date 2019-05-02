@@ -30,4 +30,5 @@ stmcode2\stm32f1xx_it.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.
 stmcode2\stm32f1xx_it.o: ../Inc/motor.h
 stmcode2\stm32f1xx_it.o: ../Inc/submachine.h
 stmcode2\stm32f1xx_it.o: ../Inc/main.h
+stmcode2\stm32f1xx_it.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 stmcode2\stm32f1xx_it.o: ../Inc/stm32f1xx_it.h

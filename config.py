@@ -54,5 +54,6 @@ configurationMap = {
         'flip': 3,
     }, 'other': {
         'infVal': 9999,
+        'mmPerPixelRatio': 80/1200
     }
 }

@@ -30,4 +30,5 @@ stmcode2\submachine.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
 stmcode2\submachine.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 stmcode2\submachine.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 stmcode2\submachine.o: ../Inc/submachine.h
+stmcode2\submachine.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 stmcode2\submachine.o: ../Inc/config.h
