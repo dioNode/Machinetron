@@ -36,30 +36,50 @@ class STLProcessor:
             drillPoints = detectDrill(img)
             totalDrillPoints.append(drillPoints)
         # Detect holes
-        for drillPoint in unique(totalDrillPoints):
-            continue
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'top')
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesTopDown)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'top')
 
         # Detect front drills
         totalDrillPoints = []
         for img in self.imageSlicesFrontBack:
             drillPoints = detectDrill(img)
             totalDrillPoints.append(drillPoints)
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'front')
+        # Detect holes
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesFrontBack)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'front')
         # Detect back drills
         totalDrillPoints.reverse()
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'back')
+        # Detect holes
+        imageSlicesBackFront = self.imageSlicesFrontBack
+        imageSlicesBackFront.reverse()
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, imageSlicesBackFront)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'back')
 
         # Detect left right drills
         totalDrillPoints = []
         for img in self.imageSlicesLeftRight:
             drillPoints = detectDrill(img)
             totalDrillPoints.append(drillPoints)
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'left')
+        # Detect holes
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesLeftRight)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'left')
         # Detect right drills
         totalDrillPoints.reverse()
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'right')
+        # Detect holes
+        imageSlicesRightLeft = self.imageSlicesLeftRight
+        imageSlicesRightLeft.reverse()
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, imageSlicesRightLeft)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'right')
 
+    def _getTotalDrillPointsWithHoles(self, totalDrillPoints, imageSlices):
+        totalDrillPointsWithHoles = []
+        for img in imageSlices:
+            drillPointsWithHoles = []
+            for drillPoint in unique(totalDrillPoints):
+                if self._containsHole(img, drillPoint, 1):
+                    drillPointsWithHoles.append(drillPoint)
+            totalDrillPointsWithHoles.append(drillPointsWithHoles)
+        return totalDrillPointsWithHoles
 
     def _parseDrillPoints(self, totalDrillPoints, sliceDepth, face):
 

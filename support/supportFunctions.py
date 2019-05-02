@@ -66,9 +66,10 @@ def clearFolder(folder):
             print(e)
 
 
-def unique(myArray):
+def unique(myArray): # Used for 2d array
     output = []
-    for ele in myArray:
-        if ele not in output:
-            output.append(ele)
+    for myList in myArray:
+        for ele in myList:
+            if ele not in output:
+                output.append(ele)
     return output
