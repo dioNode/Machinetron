@@ -36,8 +36,8 @@ class CommandGenerator:
         radius = configurationMap['mill']['diameter'] / 2
 
         # Get to initial positioning
+        self.selectFace(face)
         controller.addCommand(CombinedCommand([
-            SelectFaceCommand(face, controller),
             RaiseCommand(controller.mill, controller.currentFaceHeight),
             ShiftCommand(controller.mill, -controller.currentFaceWidth / 2 - radius, startSpeed=200, endSpeed=50)
         ], 'Setup initial position and face'))
@@ -259,7 +259,7 @@ class CommandGenerator:
             depth (double): Depth of the circle being cut out.
 
         """
-        self.controller.addCommand(SelectFaceCommand(face, self.controller))
+        self.selectFace(face)
         millRadius = configurationMap['mill']['diameter'] / 2
         self.millCircleDiscrete(face, x, z, radius + millRadius, depth)
         # Retract mill
@@ -294,8 +294,8 @@ class CommandGenerator:
         actualZ = self.controller.currentFaceHeight - z
         currentZ = actualZ
         currentX = x + radius
+        self.selectFace(face)
         self.controller.addCommand(CombinedCommand([
-            SelectFaceCommand(face, self.controller),
             ShiftCommand(self.controller.mill, currentX),
             RaiseCommand(self.controller.mill, currentZ),
         ]))
@@ -397,6 +397,7 @@ class CommandGenerator:
             face (string): The face to turn towards the cut machines.
 
         """
+        self.controller.setFace(face)
         self.controller.addCommand(SelectFaceCommand(face, self.controller))
 
     def moveTo(self, cutMachine, x, z, d, face=None):
@@ -416,10 +417,7 @@ class CommandGenerator:
             PushCommand(cutMachine, d, self.controller.currentFaceDepth)
         ])
         if face is not None:
-            moveCommand = CombinedCommand([
-                moveCommand,
-                SelectFaceCommand(face, self.controller)
-            ])
+            self.selectFace(face)
         self.controller.addCommand(moveCommand)
 
     def intrude(self, face, x0, x1, z0, z1, d0, d1, radius):
@@ -506,4 +504,5 @@ class CommandGenerator:
             PushCommand(cutMachine, d, self.controller.currentFaceDepth),
             SpinCommand(cutMachine)
         ])
+
 

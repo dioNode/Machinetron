@@ -131,6 +131,7 @@ class OutputSimulator:
         height = self.handlerDisplayHeight
         width = self.handlerDisplayWidth
         titleFont = self.titleFont
+        generalFont = self.generalFont
         y = self.handlerDisplayTop
         x = self.padding
         motorRadius = self.motorDisplayRadius
@@ -151,7 +152,7 @@ class OutputSimulator:
             pygame.draw.line(win, (0, 0, 0), (motorX, motorY),
                              (motorX + deltaX, motorY + deltaY))
             motorNames = {0: 'Rail', 1: 'Flip', 2: 'Spin'}
-            textsurface = self.generalFont.render(motorNames[j], False, (0, 0, 0))
+            textsurface = generalFont.render(motorNames[j], False, (0, 0, 0))
             win.blit(textsurface, (motorX - motorRadius, motorY + motorRadius))
 
         # Handler name label
@@ -187,6 +188,9 @@ class OutputSimulator:
                      (xtl + centerX, ytl + centerY)]
 
         pygame.draw.polygon(win, (0, 0, 0), pointlist)
+
+        textsurface = generalFont.render(self.controller.facename, False, (0, 0, 0))
+        win.blit(textsurface, (centerX, centerY + length/2))
 
         # CutMachines display to show their location relative to Handler
         for cutMachine in cutMachines:
@@ -283,7 +287,6 @@ class OutputSimulator:
             cutWidth = 2
             pygame.draw.rect(win, circleColour, (endeffactorLocationX - cutWidth/2, endeffactorLocationY - cutHeight,
                                                  cutWidth, cutHeight))
-
 
     def updateCommandsDisplay(self):
         """Displays the list of commands in the queue."""
