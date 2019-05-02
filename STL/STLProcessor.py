@@ -1,5 +1,3 @@
-from STL.Drill6mmCircleDetection import detectDrill
-
 from STL.stl2png import generateSlices
 from stl import mesh
 import numpy as np
@@ -7,6 +5,7 @@ import math
 import os
 import cv2
 from support.supportFunctions import clearFolder, unique, pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel
+from config import configurationMap
 
 
 class STLProcessor:
@@ -77,7 +76,8 @@ class STLProcessor:
         for img in imageSlices:
             drillPointsWithHoles = []
             for drillPoint in unique(totalDrillPoints):
-                if self._containsHole(img, drillPoint, 1):
+                pxRadius = mm2pixel(configurationMap['drill']['diameter']/2)
+                if self._containsHole(img, drillPoint, pxRadius):
                     drillPointsWithHoles.append(drillPoint)
             totalDrillPointsWithHoles.append(drillPointsWithHoles)
         return totalDrillPoints
@@ -86,10 +86,6 @@ class STLProcessor:
 
         trackingPoints = []
         drillHoleLengths = {}
-
-        self.controller.setFace(face)
-        foamWidth = self.controller.currentFaceWidth
-        foamHeight = self.controller.currentFaceHeight
 
         # Get initial holes from surface
         for drillPoint in totalDrillPoints[0]:
@@ -168,8 +164,11 @@ class STLProcessor:
 
         cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
+        pxRadius = round(mm2pixel(configurationMap['drill']['diameter']/2))
+        tolerance = configurationMap['drill']['detectionTolerance']
+
         circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 2.2, 100,
-                                    param1=100, param2=30, minRadius=40, maxRadius=47)
+                                    param1=100, param2=30, minRadius=pxRadius-tolerance, maxRadius=pxRadius+tolerance)
         drillPoints = []
         if circles is not None:
             circles = np.uint16(np.around(circles))
@@ -185,7 +184,5 @@ class STLProcessor:
         drillPointsMM = []
         for drillPoint in drillPoints:
             drillPointsMM.append(pixelPos2mmPos(drillPoint, img))
-
-        print(drillPointsMM)
 
         return drillPointsMM
