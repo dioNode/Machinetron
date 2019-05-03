@@ -6,21 +6,21 @@
 extern "C" {
 #endif
 
-//#include "main.h"
+#include "main.h"
 
 /**
  * A structure to represent a stepper motor
  */
 extern struct Motor {
-   char* name;          // The name of the motor
-	 char* type;					// DC or STEP
-	 char* mode;					// Mode defines whether the stepper motor is infinitely rotational ("ROT" or "NORM")
+   char name[11];       // The name of the motor
+	 char type[5];				// DC or STEP
+	 char mode[5];				// Mode defines whether the stepper motor is infinitely rotational ("ROT" or "NORM")
    int id;              // ID used to identify in commands
 	 int motorRun;				// Variable used to determine if the motor is running or not
 	 int motorHome;				// Variable used to determine if the motor is to home its position
 	 int infSpin;					// Variable used to determine if the motor is to spin indefinitely or not
 	 int direction;				// The current Direction of the motor
-	 int duration;				// The duration of the current path in seconds
+	 double duration;			// The duration of the current path in seconds
 	 double timePassed;		// Variable to store the time that has passed in the current path (in sec)
 	 int displacement;    // The displacement of the path in steps
 	 int startStep;				// The Start Step 

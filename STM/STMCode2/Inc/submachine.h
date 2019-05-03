@@ -5,11 +5,12 @@
 extern "C" {
 #endif
 
-#include "motor.h"
+
 #include "main.h"
+#include "motor.h"
 
 extern struct SubMachine {
-   char* name;
+   char name[11];
    int id;
    struct Motor motors[3];
 } submachine;
@@ -25,5 +26,7 @@ void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr)
 int getDirectionBit(int initByte);
 int getMotorIdBits(int initByte);
 int isComplete(struct SubMachine submachine);
+
+void setMotorParams2(struct Motor *motor_ptr, int motorRun, int motorHome, int motorInfSpin, int dir, int newPos, int startSpeed, int endSpeed);
 
 #endif // __SUBMACHINE_H_

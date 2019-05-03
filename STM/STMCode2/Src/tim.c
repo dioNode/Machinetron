@@ -18,8 +18,13 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
+#include <string.h>
+
 #include "tim.h"
 #include "main.h"
+#include "motor.h"
+#include "submachine.h"
 
 /* USER CODE BEGIN 0 */
 

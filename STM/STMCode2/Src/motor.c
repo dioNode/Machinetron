@@ -1,13 +1,13 @@
-#include "motor.h"
-#include "config.h"
-//#include "stm32f1xx_hal.h"
-#include "main.h"
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <stdlib.h>
-#include <string.h>
 
 
+#include "motor.h"
+#include "main.h"
+#include "config.h"
+//#include "stm32f1xx_hal.h"
 #include "usart.h"
 
 
@@ -16,6 +16,7 @@
  * @param[out] motor_array An array containing all the motors
  */
 void initMotorsStepSize(struct Motor motors_array[], int len) {
+	//printf("initMotorsStepSize");
 	int stepSelector;
 	for(int i = 0; i < len; i++) {
 		if(strcmp(motors_array[i].type, "STEP") == 0) {
@@ -197,13 +198,38 @@ void enableStepperDriver(int motorID, int enable) {
  * @param[in]   endSpeed    The speed which you stop moving at when you reach target (mm/s or degrees/s).
  */
 void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int motorInfSpin, int dir, double newPos, double startSpeed, double endSpeed) {
-  // First check if the motor is in NORM or ROT mode
+  printf("got here\n");
+	/*
+	
+	char *name = motor_ptr -> name;
+	char *type = motor_ptr -> type; 	
+	char *mode = motor_ptr -> mode;
+	int motorId = motor_ptr -> id; 
+	int currentMotorRun = motor_ptr -> motorRun;
+	int currentMotorHome = motor_ptr -> motorHome; 
+	int currentInfSpin = motor_ptr -> infSpin;
+	int currentDir = motor_ptr -> direction; 
+	double currentDuration = motor_ptr -> duration;
+	double currentTimePassed = motor_ptr -> timePassed; 
+	int currentDisplacement = motor_ptr -> displacement;
+	int currentStartStep = motor_ptr -> startStep;
+	int currentStep = motor_ptr -> currentStep;
+	int currentTargetStep = motor_ptr -> targetStep;
+	double currentStartSpeed = motor_ptr -> startSpeed;
+	double currentSpeed = motor_ptr -> currentSpeed;
+	double currentTargetSpeed = motor_ptr -> targetSpeed;
+  double currentAcceleration = motor_ptr -> acceleration;
+  double motorDPR = motor_ptr -> dpr;
+  int currentuSDelay = motor_ptr -> currentuSDelay;  // The Current uS Delay between steps
+	int motorStepSize = motor_ptr -> stepsize;	
+	*/
+	
+	// First check if the motor is in NORM or ROT mode
+	//HAL_UART_Transmit(&huart1, (uint8_t *)motorRun, sizeof(motorRun), HAL_MAX_DELAY);
+	//printInteger("Test if it works", 16, motorRun);
 	double displacementWU;
 	double targetPos;
 	
-	//printf("test\n");
-	//printf("motorMode %s", motor_ptr -> mode);
-	//printf("\n");
 	if(strcmp(motor_ptr -> mode, "ROT") == 0) {
 		// Motor is in ROT mode meaning displacement and newPos need to be calculated based on input data
 		double modPos = fmod(getCurrentPosition(*motor_ptr), (motor_ptr -> dpr));
