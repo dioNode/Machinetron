@@ -1,11 +1,11 @@
-from STL.Drill6mmCircleDetection import detectDrill
-
 from STL.stl2png import generateSlices
 from stl import mesh
+import numpy as np
 import math
 import os
 import cv2
-from support.supportFunctions import clearFolder, unique
+from support.supportFunctions import clearFolder, unique, pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel, inRange
+from config import configurationMap
 
 
 class STLProcessor:
@@ -25,6 +25,39 @@ class STLProcessor:
         self.path = 'STL/output'
         self._storeImageSlices()
         self.generateDrillCommands()
+        self.generateLatheCommands()
+
+    def generateLatheCommands(self):
+        # iterate through the names of contents of the folder
+        sliceDepth = self.sliceDepth
+
+        # Detect lathes
+        totalLatheRadiusList = []
+        for img in self.imageSlicesTopDown:
+            latheRadius = self._detectLathe(img)
+            totalLatheRadiusList.append(latheRadius)
+
+        for lathePoint in unique(totalLatheRadiusList):
+            startIdx = None
+            endIdx = None
+            for idx, radiusList in enumerate(totalLatheRadiusList):
+                if lathePoint in radiusList:
+                    # Set the index
+                    if startIdx is None:
+                        # First instance of radius
+                        startIdx = idx
+                        endIdx = idx + 1
+                    else:
+                        endIdx = idx + 1
+                else:
+                    if startIdx is not None and endIdx is not None:
+                        z0 = startIdx * self.sliceDepth
+                        z1 = endIdx * self.sliceDepth
+                        radius = pixel2mm(lathePoint)
+                        print(radius, z0, z1)
+                        self.controller.commandGenerator.lathe(z0, z1, radius)
+                        startIdx = None
+                        endIdx = None
 
     def generateDrillCommands(self):
         # iterate through the names of contents of the folder
@@ -33,42 +66,59 @@ class STLProcessor:
         # Detect top down drills
         totalDrillPoints = []
         for img in self.imageSlicesTopDown:
-            drillPoints = detectDrill(img)
+            drillPoints = self._detectDrill(img)
             totalDrillPoints.append(drillPoints)
         # Detect holes
-        for drillPoint in unique(totalDrillPoints):
-            continue
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'top')
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesTopDown)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'top')
 
         # Detect front drills
         totalDrillPoints = []
         for img in self.imageSlicesFrontBack:
-            drillPoints = detectDrill(img)
+            drillPoints = self._detectDrill(img)
             totalDrillPoints.append(drillPoints)
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'front')
+        # Detect holes
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesFrontBack)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'front')
         # Detect back drills
         totalDrillPoints.reverse()
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'back')
+        # Detect holes
+        imageSlicesBackFront = self.imageSlicesFrontBack
+        imageSlicesBackFront.reverse()
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, imageSlicesBackFront)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'back')
 
         # Detect left right drills
         totalDrillPoints = []
         for img in self.imageSlicesLeftRight:
-            drillPoints = detectDrill(img)
+            drillPoints = self._detectDrill(img)
             totalDrillPoints.append(drillPoints)
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'left')
+        # Detect holes
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesLeftRight)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'left')
         # Detect right drills
         totalDrillPoints.reverse()
-        self._parseDrillPoints(totalDrillPoints, sliceDepth, 'right')
+        # Detect holes
+        imageSlicesRightLeft = self.imageSlicesLeftRight
+        imageSlicesRightLeft.reverse()
+        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, imageSlicesRightLeft)
+        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'right')
 
+    def _getTotalDrillPointsWithHoles(self, totalDrillPoints, imageSlices):
+        totalDrillPointsWithHoles = []
+        for img in imageSlices:
+            drillPointsWithHoles = []
+            for drillPoint in unique(totalDrillPoints):
+                pxRadius = mm2pixel(configurationMap['drill']['diameter']/2)
+                if self._containsHole(img, drillPoint, pxRadius):
+                    drillPointsWithHoles.append(drillPoint)
+            totalDrillPointsWithHoles.append(drillPointsWithHoles)
+        return totalDrillPointsWithHoles
 
     def _parseDrillPoints(self, totalDrillPoints, sliceDepth, face):
 
         trackingPoints = []
         drillHoleLengths = {}
-
-        self.controller.setFace(face)
-        foamWidth = self.controller.currentFaceWidth
-        foamHeight = self.controller.currentFaceHeight
 
         # Get initial holes from surface
         for drillPoint in totalDrillPoints[0]:
@@ -85,7 +135,7 @@ class STLProcessor:
 
         for drillPoint, depth in drillHoleLengths.items():
             self.controller.commandGenerator.drill(
-                face, drillPoint[0]*foamWidth - foamWidth/2, drillPoint[1]*foamHeight, depth)
+                face, drillPoint[0], drillPoint[1], depth)
 
     def _clearFolders(self):
         clearFolder('STL/output/frontback')
@@ -100,7 +150,6 @@ class STLProcessor:
         generateSlices(self.filename, throughFace)
         facePath = self.path + '/' + throughFace
         self.imageSlicesTopDown = self._getImageSlices(facePath)
-        print(self.filename)
         # Generate slices for left right
         generateSlices('face3.stl', 'leftright')
         self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright')
@@ -136,10 +185,66 @@ class STLProcessor:
             i += 1
             ry += 90
 
-    def _containsHole(self, img, pos, radius):
+    def _containsHole(self, img, pos, radius, state=0): # default hole is black
         x, y = pos
-        return False
+        return True
 
     def _fillHole(self, img, pos, radius, state): # state is 1 for white, 0 for black
         x, y = pos
         return img
+
+    def _detectDrill(self, img):
+
+        cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+
+        pxRadius = round(mm2pixel(configurationMap['drill']['diameter']/2))
+        tolerance = configurationMap['drill']['detectionTolerance']
+
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 2.2, 100,
+                                    param1=100, param2=30, minRadius=pxRadius-tolerance, maxRadius=pxRadius+tolerance)
+        drillPoints = []
+        if circles is not None:
+            circles = np.uint16(np.around(circles))
+            for i in circles[0, :]:
+                # draw the outer circle
+                cv2.circle(cimg, (i[0], i[1]), i[2], (0, 255, 0), 2)
+                # draw the center of the circle
+                cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
+
+                drillPoints.append((i[0], i[1]))
+
+        # Convert from pixel to mm
+        drillPointsMM = []
+        for drillPoint in drillPoints:
+            drillPointsMM.append(pixelPos2mmPos(drillPoint, img))
+
+        return drillPointsMM
+
+    def _detectLathe(self, img):
+        cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+
+        height, width = img.shape
+
+        pxRadiusMax = round(mm2pixel(configurationMap['lathe']['maxDetectionRadius']))
+        pxRadiusMin = round(mm2pixel(configurationMap['lathe']['minDetectionRadius']))
+
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 2.2, 100,
+                                   param1=100, param2=30, minRadius=pxRadiusMin,
+                                   maxRadius=pxRadiusMax)
+        lathePoints = []
+        if circles is not None:
+            circles = np.uint16(np.around(circles))
+            for i in circles[0, :]:
+                lathePoints.append((i[0], i[1], i[2]))
+
+        # Convert from pixel to mm
+        lathePointsMM = []
+        for lathePoint in lathePoints:
+            pos = (lathePoint[0], lathePoint[1])
+            radius = lathePoint[2]
+            lathePointMM = pixelPos2mmPos(pos, img)
+            mmHeight = pixel2mm(height)
+            if inRange(lathePointMM, (0, mmHeight/2), configurationMap['other']['mmError']):
+                lathePointsMM.append(radius)
+
+        return lathePointsMM

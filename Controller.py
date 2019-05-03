@@ -45,6 +45,7 @@ class Controller:
         self.microcontrollerSimulator = MicrocontrollerSimulator()
 
         self.state = statusMap['stopped']
+        self.facename = 'okay'
 
     def __repr__(self):
         print(self.commandQueue)
@@ -275,6 +276,8 @@ class Controller:
             self.currentFaceWidth = xLength
             self.currentFaceHeight = yLength
             self.currentFaceDepth = zLength
+        self.facename = face
+        print(face)
 
     def updateDirectionFaced(self):
         """Updates the direction the handler is facing based on the current motor values.
