@@ -127,7 +127,14 @@ struct Motor * getMotorById(struct SubMachine *submachine_ptr, int id) {
 
 void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr) {
   // Extract important variables
+	
+	
+	
+	///////Problematic Line
 	printf("ProcessInstructionEntered\n\r");
+	
+	
+	
 	//printf("SubmachineID: %d", submachine_ptr -> id);
 	int motorByteLocations[3] = {0,7,14};
 	/*
