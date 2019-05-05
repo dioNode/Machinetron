@@ -150,7 +150,7 @@ class Controller:
         if self.useSimulator:
             self.microcontrollerSimulator.setTargets(targets)
         else:
-            instructions = self.targetsDictToInstruction(targets)
+            instructions = self.targetsDictToInstruction(targets, True)
             print(instructions)
             for instruction in instructions:
                 address = instruction['address']
@@ -163,7 +163,7 @@ class Controller:
                 ledout_values = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
                 self.bus.write_i2c_block_data(address, DEVICE_REG_LEDOUT0, ledout_values)
 
-    def targetsDictToInstruction(self, targets):
+    def targetsDictToInstruction(self, targets, inSteps=False):
         """Generate a list of instruction dictionaries to be sent off"""
         instructions = []
         if type(targets) is dict:
@@ -181,6 +181,11 @@ class Controller:
                         initByte = 0
                         initByte |= motorID << 5
                         initByte |= direction << 4
+
+                        if inSteps:
+                            targetValue = motor.displacementToSteps(targetValue)
+                            startSpeed = motor.displacementToSteps(startSpeed)
+                            endSpeed = motor.displacementToSteps(endSpeed)
 
                         # Set data values
                         data = [abs(targetValue), startSpeed, endSpeed]
@@ -277,7 +282,6 @@ class Controller:
             self.currentFaceHeight = yLength
             self.currentFaceDepth = zLength
         self.facename = face
-        print(face)
 
     def updateDirectionFaced(self):
         """Updates the direction the handler is facing based on the current motor values.

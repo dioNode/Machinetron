@@ -5,8 +5,8 @@ class SpinMotor(Motor):
 
     """
 
-    def __init__(self, displacementPerRotation):
-        super().__init__(displacementPerRotation)
+    def __init__(self, displacementPerRotation, numRotationSteps=None):
+        super().__init__(displacementPerRotation, numRotationSteps)
 
     def currentAngle(self):
         return (self.currentDisplacement / self.displacementPerRotation) % 360

@@ -14,8 +14,8 @@ def main():
     ################ Commands go here ################
     # stlProcessor.generateCommands('part0.STL', controller)
 
-    # lathe(50, 80, 25)
-    # drill('front', -20, 25, 50)
+    lathe(50, 80, 25)
+    drill('front', -20, 25, 50)
     drill('front', 20, 25, 50)
     cutInCircle('top', 0, 40, 25, 40)
     fillet('top', -38.3, 0, 10, 3, 30)

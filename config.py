@@ -58,6 +58,7 @@ configurationMap = {
     }, 'other': {
         'infVal': 9999,
         'mmPerPixelRatio': 80/1200,
-        'mmError': 0.2
+        'mmError': 0.2,
+        'numRotationSteps': 200,
     }
 }

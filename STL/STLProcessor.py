@@ -186,8 +186,37 @@ class STLProcessor:
             ry += 90
 
     def _containsHole(self, img, pos, radius, state=0): # default hole is black
-        x, y = pos
-        return True
+        height = np.size(img, 0)
+        width = np.size(img, 1)
+
+        pos = tuple([int(round(val)) for val in pos])
+        radius = int(radius)
+
+        if state == 0:
+            mask = np.zeros((height, width), np.uint8)
+            cv2.circle(mask, pos, radius, (255, 255, 255), -1)
+            multiplied_image = cv2.multiply(img, mask)
+
+            # Count the number of white pixels in image (Change from 0 to maybe < 10 to account for error)
+            if sum(sum(multiplied_image)) == 0:
+                return True
+            else:
+                return False
+        else:
+            # Want mask to be opposite to hole mask since a lathe will be white not black
+            mask = np.zeros((height, width, 3), np.uint8)
+            mask[:, :] = (255, 255, 255)
+            cv2.circle(mask, pos, radius, (0, 0, 0), -1)
+            multiplied_image = cv2.multiply(img, mask)
+
+
+            # Count the number of white pixels in image (Change from 0 to maybe < 10 to account for error)
+            if sum(sum(sum(multiplied_image))) == 0:
+                print('true')
+                return True
+            else:
+                print('false')
+                return False
 
     def _fillHole(self, img, pos, radius, state): # state is 1 for white, 0 for black
         x, y = pos

@@ -41,6 +41,9 @@ class OutputSimulator:
         self.screenHeight = self.commandsDisplayHeight + 2*self.padding
         self.screenWidth = 2 * self.padding + 3 * (self.padding + self.width) + self.commandsDisplayWidth
 
+        self.screenClicked = False
+        self.status = 1
+
         if isinstance(controller, Controller):
             self.controller = controller
 
@@ -79,6 +82,10 @@ class OutputSimulator:
             self.updateHandlerDisplay(cutMachines)
 
             self.updateCommandsDisplay()
+
+            self.updateGoButton()
+
+
 
             pygame.display.update()
         else:
@@ -319,4 +326,22 @@ class OutputSimulator:
         self.win = pygame.display.set_mode((self.screenWidth, self.screenHeight))
         pygame.display.set_caption("Machinetron Outputs")
 
+    def updateGoButton(self):
+        """Display Go Button"""
+        radius = 15
+        if self.status == 1:
+            colour = (0, 128, 0)
+        elif self.status == 0:
+            colour = (255, 0, 0)
+        else:
+            colour = (255, 165, 0)
+        pygame.draw.circle(self.win, colour, (200, self.handlerDisplayTop + radius), radius)
+        click = pygame.mouse.get_pressed()[0]
+        if click == 1:
+            self.screenClicked = True
+        else:
+            if self.screenClicked:
+                self.status = (self.status + 1) % 2
+
+            self.screenClicked = False
 
