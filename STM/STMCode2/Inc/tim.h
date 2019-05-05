@@ -25,6 +25,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "motor.h"
 
 /* USER CODE BEGIN Includes */
 

@@ -18,10 +18,16 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "i2c.h"
-#include "usart.h"
-#include "main.h"
 #include <stdio.h>
+#include <string.h>
+
+#include "i2c.h"
+#include "main.h"
+#include "usart.h"
+#include "submachine.h"
+#include "motor.h"
+
+
 
 /* USER CODE BEGIN 0 */
 /*____________________I2C Constant Definitions____________________*/
@@ -175,12 +181,12 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 		for(int i = 0; i < (getI2CReceiveSize() - 1); i++) {
 			setInstructionArrayAtIndex(getI2CReceiveBuffer()[i+1], getInstArrayFirstEmptyIndex(), i);
 		}
-		HAL_UART_Transmit(&huart1,(uint8_t *)getInstructionAtIndex(getInstArrayFirstIndex()),getI2CReceiveSize(),HAL_MAX_DELAY);
-	  HAL_UART_Transmit(&huart1,(uint8_t *)"\n",sizeof("\n"),HAL_MAX_DELAY);
+		//HAL_UART_Transmit(&huart1,(uint8_t *)getInstructionAtIndex(getInstArrayFirstIndex()),getI2CReceiveSize(),HAL_MAX_DELAY);
+	  //HAL_UART_Transmit(&huart1,(uint8_t *)"\n",sizeof("\n"),HAL_MAX_DELAY);
 		// Increment the first empty index
 		incrementFirstEmptyIndex();
 	} else if(getI2CReceiveBuffer()[0] == START_INST) {
-		printf("%d", getI2CReceiveBuffer()[0]);
+		//printf("%d", getI2CReceiveBuffer()[0]);
 		// A Start instruction was sent, initiate the machine into a running state
 		setMachineState(MACHINE_RUNNING);
 	} else if(getI2CReceiveBuffer()[0] == PAUSE_INST) {

@@ -18,8 +18,13 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
+#include <string.h>
+
 #include "tim.h"
 #include "main.h"
+#include "motor.h"
+#include "submachine.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -246,11 +251,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
   */
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 	/* Capture compare 1 event */
-  if(__HAL_TIM_GET_FLAG(htim, TIM_FLAG_CC1) != RESET)
-  {
-    if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_CC1) !=RESET)
-    {
-			if(getTimerMSHalf() == getCompareMSHalf(/*Channel*/ 1)) {
+	if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) {
+		if(getTimerMSHalf() == getCompareMSHalf(/*Channel*/ 1)) {
 				//Step Motor 1 if motor not yet at target pos
 				if(isMotorFinished(getMotorById(&subMachine, /*ID*/ 1)) != 1) {
 					//Step Motor 1 (including setting the new speed and uS Delay and addjusting the timePassed
@@ -261,15 +263,12 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 					setChannelInterrupt(htim, /*Channel*/ 1, /*Enable*/ 0);
 					//HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 1);
 				}
-			}
-    }
-  }
+		}
+	}
+  
   /* Capture compare 2 event */
-  if(__HAL_TIM_GET_FLAG(htim, TIM_FLAG_CC2) != RESET)
-  {
-    if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_CC2) !=RESET)
-    {
-			if(getTimerMSHalf() == getCompareMSHalf(/*Channel*/ 2)) {
+	if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2) {
+		if(getTimerMSHalf() == getCompareMSHalf(/*Channel*/ 2)) {
 				//Step Motor 2 if motor not yet at target pos
 				if(isMotorFinished(getMotorById(&subMachine, /*ID*/ 2)) != 1) {
 					//Step Motor 2 (including setting the new speed and uS Delay and addjusting the timePassed
@@ -281,14 +280,11 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 					//HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 2);
 				}
 			}
-    }
-  }
+	}
+  
   /* Capture compare 3 event */
-  if(__HAL_TIM_GET_FLAG(htim, TIM_FLAG_CC3) != RESET)
-  {
-    if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_CC3) !=RESET)
-    {
-			if(getTimerMSHalf() == getCompareMSHalf(/*Channel*/ 3)) {
+	if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3) {
+		if(getTimerMSHalf() == getCompareMSHalf(/*Channel*/ 3)) {
 				//Step Motor 3 if motor not yet at target pos
 				if(isMotorFinished(getMotorById(&subMachine, /*ID*/ 3)) != 1) {
 					//Step Motor 3 (including setting the new speed and uS Delay and addjusting the timePassed
@@ -300,9 +296,7 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 					//HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 3);
 				}
 			}
-    }
-  }
-	
+	}
 }
 
 /**
@@ -326,8 +320,11 @@ void stepperTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *subma
 	// Based on which motors are running, set the timer interrupts and compare registers
 	// TODO set these registers
 	for(int i = 0; i < sizeof(submachine_ptr -> motors)/sizeof(*(submachine_ptr -> motors)); i++) {
-		struct Motor *motor_ptr = getMotorById(submachine_ptr, i);
-		if(motor_ptr -> motorRun == 1) {
+		struct Motor *motor_ptr = getMotorById(submachine_ptr, i+1);
+		int testMotor = motor_ptr->motorRun;
+		//printf(testMotor);
+		if(1) {
+		//if((motor_ptr->motorRun) == 1) {
 			if(strcmp(motor_ptr -> type, "STEP") == 0) {
 				// Enable the motor driver since the motor will be used
 				enableStepperDriver(motor_ptr -> id, /*Enable*/ 1);

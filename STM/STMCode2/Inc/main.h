@@ -29,10 +29,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
-#include "motor.h"
-#include "submachine.h"
-#include "stdio.h"
-#include "string.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -74,6 +71,9 @@ extern "C" {
 
 /* Size of Reception buffer */
 #define TXBUFFERSIZE                    2
+
+/* Size of Debug buffer */
+#define DEBUGBUFFERSIZE                 16
 
 /* Total number of instructions that can be stored */
 #define INST_ARRAY_LENGTH               200
@@ -164,6 +164,7 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+
 void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength);
 
 uint8_t* getI2CReceiveBuffer(void);
@@ -210,9 +211,9 @@ void setCompareMSHalf(int channel, uint16_t value);
 
 void setLEDColour(char* colour);
 
-char* arrayToStr(char * str, uint8_t *array, unsigned int n);
-	
-void printArray(uint8_t *array);
+void printInteger(char* leadingString, int len, int intNum);
+
+int roundNumToInt(double number);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

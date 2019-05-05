@@ -6,31 +6,31 @@
 extern "C" {
 #endif
 
-//#include "main.h"
+#include "main.h"
 
 /**
  * A structure to represent a stepper motor
  */
 extern struct Motor {
-   char* name;          // The name of the motor
-	 char* type;					// DC or STEP
-	 char* mode;					// Mode defines whether the stepper motor is infinitely rotational ("ROT" or "NORM")
+   char name[11];       // The name of the motor
+	 char type[5];				// DC or STEP
+	 char mode[5];				// Mode defines whether the stepper motor is infinitely rotational ("ROT" or "NORM")
    int id;              // ID used to identify in commands
 	 int motorRun;				// Variable used to determine if the motor is running or not
 	 int motorHome;				// Variable used to determine if the motor is to home its position
 	 int infSpin;					// Variable used to determine if the motor is to spin indefinitely or not
 	 int direction;				// The current Direction of the motor
-	 int duration;				// The duration of the current path in seconds
+	 double duration;			// The duration of the current path in seconds
 	 double timePassed;		// Variable to store the time that has passed in the current path (in sec)
 	 int displacement;    // The displacement of the path in steps
 	 int startStep;				// The Start Step 
    int currentStep;     // The current number of steps
    int targetStep;      // The number of steps it needs to reach
-	 double startSpeed; 	// The start step speed (steps/s) (rev/s if a DC Motor)
+	 int startSpeed; 	// The start step speed (steps/s) (rev/s if a DC Motor)
    double currentSpeed; // The current step speed (steps/s) (rev/s if a DC Motor)
-	 double targetSpeed;  // The target step speed (steps/s) (rev/s if a DC Motor)
+	 int targetSpeed;  // The target step speed (steps/s) (rev/s if a DC Motor)
    double acceleration; // The step acceleration (steps/s^2)
-   double dpr;          // Displacement per revolution of motor
+   int dpr;          // Displacement per revolution of motor
    int currentuSDelay;  // The Current uS Delay between steps
 	 int stepsize;				// Step size: 1/(1,2,4,8,16)
 } motor;
@@ -39,7 +39,7 @@ extern struct Motor {
  * Initialises the motor stepsize pins
  * @param[out] motor_array An array containing all the motors
  */
-void initMotorsStepSize(struct Motor motors_array[], int len);
+void initMotorsStepSize(struct Motor *motors_array, int len);
 
 /**
  * Function to return the MS3,MS2,MS1, number based on the stepsize selected for the motor
@@ -75,11 +75,11 @@ void enableStepperDriver(int motorID, int enable);
  * @param[in]		motorHome		Specifies if the motor is to home is position
  * @param[in]		motorInfSpin Used to determine of the motor is to spin indefinitely
  * @param[in]   dir         The direction of the motor
- * @param[in]   newPos      The displacement you want to reach (mm or degrees). (positive or negative)
- * @param[in]   startSpeed  The speed which you start moving at (mm/s or degrees/s).
- * @param[in]   endSpeed    The speed which you stop moving at when you reach target (mm/s or degrees/s).
+ * @param[in]   newPos      The displacement you want to reach (steps). (positive or negative)
+ * @param[in]   startSpeed  The speed which you start moving at (steps/s).
+ * @param[in]   endSpeed    The speed which you stop moving at when you reach target (steps/s).
  */
-void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int motorInfSpin, int dir, double newPos, double startSpeed, double endSpeed);
+void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int motorInfSpin, int dir, int newPos, int startSpeed, int endSpeed);
 
 /**
  * Prints the details about the current motor.
@@ -88,11 +88,20 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int mo
 void printMotorDetails(struct Motor motor);
 
 /**
+ * Finds the current position of the motor (steps).
+ * @param[in] motor The motor you want to read from.
+ * @return    The motor's position (steps).
+ */
+int getCurrentPositionSteps(struct Motor *motor);
+
+/**
  * Finds the current position of the motor (mm or degrees).
  * @param[in] motor The motor you want to read from.
  * @return    The motor's position (mm or degrees).
  */
-double getCurrentPosition(struct Motor motor);
+/*
+double getCurrentPosition(struct Motor *motor);
+*/
 
 /**
 * Converts the world units (displacement:mm,deg, speed: mm/s,deg/s, acceleration: mm/s^2,deg/s^2) 
@@ -101,14 +110,16 @@ double getCurrentPosition(struct Motor motor);
  * @param[in] motor         	The motor for which this conversion is being done
  * @return  The equivalent value in steps Units ot produce the Value Units.
  */
-double worldUnitsToStepUnits(double worldUnitValue, struct Motor motor);
+ /*
+int worldUnitsToStepUnits(double worldUnitValue, struct Motor *motor);
+*/
 
 /**
  * Calculates the number of milliseconds before each step.
  * @param[in] motor The motor being examined.
  * @return  The number of milliseconds before each step for the motor.
  */
-double msPerStep(struct Motor motor);
+double msPerStep(struct Motor *motor);
 
 /*____________________Motor Retrieve and Set Functions___________________*/
 /**
@@ -198,13 +209,25 @@ int isMotorFinished(struct Motor *motor);
 
 /**
  * Function to calculate the duration (in Sec) of an instruction given the 
+ * start and end speeds in steps/s and the distance to travel in steps.
+ * @param[in] startSpeedSteps The start speed in steps/s
+ * @param[in] endSpeedSteps The end speed in steps/s
+ * @param[in] distanceSteps the distance to travel in steps
+ * @return  Double containing the total duration of the entire movement
+ */
+double calculateDurationSteps(int startSpeedSteps, int endSpeedSteps, int displacementSteps);
+
+/**
+ * Function to calculate the duration (in Sec) of an instruction given the 
  * start and end speeds in mm/s and the distance to travel in mm.
  * @param[in] startSpeedMM The start speed in mm/s
  * @param[in] endSpeedMM The end speed in mm/s
  * @param[in] distanceMM the distance to travel in mm
  * @return  Double containing the total duration of the entire movement
  */
+ /*
 double calculateDurationMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM);
+*/
 
 /**
  * Function to calculate the acceleration (in mm/s^2) of an instruction given the 
@@ -221,7 +244,7 @@ double calculateAccelMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM);
  * @param[in] currentSpeed The current speed of the stepper motor in steps/sec
  * @return  int containing the required step delay in uS
  */
-int calculateuSDelay(double currentSpeed);
+double calculateuSDelay(double currentSpeed);
 
 /**
  * Function to calculate the new speed based on the time Passed in the instruction 
