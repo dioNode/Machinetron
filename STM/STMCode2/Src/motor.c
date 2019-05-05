@@ -565,12 +565,12 @@ double calculateAccelMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM) {
  * @return  int containing the required step delay in uS
  */
 double calculateuSDelay(double currentSpeed) {
-	double temp = 1000000/currentSpeed;
+	double temp = ((double)(1000000))/currentSpeed;
 	//int retTemp = (int)ceil(temp);
 	//int retTemp = roundNumToInt(temp);
 	//double retTemp = (int)temp;
 	return temp;
-	//return 142857;
+	//return 47619;
 }
 
 /**
@@ -582,7 +582,8 @@ double calculateuSDelay(double currentSpeed) {
 void setSpeedStepsAnduSDelay(struct Motor *motor) {
 	double newSpeed = (double)(motor->startSpeed) + (motor->acceleration)*(motor->timePassed);
 	motor -> currentSpeed = newSpeed;
-	motor -> currentuSDelay = (calculateuSDelay(newSpeed));
+	//motor -> currentuSDelay = (calculateuSDelay(newSpeed));
+	motor->currentuSDelay = ((double)(1000000))/newSpeed;
 	//motor -> currentuSDelay = 1000;
 }
 
