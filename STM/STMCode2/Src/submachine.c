@@ -124,14 +124,14 @@ struct Motor * getMotorById(struct SubMachine *submachine_ptr, int id) {
 
 //TODO Set up processInstruction to handle Stepper/DC motors and different variables plus do not rely
 // on definitie positions for each motor
-
-void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr) {
+// InstData *pointer rather than Array of 28
+void processInstruction(uint8_t *instData, struct SubMachine *submachine_ptr) {
   // Extract important variables
 	
 	
 	
 	///////Problematic Line
-	printf("ProcessInstructionEntered\n\r");
+	//printf("ProcessInstructionEntered\n\r");
 	
 	
 	
@@ -183,8 +183,8 @@ void processInstruction(uint8_t instData[28], struct SubMachine *submachine_ptr)
 		// set the parameters accordingly
 		// As a test only set the motor parameters if the motor is running
 		if(motorRun == 1) {
-			printf("Test stufff \n");
-			struct Motor * motor_ptr = getMotorById(submachine_ptr, motorID);
+			//printf("Test stufff \n");
+			struct Motor *motor_ptr = getMotorById(submachine_ptr, motorID);
 			//printf("Motor run: %d, motor home: %d, motorInfSpin: %d, direction: %d, newPos: %d, startSpeed: %d, endSpeed: %d\n\r", motorRun, motorHome, motorInfSpin, direction, newPos, startSpeed, endSpeed);
 			
 			//setMotorParams2(motor_ptr, motorRun, motorHome, motorInfSpin, direction, newPos, startSpeed, endSpeed);

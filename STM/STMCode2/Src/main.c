@@ -76,29 +76,29 @@ char DebugBuffer[DEBUGBUFFERSIZE] = {NULL};
 //struct SubMachine subMachine = {"Handler", 1,
       //{{/*Name*/ "Rail motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			///*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			///*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 360,/*currentuSDelay*/ 0,
+			///*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			///*Step Size*/ 1},
       //{/*Name*/ "Spin motor",/*Type*/ "STEP",/*Mode*/ "ROT",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			///*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			///*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			///*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			///*Step Size*/ 1},
       //{/*Name*/ "Flip motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 3,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			///*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			///*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			///*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			///*Step Size*/ 1}},
    //};
 struct SubMachine subMachine = {"Handler", 1,
       {{"Rail motor", "STEP", "NORM", 1, 0, 0, 0, 1, 0,
 			 0, 0, 0, 0, 0, 0,
-			 0, 0, 0, 360, 0,
+			 0, 0, 0, 200, 0,
 			 1},
       {"Spin motor","STEP","ROT",2,0,0,0,1,0,
 			0, 0,0,0,0,0,
-			0,0,0,2,0,
+			0,0,0,200,0,
 			1},
       {"Flip motor","STEP","NORM",3,0,0,0,1,0,
 			0,0,0,0,0,0,
-			0,0,0,2,0,
+			0,0,0,200,0,
 			1}},
    };
 #endif
@@ -106,15 +106,15 @@ struct SubMachine subMachine = {"Handler", 1,
 struct SubMachine subMachine = {"Lathe", 1,
       {{/*Name*/ "Pen motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1},
       {/*Name*/ "Spin motor",/*Type*/ "STEP",/*Mode*/ "ROT",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1},
       {/*Name*/ "Vert motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 3,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1}},
    };
 #endif
@@ -122,15 +122,15 @@ struct SubMachine subMachine = {"Lathe", 1,
 struct SubMachine subMachine = {"Mill", 1,
       {{/*Name*/ "Pen motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1},
       {/*Name*/ "Spin motor",/*Type*/ "DC",/*Mode*/ "NORM",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1},
       {/*Name*/ "Vert motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 3,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1}},
    };
 #endif
@@ -138,15 +138,15 @@ struct SubMachine subMachine = {"Mill", 1,
 struct SubMachine subMachine = {"Drill", 1,
       {{/*Name*/ "Pen motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1},
       {/*Name*/ "Spin motor",/*Type*/ "DC",/*Mode*/ "NORM",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1},
       {/*Name*/ "Vert motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 3,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 2,/*currentuSDelay*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1}},
    };
 #endif
@@ -252,6 +252,10 @@ int main(void)
 	#endif
   MX_TIM1_Init();
 
+	// Clear the update interrupt flag
+	__HAL_TIM_CLEAR_FLAG(&htim1, TIM_FLAG_UPDATE);
+	// Set timer 1 to stop at a breakpoint
+	__HAL_DBGMCU_FREEZE_TIM1(); 
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
@@ -267,7 +271,7 @@ int main(void)
   }
 	
 	// Indicate start of program
-	printf("Started Program\n");
+	//printf("Started Program\n");
 	
 	// Create an array of the motors
 	struct Motor motors_array[3] = {*getMotorById(&subMachine, 1), *getMotorById(&subMachine, 2), *getMotorById(&subMachine, 3)};
@@ -286,78 +290,85 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		/*
 		for( int i = 0; i < RXBUFFERSIZE; i++) {
 			printf("%x", getInstructionAtIndex(0)[i]);
 			printf(",");
 		}
 		
 		printf("\n");
+		*/
 		/*
 		printf("%d", getInstArrayFirstIndex());
 		printf("\n");
 		printf("%d", getInstArrayFirstEmptyIndex());
 		printf("\n");
 		*/
-		printInteger("Testifitworks", 13, 567);
-		HAL_UART_Transmit(&huart1, (uint8_t *)"\n\r", sizeof("\n\r"),HAL_MAX_DELAY);
-		HAL_Delay(500);
+		
+		//printInteger("Testifitworks", 13, 567);
+		//HAL_UART_Transmit(&huart1, (uint8_t *)"\n\r", sizeof("\n\r"),HAL_MAX_DELAY);
+		//HAL_Delay(500);
 		// print the 
 		// Is the machine in a running state (should be processing instructions
 		if(getMachineState() == MACHINE_RUNNING) {
-			/*
-			printf("Machine Running");
-			printf("\n");
-			*/
+			
+			//printf("Machine Running");
+			//printf("\n");
+			
 			// Check if there are instructions to process in the Instruction Array
 			if(getInstArrayFirstIndex() != getInstArrayFirstEmptyIndex()) {
 				setLEDColour("ORANGE");
-				/*
-				printf("Instruction to process");
-				printf("\n");
-				*/
+				
+				//printf("Instruction to process");
+				//printf("\n");
+				
 				// So the instruction array contains new instructions that have not yet been processed
 				// So process the instruction at the First Instruction Index
-				//for( int i = 0; i < RXBUFFERSIZE; i++) {
-					/*
+				
+				/*
+				for( int i = 0; i < RXBUFFERSIZE; i++) {
+					
 					printf("%x", getInstructionAtIndex(getInstArrayFirstIndex())[i]);
 					printf(",");
-					*/
-				//}
-				printf("PreProcessed Instruction\n");
-				printf("submachine id, %d", subMachine.id);
-
+					
+				}
+				*/
+				//printf("PreProcessed Instruction\n");
+				//printf("submachine id, %d", subMachine.id);
+				
 				processInstruction(getInstructionAtIndex(getInstArrayFirstIndex()),&subMachine);
+				
 				//printf("Processed Instruction\n");
 				
 				//Reset and initialise timer and its interrupts
 				stepperTimerResetAndSetUp(&htim1, &subMachine);
-				/*
-				printf("Set Up Stepper Timer");
-				printf("\n");
-				*/
+				
+				//printf("Set Up Stepper Timer");
+				//printf("\n");
+				
 				#if defined MILL || defined DRILL
 				DCTimerResetAndSetup(&htim4, &subMachine);
 				#endif
 				// Enable the timers 
 				HAL_TIM_Base_Start_IT(&htim1);
 				#if defined MILL || defined DRILL
-				startOrStopTimer(&htim4,/* Start or Stop*/ 1);
+				startOrStopTimer(&htim4, 1);
 				#endif
 				while(isComplete(subMachine) != 1) {
 					// Waiting for instruction to finish
-					/*
-					printf("Test");
-					printf("\n");
-					*/
+					
+					//printf("Test");
+					//printf("\n");
+					
 				}
 				
 				// Instruction has finished processing, increment the Instruction Index
 				incrementFirstIndex();
 				// Stop all timer interrupts and the timers
 				HAL_TIM_Base_Stop_IT(&htim1);
-				HAL_TIM_OC_Stop(&htim1, /*Channel*/ 1);
-				HAL_TIM_OC_Stop(&htim1, /*Channel*/ 2);
-				HAL_TIM_OC_Stop(&htim1, /*Channel*/ 3);
+				HAL_TIM_OC_Stop(&htim1,1);
+				HAL_TIM_OC_Stop(&htim1,2);
+				HAL_TIM_OC_Stop(&htim1,3);
 				
 				#if defined MILL || defined DRILL
 				HAL_TIM_PWM_Stop_IT(&htim4, 2);
@@ -366,6 +377,7 @@ int main(void)
 				setMachineState(MACHINE_READY);
 			}
 		}
+		
 		//Test Stepper Motor Two
 		//Enable Stepper
 		// HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_SET);
@@ -809,6 +821,23 @@ void printInteger(char* leadingString, int len, int intNum) {
 		DebugBuffer[i] = 0;
 	}
 }
+
+/**
+  * @brief  Function to round a number to an integer
+	* @param[in] number integer to be rounded
+	* @retval None
+  */
+int roundNumToInt(double number) {
+	int result; /* could also be “shortint” */
+	if(number > 0) { 
+		result = (int)(number + 0.5); 
+	} else { 
+		result = (int)(number - 0.5); 
+	}
+	//return (number >= 0) ? (int)(number + 0.5) : (int)(number - 0.5);
+	return result;
+}
+
 /* USER CODE END 4 */
 
 /**

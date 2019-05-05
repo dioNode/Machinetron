@@ -212,6 +212,8 @@ void setCompareMSHalf(int channel, uint16_t value);
 void setLEDColour(char* colour);
 
 void printInteger(char* leadingString, int len, int intNum);
+
+int roundNumToInt(double number);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
