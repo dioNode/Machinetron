@@ -47,7 +47,7 @@ class MicrocontrollerSimulator(Microcontroller):
         self.setTargets(targets)
 
     def isComplete(self):
-        pass
+        return self.getCommandStatus() == statusMap['complete']
 
 
     def displaceActuator(self, submachine, motor, displacement):

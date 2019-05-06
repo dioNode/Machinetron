@@ -206,12 +206,7 @@ class Controller:
 
     def commandComplete(self):
         """Checks whether the current command has been complete."""
-        if self.useSimulator:
-            self.microcontroller.update()
-            return self.microcontroller.getCommandStatus() == statusMap['complete']
-        else:
-            # TODO check actual microcontroller to see if command complete
-            return False
+        return self.microcontroller.isComplete()
 
     def getMicrocontrollerResults(self):
         """Gets all the current positions of each of the motors.
