@@ -44,6 +44,7 @@ class MicrocontrollerSimulator(Microcontroller):
 
     def processCommand(self, command):
         targets = command.generateTargets()
+        self.setTargets(targets)
 
     def isComplete(self):
         pass
