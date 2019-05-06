@@ -19,7 +19,7 @@ class SelectFaceCommand(Command):
         self.face = face
         controller.setFace(face)
 
-    def generateTargets(self):
+    def generateTargets(self, inSteps=False):
         face = self.face
 
         def front():
@@ -57,7 +57,7 @@ class SelectFaceCommand(Command):
         }
 
         command = switcher.get(face)
-        targets = command().generateTargets()
+        targets = command().generateTargets(inSteps)
 
         return targets
 

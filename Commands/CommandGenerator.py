@@ -7,7 +7,6 @@ from Commands.RaiseCommand import RaiseCommand
 from Commands.ShiftCommand import ShiftCommand
 from Commands.CombinedCommand import CombinedCommand
 from Commands.SelectFaceCommand import SelectFaceCommand
-from Commands.SelectCutmachineCommand import SelectCutmachineCommand
 from support.supportFunctions import getLinearVelocityTime
 from config import configurationMap
 
@@ -39,7 +38,7 @@ class CommandGenerator:
         self.selectFace(face)
         controller.addCommand(CombinedCommand([
             RaiseCommand(controller.mill, controller.currentFaceHeight),
-            ShiftCommand(controller.mill, -controller.currentFaceWidth / 2 - radius, startSpeed=200, endSpeed=50)
+            ShiftCommand(controller.mill, controller.handler, -controller.currentFaceWidth / 2 - radius, startSpeed=200, endSpeed=50)
         ], 'Setup initial position and face'))
 
         # Push into depth
@@ -56,7 +55,7 @@ class CommandGenerator:
             currentHeight += height
             x = -width / 2 - radius
             z = controller.zLength - currentHeight - radius
-            controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, x), millSpinCommand]))
+            controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, controller.handler, x), millSpinCommand]))
             controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
 
         # Go back down right hand side
@@ -66,7 +65,7 @@ class CommandGenerator:
             currentHeight -= height
             x = width / 2 + radius
             z = controller.zLength - currentHeight - radius
-            controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, x), millSpinCommand]))
+            controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, controller.handler, x), millSpinCommand]))
             controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
 
         # Go back down to bottom
@@ -88,7 +87,7 @@ class CommandGenerator:
         z = controller.currentFaceHeight - z
         self.selectFace(face)
         controller.addCommand(CombinedCommand([
-            ShiftCommand(controller.drill, x),
+            ShiftCommand(controller.drill, controller.handler, x),
             RaiseCommand(controller.drill, z)], 'Align Drill'))
         # Drill in
         controller.addCommand(CombinedCommand([
@@ -125,7 +124,7 @@ class CommandGenerator:
         controller.addCommand(CombinedCommand([
             SpinCommand(controller.handler, 0),
             RaiseCommand(controller.lathe, 0),
-            ShiftCommand(controller.lathe, 0),
+            ShiftCommand(controller.lathe, controller.handler, 0),
         ]))
         controller.addCommand(RaiseCommand(controller.lathe, zTop))
 
@@ -170,7 +169,7 @@ class CommandGenerator:
         ], 'Retract Cutting Pieces'))
         # Reset all to original location
         controller.addCommand(CombinedCommand([
-            ShiftCommand(controller.drill, 0),
+            ShiftCommand(controller.drill, controller.handler, 0),
             RaiseCommand(controller.drill, 0),
             RaiseCommand(controller.mill, 0),
             RaiseCommand(controller.lathe, 0),
@@ -201,7 +200,7 @@ class CommandGenerator:
         currentX = x + radius * math.cos(angle)
         currentZ = actualZ + radius * math.sin(angle)
         self.controller.addCommand(CombinedCommand([
-            ShiftCommand(self.controller.mill, currentX),
+            ShiftCommand(self.controller.mill, self.controller.handler, currentX),
             RaiseCommand(self.controller.mill, currentZ),
         ]))
         self.controller.addCommand(CombinedCommand([
@@ -216,7 +215,7 @@ class CommandGenerator:
             currentZ = actualZ + radius * math.sin(angle)
             self.controller.addCommand(CombinedCommand([
                 SpinCommand(self.controller.mill),
-                ShiftCommand(self.controller.mill, currentX),
+                ShiftCommand(self.controller.mill, self.controller.handler, currentX),
                 RaiseCommand(self.controller.mill, currentZ),
             ]))
         angle = endAngle
@@ -224,7 +223,7 @@ class CommandGenerator:
         currentZ = actualZ + radius * math.sin(angle)
         self.controller.addCommand(CombinedCommand([
             SpinCommand(self.controller.mill),
-            ShiftCommand(self.controller.mill, currentX),
+            ShiftCommand(self.controller.mill, self.controller.handler, currentX),
             RaiseCommand(self.controller.mill, currentZ),
         ]))
 
@@ -296,7 +295,7 @@ class CommandGenerator:
         currentX = x + radius
         self.selectFace(face)
         self.controller.addCommand(CombinedCommand([
-            ShiftCommand(self.controller.mill, currentX),
+            ShiftCommand(self.controller.mill, self.controller.handler, currentX),
             RaiseCommand(self.controller.mill, currentZ),
         ]))
         self.controller.addCommand(CombinedCommand([
@@ -313,25 +312,25 @@ class CommandGenerator:
         self.controller.addCommand(CombinedCommand([
             SpinCommand(self.controller.mill),
             RaiseCommand(self.controller.mill, actualZ - radius, startSpeed=slowSpeed, endSpeed=fastSpeed*2),
-            ShiftCommand(self.controller.mill, x, startSpeed=fastSpeed, endSpeed=slowSpeed)
+            ShiftCommand(self.controller.mill, self.controller.handler, x, startSpeed=fastSpeed, endSpeed=slowSpeed)
         ]))
         # Curve to left
         self.controller.addCommand(CombinedCommand([
             SpinCommand(self.controller.mill),
             RaiseCommand(self.controller.mill, actualZ, startSpeed=constantSpeed),
-            ShiftCommand(self.controller.mill, x - radius, startSpeed=slowSpeed, endSpeed=fastSpeed)
+            ShiftCommand(self.controller.mill, self.controller.handler, x - radius, startSpeed=slowSpeed, endSpeed=fastSpeed)
         ]))
         # Curve to bottom
         self.controller.addCommand(CombinedCommand([
             SpinCommand(self.controller.mill),
             RaiseCommand(self.controller.mill, actualZ + radius, startSpeed=constantSpeed),
-            ShiftCommand(self.controller.mill, x, startSpeed=fastSpeed, endSpeed=slowSpeed)
+            ShiftCommand(self.controller.mill, self.controller.handler, x, startSpeed=fastSpeed, endSpeed=slowSpeed)
         ]))
         # Curve back to right
         self.controller.addCommand(CombinedCommand([
             SpinCommand(self.controller.mill),
             RaiseCommand(self.controller.mill, currentZ, startSpeed=constantSpeed),
-            ShiftCommand(self.controller.mill, currentX, startSpeed=slowSpeed, endSpeed=fastSpeed)
+            ShiftCommand(self.controller.mill, self.controller.handler, currentX, startSpeed=slowSpeed, endSpeed=fastSpeed)
         ]))
 
     def fillet(self, face, x, z, radius, quadrant, depth):
@@ -412,7 +411,7 @@ class CommandGenerator:
 
         """
         moveCommand = CombinedCommand([
-            ShiftCommand(cutMachine, x),
+            ShiftCommand(cutMachine, self.controller.handler, x),
             RaiseCommand(cutMachine, z),
             PushCommand(cutMachine, d, self.controller.currentFaceDepth)
         ])
@@ -477,7 +476,7 @@ class CommandGenerator:
             self.controller.addCommand(CombinedCommand([
                 SpinCommand(controller.mill),
                 RaiseCommand(controller.mill, zLow + r*np.sin(tiltAngle), startSpeed=zSpeed),
-                ShiftCommand(controller.mill, xLow + r*np.cos(tiltAngle), startSpeed=xSpeed),
+                ShiftCommand(controller.mill, controller.handler, xLow + r*np.cos(tiltAngle), startSpeed=xSpeed),
                 PushCommand(controller.mill, dLow, controller.currentFaceDepth, startSpeed=dSpeed)
             ]))
             # Half circle around to left hand side
@@ -487,7 +486,7 @@ class CommandGenerator:
             self.controller.addCommand(CombinedCommand([
                 SpinCommand(controller.mill),
                 RaiseCommand(controller.mill, zHigh - r*np.sin(tiltAngle), startSpeed=zSpeed),
-                ShiftCommand(controller.mill, xHigh - r*np.cos(tiltAngle), startSpeed=xSpeed),
+                ShiftCommand(controller.mill, controller.handler, xHigh - r*np.cos(tiltAngle), startSpeed=xSpeed),
                 PushCommand(controller.mill, dHigh, controller.currentFaceDepth, startSpeed=dSpeed)
             ]))
         self.retractMill()

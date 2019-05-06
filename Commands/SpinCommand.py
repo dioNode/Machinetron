@@ -24,7 +24,7 @@ class SpinCommand(Command):
         self.startSpeed = startSpeed if startSpeed is not None else configurationMap[subMachine.name.lower()]['spinSpeed']
         self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
 
-    def generateTargets(self):
+    def generateTargets(self, inSteps=False):
         targets = {}
         subMachine = self.subMachine
 
@@ -35,12 +35,20 @@ class SpinCommand(Command):
             zeroValue = currentValue - offsetFromZero
             self.targetValue += zeroValue
 
+        targetValue = self.targetValue
+        startSpeed = self.startSpeed
+        endSpeed = self.endSpeed
+
+        if inSteps:
+            targetValue = subMachine.spinMotor.displacementToSteps(targetValue)
+            startSpeed = subMachine.spinMotor.displacementToSteps(startSpeed)
+            endSpeed = subMachine.spinMotor.displacementToSteps(endSpeed)
 
         name = subMachine.name.lower()
         targets[name] = {'spin': {
-            'targetValue': self.targetValue,
-            'startSpeed': self.startSpeed,
-            'endSpeed': self.endSpeed,
+            'targetValue': targetValue,
+            'startSpeed': startSpeed,
+            'endSpeed': endSpeed,
             'status': statusMap['started']
             }
         }

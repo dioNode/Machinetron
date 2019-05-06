@@ -28,15 +28,24 @@ class RaiseCommand(Command):
         self.startSpeed = startSpeed if startSpeed is not None else configurationMap[cutMachine.name.lower()]['raiseSpeed']
         self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
 
-    def generateTargets(self):
+    def generateTargets(self, inSteps=False):
         targets = {}
         cutMachine = self.cutMachine
 
+        heightDisplacement = self.heightDisplacement
+        startSpeed = self.startSpeed
+        endSpeed = self.endSpeed
+
+        if inSteps:
+            heightDisplacement = cutMachine.vertMotor.displacementToSteps(heightDisplacement)
+            startSpeed = cutMachine.vertMotor.displacementToSteps(startSpeed)
+            endSpeed = cutMachine.vertMotor.displacementToSteps(endSpeed)
+
         name = cutMachine.name.lower()
         targets[name] = {'vert': {
-            'targetValue': self.heightDisplacement,
-            'startSpeed': self.startSpeed,
-            'endSpeed': self.endSpeed,
+            'targetValue': heightDisplacement,
+            'startSpeed': startSpeed,
+            'endSpeed': endSpeed,
             'status': statusMap['started']
             }
         }

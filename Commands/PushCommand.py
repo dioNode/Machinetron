@@ -44,15 +44,24 @@ class PushCommand(Command):
             self.cutMachine = cutMachine
 
 
-    def generateTargets(self):
+    def generateTargets(self, inSteps=False):
         targets = {}
         cutMachine = self.cutMachine
 
+        depth = self.depth
+        startSpeed = self.startSpeed
+        endSpeed = self.endSpeed
+
+        if inSteps:
+            depth = cutMachine.penMotor.displacementToSteps(depth)
+            startSpeed = cutMachine.penMotor.displacementToSteps(startSpeed)
+            endSpeed = cutMachine.penMotor.displacementToSteps(endSpeed)
+
         name = cutMachine.name.lower()
         targets[name] = {'pen': {
-            'targetValue': self.depth,
-            'startSpeed': self.startSpeed,
-            'endSpeed': self.endSpeed,
+            'targetValue': depth,
+            'startSpeed': startSpeed,
+            'endSpeed': endSpeed,
             'status': statusMap['started']
             }
         }

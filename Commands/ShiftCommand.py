@@ -14,7 +14,7 @@ class ShiftCommand(Command):
         endSpeed (double): Final speed of push (mm/s).
 
     """
-    def __init__(self, cutMachine, horizontalDisplacement, startSpeed=None, endSpeed=None):
+    def __init__(self, cutMachine, handler, horizontalDisplacement, startSpeed=None, endSpeed=None):
         super().__init__()
         self.name = "Shifting "+cutMachine.name
         self.horizontalDisplacement = horizontalDisplacement
@@ -22,20 +22,29 @@ class ShiftCommand(Command):
             print("ShiftCommand: Not a cut machine")
         else:
             self.cutMachine = cutMachine
+            self.handler = handler
 
         # Set speeds
         self.startSpeed = startSpeed if startSpeed is not None else configurationMap['handler']['railSpeed']
         self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
 
-    def generateTargets(self):
+    def generateTargets(self, inSteps=False):
         targets = {}
         cutMachine = self.cutMachine
+        handler = self.handler
         globalTargetX = self.horizontalDisplacement + cutMachine.homeX
+        startSpeed = self.startSpeed
+        endSpeed = self.endSpeed
+
+        if inSteps:
+            globalTargetX = handler.railMotor.displacementToSteps(globalTargetX)
+            startSpeed = handler.railMotor.displacementToSteps(startSpeed)
+            endSpeed = handler.railMotor.displacementToSteps(endSpeed)
 
         targets['handler'] = {'rail': {
             'targetValue': globalTargetX,
-            'startSpeed': self.startSpeed,
-            'endSpeed': self.endSpeed,
+            'startSpeed': startSpeed,
+            'endSpeed': endSpeed,
             'status': statusMap['started']
             }
         }

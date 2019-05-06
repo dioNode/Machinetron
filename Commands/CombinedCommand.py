@@ -20,9 +20,9 @@ class CombinedCommand(Command):
             for command in commandList:
                 self.name += command.name + ' | '
 
-    def generateTargets(self):
+    def generateTargets(self, inSteps=False):
         targets = {}
         for command in self.commandList:
-            dict_merge(targets, command.generateTargets())
+            dict_merge(targets, command.generateTargets(inSteps))
 
         return targets

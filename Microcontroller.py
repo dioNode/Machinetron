@@ -1,10 +1,10 @@
-
+from config import configurationMap
 
 class Microcontroller:
 
     def processCommand(self, command):
-        targets = command.generateTargets()
-        instructions = self._targetsDictToInstruction(targets, True)
+        targets = command.generateTargets(True)
+        instructions = self._targetsDictToInstruction(targets)
         print(instructions)
         for instruction in instructions:
             address = instruction['address']
@@ -18,13 +18,34 @@ class Microcontroller:
             self.bus.write_i2c_block_data(address, DEVICE_REG_LEDOUT)
 
     def isComplete(self):
-        return False
+        return True
 
     def getTargets(self):
         return {}
 
     def getLocationResults(self):
-        return {}
+        return {
+            'drill': {
+                'spin': 0,
+                'vert': 0,
+                'pen': 0,
+            },
+            'mill': {
+                'spin': 0,
+                'vert': 0,
+                'pen': 0,
+            },
+            'lathe': {
+                'spin': 0,
+                'vert': 0,
+                'pen': 0,
+            },
+            'handler': {
+                'rail': 0,
+                'flip': 0,
+                'spin': 0,
+            },
+        }
 
     def pause(self):
         pass
@@ -34,7 +55,7 @@ class Microcontroller:
 
 
 
-    def _targetsDictToInstruction(self, targets, inSteps=False):
+    def _targetsDictToInstruction(self, targets):
         """Generate a list of instruction dictionaries to be sent off"""
         instructions = []
         if type(targets) is dict:
@@ -52,11 +73,6 @@ class Microcontroller:
                         initByte = 0
                         initByte |= motorID << 5
                         initByte |= direction << 4
-
-                        if inSteps:
-                            targetValue = motor.displacementToSteps(targetValue)
-                            startSpeed = motor.displacementToSteps(startSpeed)
-                            endSpeed = motor.displacementToSteps(endSpeed)
 
                         # Set data values
                         data = [abs(targetValue), startSpeed, endSpeed]

@@ -12,7 +12,7 @@ class Command:
     def __repr__(self):
         return str(self)
 
-    def generateTargets(self):
+    def generateTargets(self, inSteps=False):
         """Generates a dictionary of instructions for what the submachine motors should do next.
 
         These targets hold information about the desired endpoints, starting speeds and ending speeds.

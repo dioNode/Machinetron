@@ -3,6 +3,7 @@ from SubMachines.Drill import Drill
 from SubMachines.Mill import Mill
 from SubMachines.Lathe import Lathe
 from Commands.Command import Command
+from Microcontroller import Microcontroller
 from Simulators.MicrocontrollerSimulator import MicrocontrollerSimulator
 from Commands.CommandGenerator import CommandGenerator
 
@@ -21,10 +22,6 @@ class Controller:
     
     """
     def __init__(self, useSimulator=False):
-        self.useSimulator = useSimulator
-        if useSimulator == False:
-            import smbus
-
         self.currentTime = 0
         self.xLength = 0
         self.yLength = 0
@@ -46,7 +43,7 @@ class Controller:
         self.state = statusMap['stopped']
         self.facename = 'front'
 
-        self.microcontroller = MicrocontrollerSimulator()
+        self.microcontroller = MicrocontrollerSimulator() if useSimulator else Microcontroller()
 
     def __repr__(self):
         print(self.commandQueue)

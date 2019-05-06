@@ -24,19 +24,27 @@ class FlipCommand(Command):
         self.startSpeed = startSpeed if startSpeed is not None else configurationMap[handler.name.lower()]['flipSpeed']
         self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
 
-    def generateTargets(self):
+    def generateTargets(self, inSteps=False):
         targets = {}
         handler = self.handler
 
-        self.targetValue = 0
+        targetValue = 0
         if self.position == 'up':
-            self.targetValue = 90
+            targetValue = 90
+
+        startSpeed = self.startSpeed
+        endSpeed = self.endSpeed
+
+        if inSteps:
+            targetValue = handler.flipMotor.displacementToSteps(self.targetValue)
+            startSpeed = handler.flipMotor.displacementToSteps(self.startSpeed)
+            endSpeed = handler.flipMotor.displacementToSteps(self.endSpeed)
 
         name = handler.name.lower()
         targets[name] = {'flip': {
-            'targetValue': self.targetValue,
-            'startSpeed': self.startSpeed,
-            'endSpeed': self.endSpeed,
+            'targetValue': targetValue,
+            'startSpeed': startSpeed,
+            'endSpeed': endSpeed,
             'status': statusMap['started']
             }
         }
