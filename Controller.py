@@ -46,7 +46,7 @@ class Controller:
         self.state = statusMap['stopped']
         self.facename = 'front'
 
-        self.microcontrollerSimulator = MicrocontrollerSimulator()
+        self.microcontroller = MicrocontrollerSimulator()
 
     def __repr__(self):
         print(self.commandQueue)
@@ -128,7 +128,7 @@ class Controller:
         This should only be triggered after the STM has signalled the command has finished.
 
         """
-        self.microcontrollerSimulator.clearTargets()
+        self.microcontroller.clearTargets()
         if not self.commandQueue:
             # Command queue is empty
             self.currentCommand = None
@@ -147,9 +147,10 @@ class Controller:
         This sends the current command to be processed by the STM.
 
         """
+        self.microcontroller.processCommand(self.currentCommand)
         targets = self.currentCommand.generateTargets()
         if self.useSimulator:
-            self.microcontrollerSimulator.setTargets(targets)
+            self.microcontroller.setTargets(targets)
         else:
             instructions = self.targetsDictToInstruction(targets, True)
             print(instructions)
@@ -222,8 +223,8 @@ class Controller:
     def commandComplete(self):
         """Checks whether the current command has been complete."""
         if self.useSimulator:
-            self.microcontrollerSimulator.update()
-            return self.microcontrollerSimulator.getCommandStatus() == statusMap['complete']
+            self.microcontroller.update()
+            return self.microcontroller.getCommandStatus() == statusMap['complete']
         else:
             # TODO check actual microcontroller to see if command complete
             return False
@@ -236,8 +237,8 @@ class Controller:
 
         """
         # TODO fix to work with real STM
-        self.microcontrollerSimulator.update()
-        return self.microcontrollerSimulator.results
+        self.microcontroller.update()
+        return self.microcontroller.results
 
     def getMicrocontrollerTargets(self):
         """Gets all the current target instructions for all of the motors.
@@ -247,8 +248,8 @@ class Controller:
 
         """
         # TODO fix to work with real STM
-        self.microcontrollerSimulator.update()
-        return self.microcontrollerSimulator.targets
+        self.microcontroller.update()
+        return self.microcontroller.targets
 
     def setFace(self, face):
         """Sets relative face dimensions based on which side is facing the cut machines.
@@ -341,7 +342,7 @@ class Controller:
             self.sendResumeCommand()
 
     def sendPauseCommand(self):
-        self.microcontrollerSimulator.paused = True
+        self.microcontroller.paused = True
 
     def sendResumeCommand(self):
-        self.microcontrollerSimulator.paused = False
+        self.microcontroller.paused = False

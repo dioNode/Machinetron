@@ -1,8 +1,8 @@
 import datetime
 from support.supportMaps import statusMap
+from Microcontroller import Microcontroller
 
-
-class MicrocontrollerSimulator:
+class MicrocontrollerSimulator(Microcontroller):
     """Class that simulates what the microcontrollers in the sub machines should do.
 
     This class is designed to be easily swapped out with the actual microcontrollers.Note it only tracks the
@@ -41,6 +41,13 @@ class MicrocontrollerSimulator:
         self.targets = {}
 
         self.paused = True
+
+    def processCommand(self, command):
+        targets = command.generateTargets()
+
+    def isComplete(self):
+        pass
+
 
     def displaceActuator(self, submachine, motor, displacement):
         """Offsets the current locations of the cutting tools by the given amount.
