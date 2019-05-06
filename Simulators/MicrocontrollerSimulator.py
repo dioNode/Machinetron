@@ -43,18 +43,18 @@ class MicrocontrollerSimulator(Microcontroller):
         self.paused = True
 
     def processCommand(self, command):
-        self.clearTargets()
+        self._clearTargets()
         targets = command.generateTargets()
-        self.setTargets(targets)
+        self._setTargets(targets)
 
     def isComplete(self):
-        return self.getCommandStatus() == statusMap['complete']
+        return self._getCommandStatus() == statusMap['complete']
 
     def getTargets(self):
         return self.targets
 
     def getLocationResults(self):
-        self.update()
+        self._update()
         return self.results
 
     def pause(self):
@@ -63,41 +63,7 @@ class MicrocontrollerSimulator(Microcontroller):
     def resume(self):
         self.paused = False
 
-
-    def displaceActuator(self, submachine, motor, displacement):
-        """Offsets the current locations of the cutting tools by the given amount.
-
-        Args:
-            submachine (SubMachine): The sub machine being worked on (handler, drill, mill, lathe).
-            motor (string): The motor that is being turned (shift, flip, spin, raise, pen).
-            displacement (double): The offset to be placed on the current location in mm.
-
-        """
-        self.results[submachine][motor] += displacement
-
-    def addTarget(self, submachine, motor, targetValue, startSpeed, endSpeed):
-        """Adds a target location with speeds for the given sub machine.
-
-        Note that the start and end speeds are linear relative to time not displacement.
-
-        Args:
-            submachine (SubMachine): The sub machine being worked on (handler, drill, mill, lathe).
-            motor (string): The motor that is being turned (shift, flip, spin, raise, pen).
-            targetValue (double): The target offset to be placed on the current location in mm.
-            startSpeed (double): The initial speed of movement (mm/s).
-            endSpeed (double): The ending speed of movement (mm/s).
-
-        """
-        self.targets[submachine] = {
-            motor: {
-                'targetValue': targetValue,
-                'startSpeed': startSpeed,
-                'endSpeed': endSpeed,
-                'status': statusMap['started']
-            }
-        }
-
-    def setTargets(self, targets):
+    def _setTargets(self, targets):
         """Sets the current target locations and speeds.
 
         Args:
@@ -106,13 +72,13 @@ class MicrocontrollerSimulator(Microcontroller):
         """
         self.targets = targets
 
-    def clearTargets(self):
+    def _clearTargets(self):
         """Clears all the targets to get ready for the next command."""
         self.targets = {}
         self.accel = {}
         self.speeds = {}
 
-    def update(self):
+    def _update(self):
         """Updates the current locations of the microcontroller.
 
         This function uses the time that has passed so far to calculate the amount of movement that the motors have
@@ -179,7 +145,7 @@ class MicrocontrollerSimulator(Microcontroller):
                 self.results[submachine][motor] = newValue
         self.currentTime = newTime
 
-    def getCommandStatus(self):
+    def _getCommandStatus(self):
         """Returns whether all the commands have been complete.
 
         Returns:
