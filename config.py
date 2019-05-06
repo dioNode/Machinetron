@@ -32,7 +32,7 @@ configurationMap = {
         'pushIncrement': 5,
         'id': 0x03,
         'minDetectionRadius': 10,
-        'maxDetectionRadius': 80,
+        'maxDetectionRadius': 100,
     }, 'mill': {
         'homeX': 500,
         'raiseSpeed': 20,
@@ -58,7 +58,7 @@ configurationMap = {
     }, 'other': {
         'infVal': 9999,
         'mmPerPixelRatio': 80/1200,
-        'mmError': 0.2,
+        'mmError': 1.0,
         'numRotationSteps': 200,
     }
 }

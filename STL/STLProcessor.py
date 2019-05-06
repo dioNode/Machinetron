@@ -37,6 +37,8 @@ class STLProcessor:
             latheRadius = self._detectLathe(img)
             totalLatheRadiusList.append(latheRadius)
 
+        startIdx = None
+        endIdx = None
         for lathePoint in unique(totalLatheRadiusList):
             startIdx = None
             endIdx = None
@@ -54,10 +56,16 @@ class STLProcessor:
                         z0 = startIdx * self.sliceDepth
                         z1 = endIdx * self.sliceDepth
                         radius = pixel2mm(lathePoint)
-                        print(radius, z0, z1)
                         self.controller.commandGenerator.lathe(z0, z1, radius)
                         startIdx = None
                         endIdx = None
+
+        # If the lathe reaches the end, make sure it runs
+        if startIdx is not None and endIdx is not None:
+            z0 = startIdx * self.sliceDepth
+            z1 = endIdx * self.sliceDepth
+            radius = pixel2mm(lathePoint)
+            self.controller.commandGenerator.lathe(z0, z1, radius)
 
     def generateDrillCommands(self):
         # iterate through the names of contents of the folder
@@ -109,8 +117,9 @@ class STLProcessor:
         for img in imageSlices:
             drillPointsWithHoles = []
             for drillPoint in unique(totalDrillPoints):
-                pxRadius = mm2pixel(configurationMap['drill']['diameter']/2)
-                if self._containsHole(img, drillPoint, pxRadius):
+                pxRadius = 40 #mm2pixel(configurationMap['drill']['diameter']/2)
+                pxDrillPoint = mmPos2PixelPos(drillPoint, img)
+                if self._containsHole(img, pxDrillPoint, pxRadius):
                     drillPointsWithHoles.append(drillPoint)
             totalDrillPointsWithHoles.append(drillPointsWithHoles)
         return totalDrillPointsWithHoles
@@ -164,7 +173,7 @@ class STLProcessor:
             input_path = os.path.join(facePath, image_path)
             img = cv2.imread(input_path, 0)
             imageSlices.append(img)
-        imageSlices.reverse()
+        #imageSlices.reverse()
         return imageSlices
 
     def _getRotated(self):
@@ -212,10 +221,8 @@ class STLProcessor:
 
             # Count the number of white pixels in image (Change from 0 to maybe < 10 to account for error)
             if sum(sum(sum(multiplied_image))) == 0:
-                print('true')
                 return True
             else:
-                print('false')
                 return False
 
     def _fillHole(self, img, pos, radius, state): # state is 1 for white, 0 for black
@@ -257,14 +264,27 @@ class STLProcessor:
         pxRadiusMax = round(mm2pixel(configurationMap['lathe']['maxDetectionRadius']))
         pxRadiusMin = round(mm2pixel(configurationMap['lathe']['minDetectionRadius']))
 
-        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 2.2, 100,
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1.2, 100,
                                    param1=100, param2=30, minRadius=pxRadiusMin,
                                    maxRadius=pxRadiusMax)
+
+        image = img
+        output = image.copy()
+
         lathePoints = []
+
         if circles is not None:
-            circles = np.uint16(np.around(circles))
-            for i in circles[0, :]:
-                lathePoints.append((i[0], i[1], i[2]))
+            # convert the (x, y) coordinates and radius of the circles to integers
+            circles = np.round(circles[0, :]).astype("int")
+
+            # loop over the (x, y) coordinates and radius of the circles
+            for (x, y, r) in circles:
+                # draw the circle in the output image, then draw a rectangle
+                # corresponding to the center of the circle
+                cv2.circle(output, (x, y), r, (0, 255, 0), 4)
+                cv2.rectangle(output, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
+
+                lathePoints.append((x, y, r))
 
         # Convert from pixel to mm
         lathePointsMM = []
@@ -273,7 +293,7 @@ class STLProcessor:
             radius = lathePoint[2]
             lathePointMM = pixelPos2mmPos(pos, img)
             mmHeight = pixel2mm(height)
-            if inRange(lathePointMM, (0, mmHeight/2), configurationMap['other']['mmError']):
+            if inRange(lathePointMM, (0, mmHeight / 2), configurationMap['other']['mmError']):
                 lathePointsMM.append(radius)
 
         return lathePointsMM

@@ -11,17 +11,17 @@ def main():
     controller.tick()
 
     ################ Commands go here ################
-    # stlProcessor.generateCommands('part0.STL', controller)
+    stlProcessor.generateCommands('part0.STL', controller)
 
-    lathe(50, 80, 25)
-    drill('front', -20, 25, 50)
-    drill('front', 20, 25, 50)
-    cutInCircle('top', 0, 40, 25, 40)
-    fillet('top', -38.3, 0, 10, 3, 30)
-    fillet('top', -38.3, 80, 10, 2, 30)
-    fillet('top', 38.3, 80, 10, 1, 30)
-    fillet('top', 38.3, 0, 10, 4, 30)
-    intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 6)
+    # lathe(50, 80, 25)
+    # drill('front', -20, 25, 50)
+    # drill('front', 20, 25, 50)
+    # cutInCircle('top', 0, 40, 25, 40)
+    # fillet('top', -38.3, 0, 10, 3, 30)
+    # fillet('top', -38.3, 80, 10, 2, 30)
+    # fillet('top', 38.3, 80, 10, 1, 30)
+    # fillet('top', 38.3, 0, 10, 4, 30)
+    # intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 6)
 
 
 

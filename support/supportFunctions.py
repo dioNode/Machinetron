@@ -81,7 +81,7 @@ def unique(myArray): # Used for 2d array
 def mm2pixel(val, ratio=None):
     if ratio is None:
         ratio = configurationMap['other']['mmPerPixelRatio']
-    return val / ratio
+    return int(round(val / ratio))
 
 
 def pixel2mm(val, ratio=None): # Ratio is mm/pixel
@@ -94,8 +94,8 @@ def mmPos2PixelPos(pos, im, ratio=None):
     if ratio is None:
         ratio = configurationMap['other']['mmPerPixelRatio']
     pxheight, pxwidth = im.shape
-    posX = mm2pixel(pos(0), ratio) + pxwidth/2
-    posY = mm2pixel(pos(1), ratio)
+    posX = int(round(mm2pixel(pos[0], ratio) + pxwidth/2))
+    posY = int(round(mm2pixel(pos[1], ratio)))
     return posX, posY
 
 
