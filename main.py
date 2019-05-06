@@ -3,13 +3,12 @@ from STL.STLProcessor import STLProcessor
 from Simulators.OutputSimulator import OutputSimulator
 
 controller = Controller(True)
+
 stlProcessor = STLProcessor()
 
 def main():
     setMountFace(76.6, 80, 110)
-    controller.start()
     controller.tick()
-
 
     ################ Commands go here ################
     # stlProcessor.generateCommands('part0.STL', controller)
@@ -32,6 +31,7 @@ def main():
     controller.commandGenerator.resetAll()
     controller.setFace('front')
     if controller.useSimulator:
+
         outputSimulator = OutputSimulator(controller)
         outputSimulator.simulate()
 

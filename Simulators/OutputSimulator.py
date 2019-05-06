@@ -42,7 +42,7 @@ class OutputSimulator:
         self.screenWidth = 2 * self.padding + 3 * (self.padding + self.width) + self.commandsDisplayWidth
 
         self.screenClicked = False
-        self.status = 1
+        self.status = 0
 
         if isinstance(controller, Controller):
             self.controller = controller
@@ -329,9 +329,10 @@ class OutputSimulator:
     def updateGoButton(self):
         """Display Go Button"""
         radius = 15
-        if self.status == 1:
+        status = self.controller.state
+        if status == 1:
             colour = (0, 128, 0)
-        elif self.status == 0:
+        elif status == 0:
             colour = (255, 0, 0)
         else:
             colour = (255, 165, 0)
@@ -341,7 +342,6 @@ class OutputSimulator:
             self.screenClicked = True
         else:
             if self.screenClicked:
-                self.status = (self.status + 1) % 2
-
+                self.controller.goButtonClicked()
             self.screenClicked = False
 

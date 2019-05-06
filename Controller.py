@@ -42,10 +42,11 @@ class Controller:
 
         self.commandQueue = []
         self.currentCommand = None
-        self.microcontrollerSimulator = MicrocontrollerSimulator()
 
         self.state = statusMap['stopped']
-        self.facename = 'okay'
+        self.facename = 'front'
+
+        self.microcontrollerSimulator = MicrocontrollerSimulator()
 
     def __repr__(self):
         print(self.commandQueue)
@@ -331,3 +332,16 @@ class Controller:
                 self.currentFaceWidth = yLength
                 self.currentFaceHeight = xLength
 
+    def goButtonClicked(self):
+        if self.state == statusMap['started']:
+            self.state = statusMap['stopped']
+            self.sendPauseCommand()
+        else:
+            self.state = statusMap['started']
+            self.sendResumeCommand()
+
+    def sendPauseCommand(self):
+        self.microcontrollerSimulator.paused = True
+
+    def sendResumeCommand(self):
+        self.microcontrollerSimulator.paused = False

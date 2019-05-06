@@ -40,6 +40,8 @@ class MicrocontrollerSimulator:
         self.accel = {}
         self.targets = {}
 
+        self.paused = True
+
     def displaceActuator(self, submachine, motor, displacement):
         """Offsets the current locations of the cutting tools by the given amount.
 
@@ -97,7 +99,7 @@ class MicrocontrollerSimulator:
         """
         newTime = datetime.datetime.now()
         deltaTime = newTime - self.currentTime
-        deltaTime = deltaTime.total_seconds()
+        deltaTime = deltaTime.total_seconds() if not self.paused else 0
         for submachine, motors in self.targets.items():
             for motor, values in motors.items():
                 currentValue = self.results[submachine][motor]
