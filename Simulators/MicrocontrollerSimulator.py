@@ -43,11 +43,25 @@ class MicrocontrollerSimulator(Microcontroller):
         self.paused = True
 
     def processCommand(self, command):
+        self.clearTargets()
         targets = command.generateTargets()
         self.setTargets(targets)
 
     def isComplete(self):
         return self.getCommandStatus() == statusMap['complete']
+
+    def getTargets(self):
+        return self.targets
+
+    def getLocationResults(self):
+        self.update()
+        return self.results
+
+    def pause(self):
+        self.paused = True
+
+    def resume(self):
+        self.paused = False
 
 
     def displaceActuator(self, submachine, motor, displacement):

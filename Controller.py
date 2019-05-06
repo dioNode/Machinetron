@@ -128,7 +128,6 @@ class Controller:
         This should only be triggered after the STM has signalled the command has finished.
 
         """
-        self.microcontroller.clearTargets()
         if not self.commandQueue:
             # Command queue is empty
             self.currentCommand = None
@@ -148,43 +147,6 @@ class Controller:
 
         """
         self.microcontroller.processCommand(self.currentCommand)
-
-    def targetsDictToInstruction(self, targets, inSteps=False):
-        """Generate a list of instruction dictionaries to be sent off"""
-        instructions = []
-        if type(targets) is dict:
-            for submachine, motors in targets.items():
-                address = configurationMap[submachine]['id']
-                if type(motors) is dict:
-                    for motor, targetVals in motors.items():
-                        motorID = configurationMap['motorMap'][motor]
-                        targetValue = targetVals['targetValue']
-                        targetValue = targetValue if targetValue is not None else configurationMap['other']['infVal']
-                        startSpeed = targetVals['startSpeed']
-                        endSpeed = targetVals['endSpeed']
-                        direction = 1 if targetValue >= 0 else 0
-                        # Set initByte configurations
-                        initByte = 0
-                        initByte |= motorID << 5
-                        initByte |= direction << 4
-
-                        if inSteps:
-                            targetValue = motor.displacementToSteps(targetValue)
-                            startSpeed = motor.displacementToSteps(startSpeed)
-                            endSpeed = motor.displacementToSteps(endSpeed)
-
-                        # Set data values
-                        data = [abs(targetValue), startSpeed, endSpeed]
-
-                        currentInstruction = {
-                            'address': address,
-                            'initByte': initByte,
-                            'data': data
-                        }
-
-                        instructions.append(currentInstruction)
-
-        return instructions
 
     def updateEndeffactorValues(self):
         """Updates the information for the end location for each of the actuators.
@@ -215,9 +177,8 @@ class Controller:
             A dictionary of the current location of each of the motors.
 
         """
-        # TODO fix to work with real STM
-        self.microcontroller.update()
-        return self.microcontroller.results
+
+        return self.microcontroller.getLocationResults()
 
     def getMicrocontrollerTargets(self):
         """Gets all the current target instructions for all of the motors.
@@ -226,9 +187,7 @@ class Controller:
             A dictionary of targets displacements and speeds for each motor.
 
         """
-        # TODO fix to work with real STM
-        self.microcontroller.update()
-        return self.microcontroller.targets
+        return self.microcontroller.getTargets()
 
     def setFace(self, face):
         """Sets relative face dimensions based on which side is facing the cut machines.
@@ -321,7 +280,7 @@ class Controller:
             self.sendResumeCommand()
 
     def sendPauseCommand(self):
-        self.microcontroller.paused = True
+        self.microcontroller.pause()
 
     def sendResumeCommand(self):
-        self.microcontroller.paused = False
+        self.microcontroller.resume()
