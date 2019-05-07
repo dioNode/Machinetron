@@ -8,8 +8,7 @@ class Microcontroller:
         print(instructions)
         for instruction in instructions:
             address = instruction['address']
-            initByte = instruction['initByte']
-            data = instruction['data']
+            motorInstructions = instruction['motorInstructions']
             # TODO Liam bus send
             DEVICE_ADDRESS = 0x15  # 7 bit address (will be left shifted to add the read write bit)
             DEVICE_REG_LEDOUT0 = 0x1d
@@ -53,8 +52,6 @@ class Microcontroller:
     def resume(self):
         pass
 
-
-
     def _targetsDictToInstruction(self, targets):
         """Generate a list of instruction dictionaries to be sent off"""
         instructions = []
@@ -62,6 +59,7 @@ class Microcontroller:
             for submachine, motors in targets.items():
                 address = configurationMap[submachine]['id']
                 if type(motors) is dict:
+                    motorInstructions = []
                     for motor, targetVals in motors.items():
                         motorID = configurationMap['motorMap'][motor]
                         targetValue = targetVals['targetValue']
@@ -77,12 +75,21 @@ class Microcontroller:
                         # Set data values
                         data = [abs(targetValue), startSpeed, endSpeed]
 
-                        currentInstruction = {
-                            'address': address,
-                            'initByte': initByte,
-                            'data': data
+                        commandByte = 'NORM_INST'
+
+                        motorInstruction = {
+                            'commandByte': commandByte,
+                            'motorID': motorID,
+                            'data': data,
                         }
 
-                        instructions.append(currentInstruction)
+                        motorInstructions.append(motorInstruction)
+
+                    currentInstruction = {
+                        'address': address,
+                        'motorInstructions': motorInstructions
+                    }
+
+                    instructions.append(currentInstruction)
 
         return instructions

@@ -40,7 +40,10 @@ class SpinCommand(Command):
         endSpeed = self.endSpeed
 
         if inSteps:
-            targetValue = subMachine.spinMotor.displacementToSteps(targetValue)
+            if targetValue is None:
+                targetValue = configurationMap['other']['infVal']
+            else:
+                targetValue = subMachine.spinMotor.displacementToSteps(targetValue)
             startSpeed = subMachine.spinMotor.displacementToSteps(startSpeed)
             endSpeed = subMachine.spinMotor.displacementToSteps(endSpeed)
 
