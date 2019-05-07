@@ -323,8 +323,8 @@ void stepperTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *subma
 		struct Motor *motor_ptr = getMotorById(submachine_ptr, i+1);
 		int testMotor = motor_ptr->motorRun;
 		//printf(testMotor);
-		if(1) {
-		//if((motor_ptr->motorRun) == 1) {
+		//if(1) {
+		if((motor_ptr->motorRun) == 1) {
 			if(strcmp(motor_ptr -> type, "STEP") == 0) {
 				// Enable the motor driver since the motor will be used
 				enableStepperDriver(motor_ptr -> id, /*Enable*/ 1);
@@ -410,9 +410,21 @@ uint32_t getSudoTimerCounter(TIM_HandleTypeDef *htim, int channel) {
 	uint32_t counterValue;
 	uint16_t counterValueLSH;
 	uint16_t counterValueMSH;
+	
 	// Get the Least Significant Half of the timer
 	//counterValueLSH = __HAL_TIM_GET_COUNTER(htim);
-	counterValueLSH = __HAL_TIM_GET_COMPARE(htim, channel);
+	switch(channel) {
+		case 1:
+			counterValueLSH = __HAL_TIM_GET_COMPARE(htim, TIM_CHANNEL_1);
+			break;
+		case 2:
+			counterValueLSH = __HAL_TIM_GET_COMPARE(htim, TIM_CHANNEL_2);
+			break;
+		case 3:
+			counterValueLSH = __HAL_TIM_GET_COMPARE(htim, TIM_CHANNEL_3);
+			break;
+	}
+	
 	
 	// Get the Most Significant Half of the timer
 	counterValueMSH = getTimerMSHalf();
