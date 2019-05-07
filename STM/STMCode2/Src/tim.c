@@ -323,8 +323,8 @@ void stepperTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *subma
 		struct Motor *motor_ptr = getMotorById(submachine_ptr, i+1);
 		int testMotor = motor_ptr->motorRun;
 		//printf(testMotor);
-		if(1) {
-		//if((motor_ptr->motorRun) == 1) {
+		//if(1) {
+		if((motor_ptr->motorRun) == 1) {
 			if(strcmp(motor_ptr -> type, "STEP") == 0) {
 				// Enable the motor driver since the motor will be used
 				enableStepperDriver(motor_ptr -> id, /*Enable*/ 1);
