@@ -147,7 +147,7 @@ class CommandGenerator:
                 handlerSpinCommand
             ], 'Lathe Up'))
 
-        self.resetAll()
+        self.retractLathe()
 
     def resetAll(self):
         """Resets all the sub machines to their default starting state.
