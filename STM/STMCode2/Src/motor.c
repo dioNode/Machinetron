@@ -287,7 +287,7 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int mo
 	motor_ptr -> targetSpeed = endStepSpeed;
   motor_ptr -> acceleration = accelerationStep;
 	
-	int uSDelay = abs(calculateuSDelay(motor_ptr->currentSpeed));
+	int uSDelay = abs((int)calculateuSDelay(motor_ptr->currentSpeed));
 	
 	motor_ptr -> currentuSDelay = uSDelay;
   // Deal with speeds
@@ -586,7 +586,7 @@ void setSpeedStepsAnduSDelay(struct Motor *motor) {
 	double newSpeed = (double)(motor->startSpeed) + (motor->acceleration)*(motor->timePassed);
 	motor -> currentSpeed = newSpeed;
 	//motor -> currentuSDelay = (calculateuSDelay(newSpeed));
-	motor->currentuSDelay = abs(((double)(1000000))/newSpeed);
+	motor->currentuSDelay = abs((int)(((double)(1000000))/newSpeed));
 	//motor -> currentuSDelay = 1000;
 }
 
