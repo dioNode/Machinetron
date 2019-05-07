@@ -9,6 +9,12 @@ from config import configurationMap
 
 
 class STLProcessor:
+    """Class for automating command generation using STL file.
+
+    This will slice the STL file in 3 directions into images that are stored in the output folder. Rotations of the STL
+    file will also be saved and image processing is used to determine toolpaths.
+
+    """
     def __init__(self):
         self.controller = None
         self.path = None
@@ -19,6 +25,13 @@ class STLProcessor:
         self.imageSlicesFrontBack = []
 
     def generateCommands(self, filename, controller):
+        """Generates the commands into the controller using the file.
+
+        Args:
+            filename (string): The file name and location of the stl file being used.
+            controller (Controller): The main controller object.
+
+        """
         self.controller = controller
         self.filename = filename
         self._clearFolders()
@@ -28,8 +41,8 @@ class STLProcessor:
         self.generateLatheCommands()
 
     def generateLatheCommands(self):
+        """Generates the commands to use the lathe."""
         # iterate through the names of contents of the folder
-        sliceDepth = self.sliceDepth
 
         # Detect lathes
         totalLatheRadiusList = []
@@ -70,6 +83,7 @@ class STLProcessor:
             self.controller.commandGenerator.lathe(z0, z1, radius)
 
     def generateDrillCommands(self):
+        """Generates the command to use the drill."""
         # iterate through the names of contents of the folder
         sliceDepth = self.sliceDepth
 

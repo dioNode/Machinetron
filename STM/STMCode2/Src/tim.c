@@ -402,15 +402,18 @@ void startOrStopTimer(TIM_HandleTypeDef *htim, int newState) {
 /**
   * @brief  This function is used to get the sudo 32 bit timer counter. 
   * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
-  *                the configuration information for the Least Significant Half of the timer. 
+  *                the configuration information for the Least Significant Half of the timer.
+  * @param  channel the channel for the capture compare
   * @retval the sudo 32 bit timer value
   */
-uint32_t getSudoTimerCounter(TIM_HandleTypeDef *htim) {
+uint32_t getSudoTimerCounter(TIM_HandleTypeDef *htim, int channel) {
 	uint32_t counterValue;
 	uint16_t counterValueLSH;
 	uint16_t counterValueMSH;
 	// Get the Least Significant Half of the timer
-	counterValueLSH = __HAL_TIM_GET_COUNTER(htim);
+	//counterValueLSH = __HAL_TIM_GET_COUNTER(htim);
+	counterValueLSH = __HAL_TIM_GET_COMPARE(htim, channel);
+	
 	// Get the Most Significant Half of the timer
 	counterValueMSH = getTimerMSHalf();
 	// Set the counterValue to the combination of the MSHalf and LSHalf
@@ -537,7 +540,7 @@ void updateCompareRegister(TIM_HandleTypeDef *htim, struct Motor *motor_ptr) {
 	
 	/* ___One of the following is used, either the previous compare register value or the current timer value___ */
 	// Get the current count of the timer specified by htim
-	uint32_t timerCount = getSudoTimerCounter(htim);
+	uint32_t timerCount = getSudoTimerCounter(htim,/* Channel*/ motorID);
 	// Get the previous compare register value
 	//uint32_t prevCompareValue = getSudoTimerCompare(htim, motorID);
 	// Set the new compare value based off the current timer value

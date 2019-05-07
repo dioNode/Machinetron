@@ -94,10 +94,11 @@ void startOrStopTimer(TIM_HandleTypeDef *htim, int newState);
 /**
   * @brief  This function is used to get the sudo 32 bit timer counter. 
   * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
-  *                the configuration information for the Least Significant Half of the timer. 
+  *                the configuration information for the Least Significant Half of the timer.
+  * @param  channel the channel for the capture compare
   * @retval the sudo 32 bit timer value
   */
-uint32_t getSudoTimerCounter(TIM_HandleTypeDef *htim);
+uint32_t getSudoTimerCounter(TIM_HandleTypeDef *htim, int channel);
 
 /**
   * @brief  This function is used to set the sudo 32 bit timer counter to a specific value. 
