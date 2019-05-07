@@ -61,32 +61,37 @@ class Microcontroller:
                 if type(motors) is dict:
                     motorInstructions = []
                     for motor, targetVals in motors.items():
+                        motorRun = 0
+                        infSpin = 0
                         motorID = configurationMap['motorMap'][motor]
                         targetValue = targetVals['targetValue']
-                        targetValue = targetValue if targetValue is not None else configurationMap['other']['infVal']
+                        if targetValue is None:
+                            targetValue = 0
+                            infSpin = 1
                         startSpeed = targetVals['startSpeed']
                         endSpeed = targetVals['endSpeed']
                         direction = 1 if targetValue >= 0 else 0
-                        # Set initByte configurations
-                        initByte = 0
-                        initByte |= motorID << 5
-                        initByte |= direction << 4
+                        # Set motorByte configurations
+                        motorByte = 0
+                        motorByte |= motorID << 6
+                        motorByte |= motorRun << 5
+                        motorByte |= infSpin << 4
+
 
                         # Set data values
                         data = [abs(targetValue), startSpeed, endSpeed]
 
-                        commandByte = 'NORM_INST'
-
                         motorInstruction = {
-                            'commandByte': commandByte,
-                            'motorID': motorID,
+                            'motorByte': motorByte,
                             'data': data,
                         }
 
                         motorInstructions.append(motorInstruction)
 
+                    commandByte = 'NORM_INST'
                     currentInstruction = {
                         'address': address,
+                        'commandByte': commandByte,
                         'motorInstructions': motorInstructions
                     }
 
