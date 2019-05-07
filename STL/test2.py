@@ -5,6 +5,56 @@ import cv2
 from support.supportFunctions import pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel, inRange
 from config import configurationMap
 
+def _containsHole(img, pos, radius, state=0):  # default hole is black
+    height = np.size(img, 0)
+    width = np.size(img, 1)
+
+    pos = tuple([int(round(val)) for val in pos])
+    radius = int(radius)
+
+    if state == 0:
+        mask = np.zeros((height, width), np.uint8)
+        cv2.circle(mask, pos, radius, (255, 255, 255), -1)
+        multiplied_image = cv2.multiply(img, mask)
+
+        # Count the number of white pixels in image (Change from 0 to maybe < 10 to account for error)
+        if sum(sum(multiplied_image)) == 0:
+            return True
+        else:
+            return False
+    else:
+        mask = np.zeros((height, width), np.uint8)
+        cv2.circle(mask, pos, radius, (255, 255, 255), -1)
+
+
+
+        mask = cv2.bitwise_not(mask)
+
+        multiplied_image = cv2.multiply(img, mask)
+
+        # Count the number of white pixels in image (Change from 0 to maybe < 10 to account for error)
+        if sum(sum(multiplied_image)) == 0:
+            return True
+        else:
+            return False
+
+
+
+
+        # # Want mask to be opposite to hole mask since a lathe will be white not black
+        # mask = np.zeros((height, width, 3), np.uint8)
+        # mask[:, :] = (255, 255, 255)
+        # cv2.circle(mask, pos, radius, (0, 0, 0), -1)
+        # multiplied_image = cv2.multiply(img, mask)
+        #
+        # # Count the number of white pixels in image (Change from 0 to maybe < 10 to account for error)
+        # if sum(sum(sum(multiplied_image))) == 0:
+        #     return True
+        # else:
+        #     return False
+
+
+
 
 
 img = cv2.imread('output/topdown/part0_0006.png', 0)
@@ -44,11 +94,17 @@ for lathePoint in lathePoints:
     pos = (lathePoint[0], lathePoint[1])
     radius = lathePoint[2]
     lathePointMM = pixelPos2mmPos(pos, img)
+    radiusMM = pixel2mm(radius)
     mmHeight = pixel2mm(height)
     if inRange(lathePointMM, (0, mmHeight/2), configurationMap['other']['mmError']):
-        lathePointsMM.append(radius)
+        lathePointsMM.append((radiusMM, lathePointMM))
 
 print(lathePointsMM)
+
+radius, pos = lathePointsMM[0]
+pxRadius = mm2pixel(radius*1.2)
+pxPos = mmPos2PixelPos(pos, img)
+print(_containsHole(img, pxPos, pxRadius, 1))
 
 
 

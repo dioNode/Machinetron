@@ -37,6 +37,8 @@ class STLProcessor:
             latheRadius = self._detectLathe(img)
             totalLatheRadiusList.append(latheRadius)
 
+        print('totalLatheRadiusList', totalLatheRadiusList)
+
         startIdx = None
         endIdx = None
         for lathePoint in unique(totalLatheRadiusList):
@@ -212,15 +214,16 @@ class STLProcessor:
             else:
                 return False
         else:
-            # Want mask to be opposite to hole mask since a lathe will be white not black
-            mask = np.zeros((height, width, 3), np.uint8)
-            mask[:, :] = (255, 255, 255)
-            cv2.circle(mask, pos, radius, (0, 0, 0), -1)
+            mask = np.zeros((height, width), np.uint8)
+            detectRadius = int(radius*1.1)
+            cv2.circle(mask, pos, detectRadius, (255, 255, 255), -1)
+
+            mask = cv2.bitwise_not(mask)
+
             multiplied_image = cv2.multiply(img, mask)
 
-
             # Count the number of white pixels in image (Change from 0 to maybe < 10 to account for error)
-            if sum(sum(sum(multiplied_image))) == 0:
+            if sum(sum(multiplied_image)) == 0:
                 return True
             else:
                 return False
@@ -284,7 +287,8 @@ class STLProcessor:
                 cv2.circle(output, (x, y), r, (0, 255, 0), 4)
                 cv2.rectangle(output, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
 
-                lathePoints.append((x, y, r))
+                if self._containsHole(img, (x,y), r, 1):
+                    lathePoints.append((x, y, r))
 
         # Convert from pixel to mm
         lathePointsMM = []
