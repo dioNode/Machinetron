@@ -91,11 +91,11 @@ void stepMotor(struct Motor *motor_ptr) {
 	} else if(motorHome == 1){
 		dir = 0;
 	} else {
-		//if(((targetStep - (motor_ptr->currentStep))/abs(targetStep - (motor_ptr->currentStep))) == 1) {
+		if(((targetStep - (motor_ptr->currentStep))/abs(targetStep - (motor_ptr->currentStep))) == 1) {
 			dir = 1;
-		//} else {
-			//dir = 0;
-		//}
+		} else {
+			dir = 0;
+		}
 	}
 	// Step the motor in the specified direction
 	if (dir == 1) {
@@ -254,16 +254,19 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int mo
 	int startStepSpeed;
 	int endStepSpeed;
 	// Set the speeds as negative or positive depending on the direction of travel
+	// Set the direction value dependent on the displalcement positive or negative
 	if(displacementSteps >= 0) {
 		//startStepSpeed = worldUnitsToStepUnits(startSpeed, motor_ptr);
 		//endStepSpeed = worldUnitsToStepUnits(endSpeed, motor_ptr);
 		startStepSpeed = startSpeed;
 		endStepSpeed = endSpeed;
+		dir = 1;
 	} else {
 		//startStepSpeed = worldUnitsToStepUnits(-1 * startSpeed, motor_ptr);
 		//endStepSpeed = worldUnitsToStepUnits(-1 * endSpeed, motor_ptr);
 		startStepSpeed = -1*startSpeed;
 		endStepSpeed = -1*endSpeed;
+		dir = 0;
 	}
 	
 	double accelerationStep = (pow(endStepSpeed, 2) - pow(startStepSpeed, 2)) / (2*displacementSteps);
@@ -284,7 +287,7 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int mo
 	motor_ptr -> targetSpeed = endStepSpeed;
   motor_ptr -> acceleration = accelerationStep;
 	
-	int uSDelay = calculateuSDelay(motor_ptr->currentSpeed);
+	int uSDelay = abs(calculateuSDelay(motor_ptr->currentSpeed));
 	
 	motor_ptr -> currentuSDelay = uSDelay;
   // Deal with speeds
@@ -583,7 +586,7 @@ void setSpeedStepsAnduSDelay(struct Motor *motor) {
 	double newSpeed = (double)(motor->startSpeed) + (motor->acceleration)*(motor->timePassed);
 	motor -> currentSpeed = newSpeed;
 	//motor -> currentuSDelay = (calculateuSDelay(newSpeed));
-	motor->currentuSDelay = ((double)(1000000))/newSpeed;
+	motor->currentuSDelay = abs(((double)(1000000))/newSpeed);
 	//motor -> currentuSDelay = 1000;
 }
 
