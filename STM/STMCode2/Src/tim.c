@@ -410,9 +410,21 @@ uint32_t getSudoTimerCounter(TIM_HandleTypeDef *htim, int channel) {
 	uint32_t counterValue;
 	uint16_t counterValueLSH;
 	uint16_t counterValueMSH;
+	
 	// Get the Least Significant Half of the timer
 	//counterValueLSH = __HAL_TIM_GET_COUNTER(htim);
-	counterValueLSH = __HAL_TIM_GET_COMPARE(htim, channel);
+	switch(channel) {
+		case 1:
+			counterValueLSH = __HAL_TIM_GET_COMPARE(htim, TIM_CHANNEL_1);
+			break;
+		case 2:
+			counterValueLSH = __HAL_TIM_GET_COMPARE(htim, TIM_CHANNEL_2);
+			break;
+		case 3:
+			counterValueLSH = __HAL_TIM_GET_COMPARE(htim, TIM_CHANNEL_3);
+			break;
+	}
+	
 	
 	// Get the Most Significant Half of the timer
 	counterValueMSH = getTimerMSHalf();

@@ -86,7 +86,7 @@ void stepMotor(struct Motor *motor_ptr) {
 	int motorID = motor_ptr -> id;
 	int dir;
 	int motorHome = motor_ptr -> motorHome;
-	if(motor_ptr -> infSpin != 1) {
+	if((motor_ptr->infSpin) == 1) {
 		dir = motor_ptr -> direction;
 	} else if(motorHome == 1){
 		dir = 0;

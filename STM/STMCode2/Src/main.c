@@ -283,6 +283,8 @@ int main(void)
 
 	//Temporarily set the stepper enable to disabled
 	enableStepperDriver(1, 0);
+	enableStepperDriver(2, 0);
+	enableStepperDriver(3, 0);
 	
   /* USER CODE END 2 */
 
