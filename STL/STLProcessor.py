@@ -14,6 +14,10 @@ class STLProcessor:
     This will slice the STL file in 3 directions into images that are stored in the output folder. Rotations of the STL
     file will also be saved and image processing is used to determine toolpaths.
 
+    Process time:
+        sliceDepth = 0.5 : 1 min 44 sec
+        sliceDepth = 1.0 : 1 min 06 sec
+
     """
     def __init__(self):
         self.controller = None
@@ -36,7 +40,10 @@ class STLProcessor:
         self.filename = filename
         self._clearFolders()
         self.path = 'STL/output'
-        self._storeImageSlices()
+        pxHeight = 1724
+        pxSliceDepth = mm2pixel(self.sliceDepth)
+        sliceNum = math.ceil(pxHeight/pxSliceDepth)
+        self._storeImageSlices(sliceNum)
         self.generateDrillCommands()
         self.generateLatheCommands()
 
@@ -49,8 +56,6 @@ class STLProcessor:
         for img in self.imageSlicesTopDown:
             latheRadius = self._detectLathe(img)
             totalLatheRadiusList.append(latheRadius)
-
-        print('totalLatheRadiusList', totalLatheRadiusList)
 
         startIdx = None
         endIdx = None
@@ -167,19 +172,19 @@ class STLProcessor:
         clearFolder('STL/output/leftright')
         clearFolder('STL/output/topdown')
 
-    def _storeImageSlices(self):
+    def _storeImageSlices(self, sliceNum):
         self._clearFolders()
         self._getRotated()
         # Generate slices for topdown
         throughFace = 'topdown'
-        generateSlices(self.filename, throughFace)
+        generateSlices(self.filename, throughFace, sliceNum)
         facePath = self.path + '/' + throughFace
         self.imageSlicesTopDown = self._getImageSlices(facePath)
         # Generate slices for left right
-        generateSlices('face3.stl', 'leftright')
+        generateSlices('face3.stl', 'leftright', sliceNum)
         self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright')
         # Generate slices for front back
-        generateSlices('face2.stl', 'frontback')
+        generateSlices('face2.stl', 'frontback', sliceNum)
         self.imageSlicesFrontBack = self._getImageSlices('STL/output/frontback')
 
     def _getImageSlices(self, facePath):
@@ -189,7 +194,6 @@ class STLProcessor:
             input_path = os.path.join(facePath, image_path)
             img = cv2.imread(input_path, 0)
             imageSlices.append(img)
-        #imageSlices.reverse()
         return imageSlices
 
     def _getRotated(self):

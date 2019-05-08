@@ -36,9 +36,9 @@ class FlipCommand(Command):
         endSpeed = self.endSpeed
 
         if inSteps:
-            targetValue = handler.flipMotor.displacementToSteps(self.targetValue)
-            startSpeed = handler.flipMotor.displacementToSteps(self.startSpeed)
-            endSpeed = handler.flipMotor.displacementToSteps(self.endSpeed)
+            targetValue = handler.flipMotor.displacementToSteps(targetValue)
+            startSpeed = handler.flipMotor.displacementToSteps(startSpeed)
+            endSpeed = handler.flipMotor.displacementToSteps(endSpeed)
 
         name = handler.name.lower()
         targets[name] = {'flip': {
