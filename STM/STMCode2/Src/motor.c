@@ -2,6 +2,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
+#include <limits.h>
 
 
 #include "motor.h"
@@ -90,6 +91,15 @@ void stepMotor(struct Motor *motor_ptr) {
 		dir = motor_ptr -> direction;
 	} else if(motorHome == 1){
 		dir = 0;
+		//Check if limit switch is currently pressed
+		if(isLimitSwitchClosed(motorID) == GPIO_PIN_SET) {
+			//Set the current step to 1 (will be decremented to zero later in this function
+			motor_ptr->currentStep = 1;
+			//Set the target position equal to 0
+			motor_ptr->targetStep = 0;
+			//Set the motor to not home
+			motor_ptr->motorHome = 0;
+		}
 	} else {
 		if(((targetStep - (motor_ptr->currentStep))/abs(targetStep - (motor_ptr->currentStep))) == 1) {
 			dir = 1;
@@ -199,30 +209,6 @@ void enableStepperDriver(int motorID, int enable) {
  */
 void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int motorInfSpin, int dir, int newPos, int startSpeed, int endSpeed) {
   //printf("got here\n");
-	/*
-	
-	char *name = motor_ptr -> name;
-	char *type = motor_ptr -> type; 	
-	char *mode = motor_ptr -> mode;
-	int motorId = motor_ptr -> id; 
-	int currentMotorRun = motor_ptr -> motorRun;
-	int currentMotorHome = motor_ptr -> motorHome; 
-	int currentInfSpin = motor_ptr -> infSpin;
-	int currentDir = motor_ptr -> direction; 
-	double currentDuration = motor_ptr -> duration;
-	double currentTimePassed = motor_ptr -> timePassed; 
-	int currentDisplacement = motor_ptr -> displacement;
-	int currentStartStep = motor_ptr -> startStep;
-	int currentStep = motor_ptr -> currentStep;
-	int currentTargetStep = motor_ptr -> targetStep;
-	double currentStartSpeed = motor_ptr -> startSpeed;
-	double currentSpeed = motor_ptr -> currentSpeed;
-	double currentTargetSpeed = motor_ptr -> targetSpeed;
-  double currentAcceleration = motor_ptr -> acceleration;
-  double motorDPR = motor_ptr -> dpr;
-  int currentuSDelay = motor_ptr -> currentuSDelay;  // The Current uS Delay between steps
-	int motorStepSize = motor_ptr -> stepsize;	
-	*/
 	
 	// First check if the motor is in NORM or ROT mode
 	//HAL_UART_Transmit(&huart1, (uint8_t *)motorRun, sizeof(motorRun), HAL_MAX_DELAY);
@@ -248,6 +234,7 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int mo
 		targetPos = newPos;
 	}
 	
+	
 	//int displacementStep = worldUnitsToStepUnits(displacementWU, motor_ptr);
 	//double startStepSpeed;
 	//double endStepSpeed;
@@ -269,7 +256,20 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int mo
 		dir = 0;
 	}
 	
+	// If motor is set to home, set the target position to Half the minimum negative value of an integer
+	// Displacement is then equal to this position minus current position 
+	// Set the start and end speeds to the negative of the start speed sent via I2C
+	if(motorHome == 1) {
+		targetPos = INT_MIN/2;
+		displacementSteps = targetPos - getCurrentPositionSteps(motor_ptr);
+		startStepSpeed = -1*startSpeed;
+		endStepSpeed = -1*startSpeed;
+	}
+	
+	
+	// Calculate the necessary acceleration for the path
 	double accelerationStep = (pow(endStepSpeed, 2) - pow(startStepSpeed, 2)) / (2*displacementSteps);
+	
 	
 	// Set all motor parameters
 	motor_ptr -> motorRun = motorRun;
@@ -494,22 +494,13 @@ int isMotorFinished(struct Motor *motor) {
 	// Return a 1 if the motor has finished moving else return a 0
 	int isComplete = 1;
 	if(motor -> motorRun != 0) {
-		if(motor -> motorHome == 1) {
-			if(isLimitSwitchClosed(motor -> id) == 1) {
-				isComplete = 1;
-				motor -> motorHome = 0;
-			} else {
-				isComplete = 0;
-			}
+		if(motor -> infSpin == 1) {
+			isComplete = 0;
 		} else {
-			if(motor -> infSpin == 1) {
-				isComplete = 0;
+			if(motor -> currentStep == motor -> targetStep) {
+				isComplete = 1;
 			} else {
-				if(motor -> currentStep == motor -> targetStep) {
-					isComplete = 1;
-				} else {
-					isComplete = 0;
-				}
+				isComplete = 0;
 			}
 		}
 	} else {

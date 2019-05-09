@@ -262,6 +262,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 				} else {
 					setChannelInterrupt(htim, /*Channel*/ 1, /*Enable*/ 0);
 					//HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 1);
+					// Disable the motor
+					//enableStepperDriver(1, 0);
 				}
 		}
 	}
@@ -278,6 +280,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 				} else {
 					setChannelInterrupt(htim, /*Channel*/ 2, /*Enable*/ 0);
 					//HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 2);
+					// Disable the motor
+					//enableStepperDriver(2, 0);
 				}
 			}
 	}
@@ -294,6 +298,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 				} else {
 					setChannelInterrupt(htim, /*Channel*/ 3, /*Enable*/ 0);
 					//HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 3);
+					// Disable the motor
+					//enableStepperDriver(3, 0);
 				}
 			}
 	}

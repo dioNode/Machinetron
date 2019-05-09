@@ -3,6 +3,7 @@ stmcode2\motor.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 stmcode2\motor.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 stmcode2\motor.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 stmcode2\motor.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+stmcode2\motor.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
 stmcode2\motor.o: ../Inc/motor.h
 stmcode2\motor.o: ../Inc/main.h
 stmcode2\motor.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h

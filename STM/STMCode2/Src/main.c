@@ -252,7 +252,7 @@ int main(void)
 	#endif
   MX_TIM1_Init();
 
-	// Clear the update interrupt flag
+	// Clear the update interrupt flag on timer 1
 	__HAL_TIM_CLEAR_FLAG(&htim1, TIM_FLAG_UPDATE);
 	// Set timer 1 to stop at a breakpoint
 	__HAL_DBGMCU_FREEZE_TIM1(); 
@@ -281,7 +281,7 @@ int main(void)
 	// Set the machine to a ready state
 	setMachineState(MACHINE_READY);
 
-	//Temporarily set the stepper enable to disabled
+	//Temporarily set the stepper drivers to disabled
 	enableStepperDriver(1, 0);
 	enableStepperDriver(2, 0);
 	enableStepperDriver(3, 0);
@@ -319,7 +319,6 @@ int main(void)
 			
 			// Check if there are instructions to process in the Instruction Array
 			if(getInstArrayFirstIndex() != getInstArrayFirstEmptyIndex()) {
-				setLEDColour("ORANGE");
 				
 				//printf("Instruction to process");
 				//printf("\n");
@@ -371,6 +370,10 @@ int main(void)
 				HAL_TIM_OC_Stop(&htim1,1);
 				HAL_TIM_OC_Stop(&htim1,2);
 				HAL_TIM_OC_Stop(&htim1,3);
+				
+				enableStepperDriver(1, 0);
+				enableStepperDriver(2, 0);
+				enableStepperDriver(3, 0);
 				
 				#if defined MILL || defined DRILL
 				HAL_TIM_PWM_Stop_IT(&htim4, 2);
@@ -839,7 +842,6 @@ int roundNumToInt(double number) {
 	//return (number >= 0) ? (int)(number + 0.5) : (int)(number - 0.5);
 	return result;
 }
-
 /* USER CODE END 4 */
 
 /**
