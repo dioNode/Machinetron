@@ -125,7 +125,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGTARM</Key>
-          <Name>(1010=1086,159,1536,715,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=691,207,949,795,0)</Name>
+          <Name>(1010=1086,159,1536,715,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=1321,371,1579,958,1)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -163,7 +163,7 @@
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>subMachine</ItemText>
+          <ItemText>subMachine,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
@@ -204,6 +204,11 @@
           <count>10</count>
           <WinNumber>1</WinNumber>
           <ItemText>newPos</ItemText>
+        </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>compare2MSHalf</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -365,7 +370,7 @@
       <GroupNumber>2</GroupNumber>
       <FileNumber>5</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>../Src/tim.c</PathWithFileName>

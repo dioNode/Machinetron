@@ -192,6 +192,9 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 	} else if(getI2CReceiveBuffer()[0] == PAUSE_INST) {
 		// A Pause instruction was sent, set the machine into a pause state
 		setMachineState(MACHINE_PAUSED);
+	} else if(getI2CReceiveBuffer()[0] == STOP_INST) {
+		// A Pause instruction was sent, set the machine into a pause state
+		stopCurrentInstruction();
 	}
 	
 	

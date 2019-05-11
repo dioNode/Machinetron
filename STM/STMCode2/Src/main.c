@@ -309,8 +309,7 @@ int main(void)
 		
 		//printInteger("Testifitworks", 13, 567);
 		//HAL_UART_Transmit(&huart1, (uint8_t *)"\n\r", sizeof("\n\r"),HAL_MAX_DELAY);
-		//HAL_Delay(500);
-		// print the 
+		//HAL_Delay(500)
 		// Is the machine in a running state (should be processing instructions
 		if(getMachineState() == MACHINE_RUNNING) {
 			
@@ -373,7 +372,14 @@ int main(void)
 				
 				enableStepperDriver(1, 0);
 				enableStepperDriver(2, 0);
+				#if defined HANDLER
+				if(((getMotorById(&subMachine, 3)->currentStep) > 50) || ((getMotorById(&subMachine, 3)->currentStep) < -50)) {
+					enableStepperDriver(3,0);
+				}
+				#endif
+				#if defined MILL || defined DRILL || defined LATHE
 				enableStepperDriver(3, 0);
+				#endif
 				
 				#if defined MILL || defined DRILL
 				HAL_TIM_PWM_Stop_IT(&htim4, 2);
@@ -842,6 +848,43 @@ int roundNumToInt(double number) {
 	//return (number >= 0) ? (int)(number + 0.5) : (int)(number - 0.5);
 	return result;
 }
+
+/**
+  * @brief  Function to stop the current instruction by setting motor parameters accordingly
+	* @retval None
+  */
+
+void stopCurrentInstruction(void) {
+	//For each motor, set the target pos to current pos, motorHome to 0, motorInfSpin to 0.
+	// Stop all timer interrupts and the timers
+	//setChannelInterrupt(&htim1, /*Channel*/ 1, /*Enable*/ 0);
+	//setChannelInterrupt(&htim1, /*Channel*/ 2, /*Enable*/ 0);
+	//setChannelInterrupt(&htim1, /*Channel*/ 3, /*Enable*/ 0);
+	//HAL_TIM_Base_Stop_IT(&htim1);
+	//HAL_TIM_OC_Stop(&htim1,1);
+	//HAL_TIM_OC_Stop(&htim1,2);
+	//HAL_TIM_OC_Stop(&htim1,3);
+	
+	for(int i = 1; i < 4; i++) {
+		struct Motor *motor_ptr = getMotorById(&subMachine, i);
+		int currentStep = (motor_ptr->currentStep);
+		(motor_ptr->targetStep) = currentStep;
+		(motor_ptr->infSpin) = 0;
+		//setMotorParams(motor_ptr,0,0,0,1,currentStep,10,10);
+	}
+	
+	enableStepperDriver(1, 0);
+	enableStepperDriver(2, 0);
+	#if defined HANDLER
+	if(((getMotorById(&subMachine, 3)->currentStep) > 50) || ((getMotorById(&subMachine, 3)->currentStep) < -50)) {
+		enableStepperDriver(3,0);
+	}
+	#endif
+	#if defined MILL || defined DRILL || defined LATHE
+	enableStepperDriver(3, 0);
+	#endif
+}
+
 /* USER CODE END 4 */
 
 /**
