@@ -3,7 +3,7 @@
 <title>Static Call Graph - [STMCode2\STMCode2.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image STMCode2\STMCode2.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Sat May 11 22:19:21 2019
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Sun May 12 15:22:29 2019
 <BR><P>
 <H3>Maximum Stack Usage =       1176 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -638,7 +638,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_Init
 </UL>
 
-<P><STRONG><a name="[71]"></a>HAL_I2C_SlaveRxCpltCallback</STRONG> (Thumb, 268 bytes, Stack size 8 bytes, i2c.o(i.HAL_I2C_SlaveRxCpltCallback))
+<P><STRONG><a name="[71]"></a>HAL_I2C_SlaveRxCpltCallback</STRONG> (Thumb, 264 bytes, Stack size 8 bytes, i2c.o(i.HAL_I2C_SlaveRxCpltCallback))
 <BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = HAL_I2C_SlaveRxCpltCallback &rArr; getMotorCurrentStep &rArr; __aeabi_i2d &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;getMotorCurrentStep
@@ -1573,7 +1573,7 @@ Local Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[59]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_EV_IRQHandler
 </UL>
 
-<P><STRONG><a name="[62]"></a>I2C_SlaveReceive_RXNE</STRONG> (Thumb, 134 bytes, Stack size 24 bytes, stm32f1xx_hal_i2c.o(i.I2C_SlaveReceive_RXNE))
+<P><STRONG><a name="[62]"></a>I2C_SlaveReceive_RXNE</STRONG> (Thumb, 138 bytes, Stack size 24 bytes, stm32f1xx_hal_i2c.o(i.I2C_SlaveReceive_RXNE))
 <BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = I2C_SlaveReceive_RXNE &rArr; HAL_I2C_SlaveRxCpltCallback &rArr; getMotorCurrentStep &rArr; __aeabi_i2d &rArr; _double_epilogue &rArr; _double_round
 </UL>
 <BR>[Calls]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_I2C_SlaveRxCpltCallback

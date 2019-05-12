@@ -256,8 +256,8 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 			setI2CTransmitBufferAtIndex((uint8_t)((int)(getMotorCurrentStep(getMotorById(&subMachine, 3))) & 0xFF), 1);
 			break;
 		case READ_MACHINE_STATE:
-			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMachineState()) >> 8) & 0xFF), 0);
-			setI2CTransmitBufferAtIndex((uint8_t)((int)(0x00) & 0xFF), 1);
+			setI2CTransmitBufferAtIndex(0, 0);
+			setI2CTransmitBufferAtIndex(getMachineState(), 1);
 			break;
 	}
 	
