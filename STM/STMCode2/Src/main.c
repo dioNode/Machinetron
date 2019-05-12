@@ -373,7 +373,7 @@ int main(void)
 				enableStepperDriver(1, 0);
 				enableStepperDriver(2, 0);
 				#if defined HANDLER
-				if(((getMotorById(&subMachine, 3)->currentStep) > 50) || ((getMotorById(&subMachine, 3)->currentStep) < -50)) {
+				if(((getMotorById(&subMachine, 3)->currentStep) > -50) && ((getMotorById(&subMachine, 3)->currentStep) < 50)) {
 					enableStepperDriver(3,0);
 				}
 				#endif
