@@ -620,17 +620,23 @@ void setSpeedStepsAnduSDelay(struct Motor *motor) {
 /**
  * Function to calculate the duty Cycle of PWM for the DC motor based on the speed input
  * @param[in] motor_ptr The pointer to the motor
- * @param[in] desiredSpeed The required speed of the motor in revs/s
+ * @param[in] desiredSpeed The required speed of the motor as percentage of max speed
  * @return  PWM Duty Cycle as a value from 0 to 100
  */
 int calculatePWMDutyCycle(struct Motor *motor_ptr, double desiredSpeed) {
 	// Make sure that the motor is a DC Motor
-	// Assume max rps is 83.333 revs/s (5000rpm) which equates to 4.5V on the motor
 	double PWMDutyCycle;
+	double percentOfMaxSpeed;
 	if(strcmp(motor_ptr -> type, "DC") == 0) {
 		//Take the current speed in the motor struct
-		double percentOfMaxSpeed = desiredSpeed/83.333;
-		PWMDutyCycle = 4.5/12*percentOfMaxSpeed*100;
+		if(desiredSpeed > 100) {
+			percentOfMaxSpeed = 100;
+		} else if(desiredSpeed < 0) {
+			percentOfMaxSpeed = 0;
+		} else {
+			percentOfMaxSpeed = desiredSpeed;
+		}
+		PWMDutyCycle = 4.5/12*percentOfMaxSpeed;
 	} else {
 		PWMDutyCycle = 0;
 	}

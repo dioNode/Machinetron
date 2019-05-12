@@ -251,18 +251,24 @@ int main(void)
   MX_TIM4_Init();
 	#endif
   MX_TIM1_Init();
-
+	
 	// Clear the update interrupt flag on timer 1
 	__HAL_TIM_CLEAR_FLAG(&htim1, TIM_FLAG_UPDATE);
+	// Clear the update interrupt flag on timer 4
+	#if defined MILL || defined DRILL
+	__HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
+	#endif
 	// Set timer 1 to stop at a breakpoint
 	__HAL_DBGMCU_FREEZE_TIM1(); 
   /* Initialize interrupts */
   MX_NVIC_Init();
+	
   /* USER CODE BEGIN 2 */
+	/*
 	#if defined MILL || defined DRILL
   MX_TIM4_Init();
 	#endif
-	
+	*/
 	
 	if(HAL_I2C_EnableListen_IT(&hi2c1) != HAL_OK)
   {
@@ -283,7 +289,9 @@ int main(void)
 
 	//Temporarily set the stepper drivers to disabled
 	enableStepperDriver(1, 0);
+	#if defined HANDLER || defined LATHE
 	enableStepperDriver(2, 0);
+	#endif
 	enableStepperDriver(3, 0);
 	
   /* USER CODE END 2 */
@@ -347,7 +355,7 @@ int main(void)
 				//printf("\n");
 				
 				#if defined MILL || defined DRILL
-				DCTimerResetAndSetup(&htim4, &subMachine);
+				DCTimerResetAndSetUp(&htim4, &subMachine);
 				#endif
 				// Enable the timers 
 				HAL_TIM_Base_Start_IT(&htim1);
@@ -371,7 +379,9 @@ int main(void)
 				HAL_TIM_OC_Stop(&htim1,3);
 				
 				enableStepperDriver(1, 0);
+				#if defined HANDLER || defined LATHE
 				enableStepperDriver(2, 0);
+				#endif
 				#if defined HANDLER
 				if(((getMotorById(&subMachine, 3)->currentStep) > -50) && ((getMotorById(&subMachine, 3)->currentStep) < 50)) {
 					enableStepperDriver(3,0);
@@ -382,7 +392,7 @@ int main(void)
 				#endif
 				
 				#if defined MILL || defined DRILL
-				HAL_TIM_PWM_Stop_IT(&htim4, 2);
+				HAL_TIM_PWM_Stop_IT(&htim4, TIM_CHANNEL_2);
 				#endif
 			} else if(getInstArrayFirstIndex() == getInstArrayFirstEmptyIndex()) {
 				setMachineState(MACHINE_READY);
