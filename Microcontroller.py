@@ -90,7 +90,7 @@ class Microcontroller:
 
                 motorInstructions = []
 
-                for motorNum in range(1,4):
+                for motorNum in range(1, 4):
                     if motorNum in unusedMotorsNum:
                         # Generate unused motor code
                         motorInstructions.append(motorNum << 6 | 1 << 5)    # Shift motor ID and direction bit
@@ -111,7 +111,7 @@ class Microcontroller:
                                 endSpeed = targetVals['endSpeed']
                                 direction = 1 if targetValue >= 0 else 0
                                 # Set motorByte configurations
-                                homeBit = 0
+                                homeBit = 0# if targetValue != 0 else 1
                                 motorByte = 0
                                 motorByte |= motorID << 6
                                 motorByte |= direction << 5
@@ -135,58 +135,5 @@ class Microcontroller:
                 }
 
                 instructions.append(currentInstruction)
-
-
-
-
-
-                # # Add in dummy empty variables TODO Remove
-                # motorInstructions.append(0b01000000 | 1 << 5)
-                # for i in range(6):
-                #     motorInstructions.append(0)
-                # motorInstructions.append(0b10000000 | 1 << 5)
-                # for i in range(6):
-                #     motorInstructions.append(0)
-                #
-                #
-                # Legit code
-                # for motor, targetVals in motors.items():
-                #     motorRun = 1
-                #     infSpin = 0
-                #     motorID = configurationMap['motorMap'][motor]
-                #     targetValue = targetVals['targetValue']
-                #     if targetValue is None:
-                #         targetValue = 0
-                #         infSpin = 1
-                #     startSpeed = targetVals['startSpeed']
-                #     endSpeed = targetVals['endSpeed']
-                #     direction = 1 if targetValue >= 0 else 0
-                #     # Set motorByte configurations
-                #     homeBit = 0
-                #     motorByte = 0
-                #     motorByte |= motorID << 6
-                #     motorByte |= direction << 5
-                #     motorByte |= motorRun << 4
-                #     motorByte |= homeBit << 3
-                #     motorByte |= infSpin << 2
-                #
-                #
-                #     motorInstructions.append(motorByte)
-                #     (targetPosMSbit, targetPosLSBit) = splitNumberHex(targetValue)
-                #     (startSpeedMSbit, startSpeedLSBit) = splitNumberHex(startSpeed)
-                #     (endSpeedMSbit, endSpeedLSBit) = splitNumberHex(endSpeed)
-                #     motorInstructions.extend([targetPosMSbit, targetPosLSBit,
-                #                               startSpeedMSbit, startSpeedLSBit,
-                #                               endSpeedMSbit, endSpeedLSBit])
-                #
-                #
-                # commandByte = configurationMap['instructions']['NORM_INST']
-                # currentInstruction = {
-                #     'address': address,
-                #     'commandByte': commandByte,
-                #     'motorInstructions': motorInstructions
-                # }
-                #
-                # instructions.append(currentInstruction)
 
         return instructions
