@@ -85,17 +85,18 @@ extern "C" {
 #define NORM_INST												0x00
 #define START_INST											0x01
 #define PAUSE_INST											0x02
+#define STOP_INST												0x03
 
-#define READ_INST_SPEED_M1							0x03
-#define READ_INST_SPEED_M2							0x04
-#define READ_INST_SPEED_M3							0x05
+#define READ_INST_SPEED_M1							0x04
+#define READ_INST_SPEED_M2							0x05
+#define READ_INST_SPEED_M3							0x06
 
-#define READ_INST_POS_M1								0x06
-#define READ_INST_POS_M2								0x07
-#define READ_INST_POS_M3								0x08
+#define READ_INST_POS_M1								0x07
+#define READ_INST_POS_M2								0x08
+#define READ_INST_POS_M3								0x09
 
-#define READ_MACHINE_STATE							0x09
-//#define READ_INST_MOTORS_RUNNING				0x0A
+#define READ_MACHINE_STATE							0x0A
+//#define READ_INST_MOTORS_RUNNING				0x0B
 
 
 /* Motor Identifier Byte Constants */
@@ -214,6 +215,9 @@ void setLEDColour(char* colour);
 void printInteger(char* leadingString, int len, int intNum);
 
 int roundNumToInt(double number);
+
+void stopCurrentInstruction(void);
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

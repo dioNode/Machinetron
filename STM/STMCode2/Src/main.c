@@ -251,18 +251,24 @@ int main(void)
   MX_TIM4_Init();
 	#endif
   MX_TIM1_Init();
-
-	// Clear the update interrupt flag
+	
+	// Clear the update interrupt flag on timer 1
 	__HAL_TIM_CLEAR_FLAG(&htim1, TIM_FLAG_UPDATE);
+	// Clear the update interrupt flag on timer 4
+	#if defined MILL || defined DRILL
+	__HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
+	#endif
 	// Set timer 1 to stop at a breakpoint
 	__HAL_DBGMCU_FREEZE_TIM1(); 
   /* Initialize interrupts */
   MX_NVIC_Init();
+	
   /* USER CODE BEGIN 2 */
+	/*
 	#if defined MILL || defined DRILL
   MX_TIM4_Init();
 	#endif
-	
+	*/
 	
 	if(HAL_I2C_EnableListen_IT(&hi2c1) != HAL_OK)
   {
@@ -281,9 +287,11 @@ int main(void)
 	// Set the machine to a ready state
 	setMachineState(MACHINE_READY);
 
-	//Temporarily set the stepper enable to disabled
+	//Temporarily set the stepper drivers to disabled
 	enableStepperDriver(1, 0);
+	#if defined HANDLER || defined LATHE
 	enableStepperDriver(2, 0);
+	#endif
 	enableStepperDriver(3, 0);
 	
   /* USER CODE END 2 */
@@ -309,8 +317,7 @@ int main(void)
 		
 		//printInteger("Testifitworks", 13, 567);
 		//HAL_UART_Transmit(&huart1, (uint8_t *)"\n\r", sizeof("\n\r"),HAL_MAX_DELAY);
-		//HAL_Delay(500);
-		// print the 
+		//HAL_Delay(500)
 		// Is the machine in a running state (should be processing instructions
 		if(getMachineState() == MACHINE_RUNNING) {
 			
@@ -319,7 +326,6 @@ int main(void)
 			
 			// Check if there are instructions to process in the Instruction Array
 			if(getInstArrayFirstIndex() != getInstArrayFirstEmptyIndex()) {
-				setLEDColour("ORANGE");
 				
 				//printf("Instruction to process");
 				//printf("\n");
@@ -349,7 +355,7 @@ int main(void)
 				//printf("\n");
 				
 				#if defined MILL || defined DRILL
-				DCTimerResetAndSetup(&htim4, &subMachine);
+				DCTimerResetAndSetUp(&htim4, &subMachine);
 				#endif
 				// Enable the timers 
 				HAL_TIM_Base_Start_IT(&htim1);
@@ -372,8 +378,21 @@ int main(void)
 				HAL_TIM_OC_Stop(&htim1,2);
 				HAL_TIM_OC_Stop(&htim1,3);
 				
+				enableStepperDriver(1, 0);
+				#if defined HANDLER || defined LATHE
+				enableStepperDriver(2, 0);
+				#endif
+				#if defined HANDLER
+				if(((getMotorById(&subMachine, 3)->currentStep) > -50) && ((getMotorById(&subMachine, 3)->currentStep) < 50)) {
+					enableStepperDriver(3,0);
+				}
+				#endif
+				#if defined MILL || defined DRILL || defined LATHE
+				enableStepperDriver(3, 0);
+				#endif
+				
 				#if defined MILL || defined DRILL
-				HAL_TIM_PWM_Stop_IT(&htim4, 2);
+				HAL_TIM_PWM_Stop_IT(&htim4, TIM_CHANNEL_2);
 				#endif
 			} else if(getInstArrayFirstIndex() == getInstArrayFirstEmptyIndex()) {
 				setMachineState(MACHINE_READY);
@@ -838,6 +857,42 @@ int roundNumToInt(double number) {
 	}
 	//return (number >= 0) ? (int)(number + 0.5) : (int)(number - 0.5);
 	return result;
+}
+
+/**
+  * @brief  Function to stop the current instruction by setting motor parameters accordingly
+	* @retval None
+  */
+
+void stopCurrentInstruction(void) {
+	//For each motor, set the target pos to current pos, motorHome to 0, motorInfSpin to 0.
+	// Stop all timer interrupts and the timers
+	//setChannelInterrupt(&htim1, /*Channel*/ 1, /*Enable*/ 0);
+	//setChannelInterrupt(&htim1, /*Channel*/ 2, /*Enable*/ 0);
+	//setChannelInterrupt(&htim1, /*Channel*/ 3, /*Enable*/ 0);
+	//HAL_TIM_Base_Stop_IT(&htim1);
+	//HAL_TIM_OC_Stop(&htim1,1);
+	//HAL_TIM_OC_Stop(&htim1,2);
+	//HAL_TIM_OC_Stop(&htim1,3);
+	
+	for(int i = 1; i < 4; i++) {
+		struct Motor *motor_ptr = getMotorById(&subMachine, i);
+		int currentStep = (motor_ptr->currentStep);
+		(motor_ptr->targetStep) = currentStep;
+		(motor_ptr->infSpin) = 0;
+		//setMotorParams(motor_ptr,0,0,0,1,currentStep,10,10);
+	}
+	
+	enableStepperDriver(1, 0);
+	enableStepperDriver(2, 0);
+	#if defined HANDLER
+	if(((getMotorById(&subMachine, 3)->currentStep) > 50) || ((getMotorById(&subMachine, 3)->currentStep) < -50)) {
+		enableStepperDriver(3,0);
+	}
+	#endif
+	#if defined MILL || defined DRILL || defined LATHE
+	enableStepperDriver(3, 0);
+	#endif
 }
 
 /* USER CODE END 4 */

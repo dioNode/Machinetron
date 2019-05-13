@@ -4443,7 +4443,8 @@ static HAL_StatusTypeDef I2C_SlaveReceive_RXNE(I2C_HandleTypeDef *hi2c)
 		if((hi2c->XferCount == RXBUFFERSIZE - 1) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN) 
 			&&((firstByte == READ_INST_SPEED_M1) || (firstByte == READ_INST_SPEED_M2)
 				|| (firstByte == READ_INST_SPEED_M3) || (firstByte == READ_INST_POS_M1)
-				|| (firstByte == READ_INST_POS_M2) || (firstByte == READ_INST_POS_M3)))
+				|| (firstByte == READ_INST_POS_M2) || (firstByte == READ_INST_POS_M3)
+				|| (firstByte == READ_MACHINE_STATE)))
     {
       // Last Byte is received, disable Interrupt
       __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);
@@ -4489,10 +4490,10 @@ static HAL_StatusTypeDef I2C_SlaveReceive_BTF(I2C_HandleTypeDef *hi2c)
 		/*_______________User Code Check First Byte Matches Request_______________*/
 		/*
 		if((hi2c->XferCount == RXBUFFERSIZE - 1) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN) 
-			&&((hi2c->pBuffPtr[0] == REQ_READ_SPEED_M1) || (hi2c->pBuffPtr[0] == REQ_READ_SPEED_M2)
-				|| (hi2c->pBuffPtr[0] == REQ_READ_SPEED_M3) || (hi2c->pBuffPtr[0] == REQ_READ_POS_M1)
-				|| (hi2c->pBuffPtr[0] == REQ_READ_POS_M2) || (hi2c->pBuffPtr[0] == REQ_READ_POS_M3)
-				|| (hi2c->pBuffPtr[0] == REQ_MOTORS_RUNNING)|| (hi2c->pBuffPtr[0] == REQ_COMPLETE)))
+			&&((firstByte == READ_INST_SPEED_M1) || (firstByte == READ_INST_SPEED_M2)
+				|| (firstByte == READ_INST_SPEED_M3) || (firstByte == READ_INST_POS_M1)
+				|| (firstByte == READ_INST_POS_M2) || (firstByte == READ_INST_POS_M3)
+				|| (firstByte == READ_MACHINE_STATE)))
     {
       // Last Byte is received, disable Interrupt
       __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);

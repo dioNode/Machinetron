@@ -2,6 +2,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
+#include <limits.h>
 
 
 #include "motor.h"
@@ -86,10 +87,25 @@ void stepMotor(struct Motor *motor_ptr) {
 	int motorID = motor_ptr -> id;
 	int dir;
 	int motorHome = motor_ptr -> motorHome;
-	if((motor_ptr->infSpin) == 1) {
-		dir = motor_ptr -> direction;
-	} else if(motorHome == 1){
+	int motorInfSpin = motor_ptr -> infSpin;
+	if(motorHome == 1){
 		dir = 0;
+		//Check if limit switch is currently pressed
+		if(isLimitSwitchClosed(motorID) == GPIO_PIN_SET) {
+			//Set the current step to 1 (will be decremented to zero later in this function
+			motor_ptr->currentStep = 1;
+			//Set the target position equal to 0
+			motor_ptr->targetStep = 0;
+			//Set the motor to not home
+			motor_ptr->motorHome = 0;
+		} 
+	} else if(motorInfSpin == 1) {
+		dir = motor_ptr -> direction;
+		if((dir == 1) && ((motor_ptr->targetStep) - getCurrentPositionSteps(motor_ptr) == 1))  {
+			motor_ptr->targetStep = getCurrentPositionSteps(motor_ptr) + 101;
+		} else if((dir == 0) && ((motor_ptr->targetStep) - getCurrentPositionSteps(motor_ptr) == -1)) {
+			motor_ptr->targetStep = getCurrentPositionSteps(motor_ptr) - 101;
+		}
 	} else {
 		if(((targetStep - (motor_ptr->currentStep))/abs(targetStep - (motor_ptr->currentStep))) == 1) {
 			dir = 1;
@@ -199,30 +215,6 @@ void enableStepperDriver(int motorID, int enable) {
  */
 void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int motorInfSpin, int dir, int newPos, int startSpeed, int endSpeed) {
   //printf("got here\n");
-	/*
-	
-	char *name = motor_ptr -> name;
-	char *type = motor_ptr -> type; 	
-	char *mode = motor_ptr -> mode;
-	int motorId = motor_ptr -> id; 
-	int currentMotorRun = motor_ptr -> motorRun;
-	int currentMotorHome = motor_ptr -> motorHome; 
-	int currentInfSpin = motor_ptr -> infSpin;
-	int currentDir = motor_ptr -> direction; 
-	double currentDuration = motor_ptr -> duration;
-	double currentTimePassed = motor_ptr -> timePassed; 
-	int currentDisplacement = motor_ptr -> displacement;
-	int currentStartStep = motor_ptr -> startStep;
-	int currentStep = motor_ptr -> currentStep;
-	int currentTargetStep = motor_ptr -> targetStep;
-	double currentStartSpeed = motor_ptr -> startSpeed;
-	double currentSpeed = motor_ptr -> currentSpeed;
-	double currentTargetSpeed = motor_ptr -> targetSpeed;
-  double currentAcceleration = motor_ptr -> acceleration;
-  double motorDPR = motor_ptr -> dpr;
-  int currentuSDelay = motor_ptr -> currentuSDelay;  // The Current uS Delay between steps
-	int motorStepSize = motor_ptr -> stepsize;	
-	*/
 	
 	// First check if the motor is in NORM or ROT mode
 	//HAL_UART_Transmit(&huart1, (uint8_t *)motorRun, sizeof(motorRun), HAL_MAX_DELAY);
@@ -231,13 +223,15 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int mo
 	int displacementSteps;
 	//double targetPos;
 	int targetPos;
+	int direction;
 	
 	if(strcmp(motor_ptr -> mode, "ROT") == 0) {
 		// Motor is in ROT mode meaning displacement and newPos need to be calculated based on input data
+		int modNewPos = newPos % (motor_ptr -> dpr);
 		int modPos = getCurrentPositionSteps(motor_ptr) % (motor_ptr -> dpr);
-		int newPosNegRev = newPos - motor_ptr -> dpr;
-		if(abs(newPos-modPos) <= abs(newPosNegRev-modPos)) {
-			displacementSteps = newPos-modPos;
+		int newPosNegRev = modNewPos - motor_ptr -> dpr;
+		if(abs(modNewPos-modPos) <= abs(newPosNegRev-modPos)) {
+			displacementSteps = modNewPos-modPos;
 			targetPos = getCurrentPositionSteps(motor_ptr) + displacementSteps;
 		} else {
 			displacementSteps = newPosNegRev-modPos;
@@ -247,6 +241,7 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int mo
 		displacementSteps = newPos - getCurrentPositionSteps(motor_ptr); //Calculates the displacement in steps
 		targetPos = newPos;
 	}
+	
 	
 	//int displacementStep = worldUnitsToStepUnits(displacementWU, motor_ptr);
 	//double startStepSpeed;
@@ -260,22 +255,54 @@ void setMotorParams(struct Motor *motor_ptr, int motorRun, int motorHome, int mo
 		//endStepSpeed = worldUnitsToStepUnits(endSpeed, motor_ptr);
 		startStepSpeed = startSpeed;
 		endStepSpeed = endSpeed;
-		dir = 1;
+		direction = 1;
 	} else {
 		//startStepSpeed = worldUnitsToStepUnits(-1 * startSpeed, motor_ptr);
 		//endStepSpeed = worldUnitsToStepUnits(-1 * endSpeed, motor_ptr);
 		startStepSpeed = -1*startSpeed;
 		endStepSpeed = -1*endSpeed;
-		dir = 0;
+		direction = 0;
 	}
 	
-	double accelerationStep = (pow(endStepSpeed, 2) - pow(startStepSpeed, 2)) / (2*displacementSteps);
+	// If motor has been set to infinitely spin then set the target position to the current position +- 10 steps 
+	// based on the direction specified by the instruction
+	if(motorInfSpin == 1) {
+		direction = dir;
+		if(direction == 1) {
+			targetPos = getCurrentPositionSteps(motor_ptr) + 100;
+			displacementSteps = targetPos - getCurrentPositionSteps(motor_ptr);
+			startStepSpeed = startSpeed;
+			endStepSpeed = startSpeed;
+		} else {
+			targetPos = getCurrentPositionSteps(motor_ptr) - 100;
+			displacementSteps = targetPos - getCurrentPositionSteps(motor_ptr);
+			startStepSpeed = -1*startSpeed;
+			endStepSpeed = -1*startSpeed;
+		}
+	}
+	// If motor is set to home, set the target position to Half the minimum negative value of an integer
+	// Displacement is then equal to this position minus current position 
+	// Set the start and end speeds to the negative of the start speed sent via I2C
+	if(motorHome == 1) {
+		targetPos = INT_MIN/2;
+		displacementSteps = targetPos - getCurrentPositionSteps(motor_ptr);
+		startStepSpeed = -1*startSpeed;
+		endStepSpeed = -1*startSpeed;
+	}
+	
+	double accelerationStep;
+	// Calculate the necessary acceleration for the path
+	if(displacementSteps == 0) {
+		accelerationStep = 0;
+	} else {
+		accelerationStep = (pow(endStepSpeed, 2) - pow(startStepSpeed, 2)) / (2*displacementSteps);
+	}
 	
 	// Set all motor parameters
 	motor_ptr -> motorRun = motorRun;
 	motor_ptr -> motorHome = motorHome;
 	motor_ptr -> infSpin = motorInfSpin;
-	motor_ptr -> direction = dir;
+	motor_ptr -> direction = direction;
 	motor_ptr -> duration = calculateDurationSteps(startStepSpeed, endStepSpeed, displacementSteps);
 	motor_ptr -> timePassed = 0;
 	motor_ptr -> displacement = displacementSteps;
@@ -494,22 +521,13 @@ int isMotorFinished(struct Motor *motor) {
 	// Return a 1 if the motor has finished moving else return a 0
 	int isComplete = 1;
 	if(motor -> motorRun != 0) {
-		if(motor -> motorHome == 1) {
-			if(isLimitSwitchClosed(motor -> id) == 1) {
-				isComplete = 1;
-				motor -> motorHome = 0;
-			} else {
-				isComplete = 0;
-			}
+		if(motor -> infSpin == 1) {
+			isComplete = 0;
 		} else {
-			if(motor -> infSpin == 1) {
-				isComplete = 0;
+			if(motor -> currentStep == motor -> targetStep) {
+				isComplete = 1;
 			} else {
-				if(motor -> currentStep == motor -> targetStep) {
-					isComplete = 1;
-				} else {
-					isComplete = 0;
-				}
+				isComplete = 0;
 			}
 		}
 	} else {
@@ -528,7 +546,11 @@ int isMotorFinished(struct Motor *motor) {
  */
 double calculateDurationSteps(int startSpeedSteps, int endSpeedSteps, int displacementSteps) {
 	double duration = 0;
-	duration = 2*(double)displacementSteps/((double)startSpeedSteps+(double)endSpeedSteps);
+	if((startSpeedSteps+endSpeedSteps) == 0) {
+		duration = 0;
+	} else {
+		duration = 2*(double)displacementSteps/((double)startSpeedSteps+(double)endSpeedSteps);
+	}
 	return duration;
 }
 
@@ -568,7 +590,12 @@ double calculateAccelMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM) {
  * @return  int containing the required step delay in uS
  */
 double calculateuSDelay(double currentSpeed) {
-	double temp = ((double)(1000000))/currentSpeed;
+	double temp;
+	if(currentSpeed == 0) {
+		temp = 0;
+	} else {
+		temp = ((double)(1000000))/currentSpeed;
+	}
 	//int retTemp = (int)ceil(temp);
 	//int retTemp = roundNumToInt(temp);
 	//double retTemp = (int)temp;
@@ -593,17 +620,23 @@ void setSpeedStepsAnduSDelay(struct Motor *motor) {
 /**
  * Function to calculate the duty Cycle of PWM for the DC motor based on the speed input
  * @param[in] motor_ptr The pointer to the motor
- * @param[in] desiredSpeed The required speed of the motor in revs/s
+ * @param[in] desiredSpeed The required speed of the motor as percentage of max speed
  * @return  PWM Duty Cycle as a value from 0 to 100
  */
 int calculatePWMDutyCycle(struct Motor *motor_ptr, double desiredSpeed) {
 	// Make sure that the motor is a DC Motor
-	// Assume max rps is 83.333 revs/s (5000rpm) which equates to 4.5V on the motor
 	double PWMDutyCycle;
+	double percentOfMaxSpeed;
 	if(strcmp(motor_ptr -> type, "DC") == 0) {
 		//Take the current speed in the motor struct
-		double percentOfMaxSpeed = desiredSpeed/83.333;
-		PWMDutyCycle = 4.5/12*percentOfMaxSpeed*100;
+		if(desiredSpeed > 100) {
+			percentOfMaxSpeed = 100;
+		} else if(desiredSpeed < 0) {
+			percentOfMaxSpeed = 0;
+		} else {
+			percentOfMaxSpeed = desiredSpeed;
+		}
+		PWMDutyCycle = 4.5/12*percentOfMaxSpeed;
 	} else {
 		PWMDutyCycle = 0;
 	}
