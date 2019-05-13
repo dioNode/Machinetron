@@ -2793,6 +2793,16 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Cha
   */
 void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
 {
+	// Note: Update Event Check moved here to ensure priority over Capture Compare Events
+	/* TIM Update event */
+  if(__HAL_TIM_GET_FLAG(htim, TIM_FLAG_UPDATE) != RESET)
+  {
+    if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_UPDATE) !=RESET)
+    {
+      __HAL_TIM_CLEAR_IT(htim, TIM_IT_UPDATE);
+      HAL_TIM_PeriodElapsedCallback(htim);
+    }
+  }
   /* Capture compare 1 event */
   if(__HAL_TIM_GET_FLAG(htim, TIM_FLAG_CC1) != RESET)
   {
@@ -2880,15 +2890,7 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
       htim->Channel = HAL_TIM_ACTIVE_CHANNEL_CLEARED;
     }
   }
-  /* TIM Update event */
-  if(__HAL_TIM_GET_FLAG(htim, TIM_FLAG_UPDATE) != RESET)
-  {
-    if(__HAL_TIM_GET_IT_SOURCE(htim, TIM_IT_UPDATE) !=RESET)
-    {
-      __HAL_TIM_CLEAR_IT(htim, TIM_IT_UPDATE);
-      HAL_TIM_PeriodElapsedCallback(htim);
-    }
-  }
+	// Original Location of Update Event Check
   /* TIM Break input event */
   if(__HAL_TIM_GET_FLAG(htim, TIM_FLAG_BREAK) != RESET)
   {

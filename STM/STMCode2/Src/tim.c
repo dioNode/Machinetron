@@ -111,9 +111,9 @@ void MX_TIM4_Init(void)
   TIM_OC_InitTypeDef sConfigOC = {0};
 
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 31;
+  htim4.Init.Prescaler = 15;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 65535;
+  htim4.Init.Period = 199;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -262,6 +262,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 				} else {
 					setChannelInterrupt(htim, /*Channel*/ 1, /*Enable*/ 0);
 					//HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 1);
+					// Disable the motor
+					//enableStepperDriver(1, 0);
 				}
 		}
 	}
@@ -278,6 +280,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 				} else {
 					setChannelInterrupt(htim, /*Channel*/ 2, /*Enable*/ 0);
 					//HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 2);
+					// Disable the motor
+					//enableStepperDriver(2, 0);
 				}
 			}
 	}
@@ -294,6 +298,8 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 				} else {
 					setChannelInterrupt(htim, /*Channel*/ 3, /*Enable*/ 0);
 					//HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 3);
+					// Disable the motor
+					//enableStepperDriver(3, 0);
 				}
 			}
 	}
@@ -363,19 +369,21 @@ void DCTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine
 	// Based on which motors are running, set the timer interrupts and compare registers
 	// TODO set these registers
 	for(int i = 0; i < sizeof(submachine_ptr -> motors)/sizeof(*(submachine_ptr -> motors)); i++) {
-		struct Motor *motor_ptr = getMotorById(submachine_ptr, i);
+		struct Motor *motor_ptr = getMotorById(submachine_ptr, i+1);
 		if(motor_ptr -> motorRun == 1) {
 			if(strcmp(motor_ptr -> type, "DC") == 0) {
 				// Run the DC Motor
 				setDutyCycleofPWM(htim, /*Channel*/ 2, calculatePWMDutyCycle(motor_ptr, motor_ptr -> currentSpeed));
+				//setDutyCycleofPWM(htim, /*Channel*/ 2, calculatePWMDutyCycle(motor_ptr, 50));
 				// Enable the Capture compare channel
-				TIM_CCxChannelCmd(htim->Instance, /*Channel*/ 2, TIM_CCx_ENABLE);
+				//TIM_CCxChannelCmd(htim->Instance, /*Channel*/ TIM_CHANNEL_2, TIM_CCx_ENABLE);
+				HAL_TIM_PWM_Start(htim, TIM_CHANNEL_2);
 			}
 		} else {
 			if(strcmp(motor_ptr -> type, "DC") == 0) {
 				// Disable the DC motor Timer
 				// Disable the Capture compare channel
-				TIM_CCxChannelCmd(htim->Instance, /*Channel*/ 2, TIM_CCx_DISABLE);
+				//TIM_CCxChannelCmd(htim->Instance, /*Channel*/ TIM_CHANNEL_2, TIM_CCx_DISABLE);
 				setDutyCycleofPWM(htim, /*Channel*/ 2, 0);
 			}
 		}
@@ -575,7 +583,7 @@ void updateCompareRegister(TIM_HandleTypeDef *htim, struct Motor *motor_ptr) {
   */
 void setDutyCycleofPWM(TIM_HandleTypeDef *htim, int channel, int dutyCycle) {
 	// Calculate the required compare value
-	uint16_t newCompareValue = 65535*dutyCycle/100;
+	uint16_t newCompareValue = (uint16_t)(200*dutyCycle/100);
 	// Determine which channel is being set
 	switch(channel) {
 		case 1: 

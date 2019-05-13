@@ -211,10 +211,17 @@ int isComplete(struct SubMachine submachine) {
   int complete = 1;
   for (int motorNum = 0; motorNum < 3; motorNum++) {
     struct Motor motor = submachine.motors[motorNum];
+		/*
     if (((motor.currentStep != motor.targetStep) && (motor.infSpin != 1) 
 			&& (motor.motorRun == 1) && (strcmp(motor.type, "DC") != 0)) || (motor.motorHome == 1)){
       complete = 0;
     }
+		*/
+		if (((motor.currentStep != motor.targetStep) 
+			&& (motor.motorRun == 1) && (strcmp(motor.type, "DC") != 0)) || (motor.motorHome == 1)){
+      complete = 0;
+    }
+		
   }
   return complete;
 }
