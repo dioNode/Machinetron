@@ -12,7 +12,8 @@ from config import configurationMap
 
 import time
 
-TIME_STEP = 0.001
+# TIME_STEP = 0.001
+TIME_STEP = 1
 
 class Controller:
     """The class that controls all functionality of MACHINETRON.
@@ -44,6 +45,7 @@ class Controller:
         self.facename = 'front'
 
         self.microcontroller = MicrocontrollerSimulator() if useSimulator else Microcontroller()
+        self.microcontroller.setupBus()
 
     def __repr__(self):
         print(self.commandQueue)

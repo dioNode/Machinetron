@@ -57,6 +57,9 @@ configurationMap = {
         'flip': 3,
     }, 'instructions': {
         'NORM_INST': 0,
+        'START_INST': 1,
+        'PAUSE_INST': 2,
+        'STOP_INST': 3,
 
     }, 'other': {
         'infVal': 9999,

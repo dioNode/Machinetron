@@ -6,11 +6,12 @@ import time
 class Microcontroller:
 
     def setupBus(self):
-        print('lol')
+        print('setupbus')
+        self.bus = smbus.SMBus(1)
 
 
     def processCommand(self, command):
-        self.bus = smbus.SMBus(1)
+        print('process command')
         targets = command.generateTargets(True)
         instructions = self._targetsDictToInstruction(targets)
         print(instructions)
@@ -18,23 +19,19 @@ class Microcontroller:
             address = instruction['address']
             commandByte = instruction['commandByte']
             motorInstructions = instruction['motorInstructions']
-            # TODO Liam bus send
-            DEVICE_ADDRESS = 0x15  # 7 bit address (will be left shifted to add the read write bit)
-            DEVICE_REG_LEDOUT0 = 0x1d
-            # Write an array of registers
-            ledout_values = [0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
-            # self.bus.write_i2c_block_data(address, DEVICE_REG_LEDOUT)
             self.bus.write_i2c_block_data(address, commandByte, motorInstructions)
             time.sleep(0.1)
-            tempMotorArray = [0b01000000 | 1 << 5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                          0b10000000 | 1 << 5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                          0b11000000 | 1 << 5 | 1 << 4, 0x00, 0x00, 0x01, 0x2C, 0x01, 0x2C]
-            self.bus.write_i2c_block_data(address, commandByte, tempMotorArray)
-            time.sleep(0.1)
+            # Start instruction
             self.bus.write_i2c_block_data(address, 1, motorInstructions)
 
     def isComplete(self):
-        return True
+        print('checking isComplete')
+        # TODO Work for all submachines
+        READ_MACHINE_STATE = 0x0A
+        address = 0x2A
+        retreivedata = self.bus.read_i2c_block_data(address, READ_MACHINE_STATE, 2)
+        print(retreivedata)
+        return retreivedata[1] == 1
 
     def getTargets(self):
         return {}
@@ -64,10 +61,18 @@ class Microcontroller:
         }
 
     def pause(self):
-        pass
+        address = configurationMap['lathe']['id']
+        motorInstructions = []
+        for i in range(21):
+            motorInstructions.append(0)
+        self.bus.write_i2c_block_data(address, configurationMap['instructions']['PAUSE_INST'], motorInstructions)
 
     def resume(self):
-        pass
+        address = configurationMap['lathe']['id']
+        motorInstructions = []
+        for i in range(21):
+            motorInstructions.append(0)
+        self.bus.write_i2c_block_data(address, configurationMap['instructions']['START_INST'], motorInstructions)
 
     def _targetsDictToInstruction(self, targets):
         """Generate a list of instruction dictionaries to be sent off"""

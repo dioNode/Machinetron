@@ -12,7 +12,8 @@ def main():
 
     ################ Commands go here ################
     from Commands.RaiseCommand import RaiseCommand
-    controller.addCommand(RaiseCommand(controller.lathe, 8))
+    controller.addCommand(RaiseCommand(controller.lathe, 4, 0.5, 1))
+    controller.addCommand(RaiseCommand(controller.lathe, 1, 0.7))
     controller.addCommand(RaiseCommand(controller.lathe, 0))
     # stlProcessor.generateCommands('part0.STL', controller)
 
@@ -35,7 +36,6 @@ def main():
     # controller.setFace('front')
     outputSimulator = OutputSimulator(controller)
     outputSimulator.simulate()
-
 
 
     while True:
