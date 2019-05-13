@@ -279,7 +279,7 @@ class OutputSimulator:
 
         endeffactorLocationX += faceX
 
-        endeffactorLocationY = endeffactorLocations[i][1] + int(faceY)
+        endeffactorLocationY = -endeffactorLocations[i][1] + self.controller.currentFaceHeight + int(faceY)
         machineName = cutMachines[i].name.lower()
         if machineName != 'lathe':
             pointRadius = round(configurationMap[machineName]['diameter'] / 2)
