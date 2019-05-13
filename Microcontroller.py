@@ -52,6 +52,9 @@ class Microcontroller:
     def resume(self):
         pass
 
+    def sendStartCommand(selfs):
+        print('START_INST')
+
     def _targetsDictToInstruction(self, targets):
         """Generate a list of instruction dictionaries to be sent off"""
         instructions = []

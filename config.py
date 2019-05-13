@@ -5,7 +5,7 @@ configurationMap = {
         'spinSpeed': 500,
         'railDPR': 0.1,
         'flipDPR': 0.5,
-        'spinDPR': 2,
+        'spinDPR': 1,
         'id': 0x01,
     }, 'drill': { # Location of lathe is measured relative to bottom
         'homeX': 100,

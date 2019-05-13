@@ -144,7 +144,8 @@ class Controller:
 
         """
         self.microcontroller.processCommand(self.currentCommand)
-        # print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
+        self.microcontroller.sendStartCommand()
+        print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
 
     def updateEndeffactorValues(self):
         """Updates the information for the end location for each of the actuators.

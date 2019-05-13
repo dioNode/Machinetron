@@ -35,8 +35,8 @@ class OutputSimulator:
         self.handlerMotorDisplayTop = self.handlerDisplayTop + self.handlerDisplayHeight + self.padding
 
         pygame.font.init()
-        self.titleFont = pygame.font.SysFont('Comic Sans MS', 30)
-        self.generalFont = pygame.font.SysFont('Comic Sans MS', 14)
+        self.titleFont = pygame.font.SysFont('Arial', 30)
+        self.generalFont = pygame.font.SysFont('Arial', 14)
 
         self.screenHeight = self.commandsDisplayHeight + 2*self.padding
         self.screenWidth = 2 * self.padding + 3 * (self.padding + self.width) + self.commandsDisplayWidth
