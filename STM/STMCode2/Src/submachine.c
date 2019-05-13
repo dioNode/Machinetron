@@ -120,7 +120,7 @@ struct Motor * getMotorById(struct SubMachine *submachine_ptr, int id) {
   }
   //printf("Motor not found\n");
   return NULL;
-}
+ }
 
 //TODO Set up processInstruction to handle Stepper/DC motors and different variables plus do not rely
 // on definitie positions for each motor

@@ -33,7 +33,7 @@
 /*____________________I2C Constant Definitions____________________*/
 #define I2C_CLOCKSPEED 			400000
 #define I2C_DUTYCYCLE 			I2C_DUTYCYCLE_2
-#define I2C_ADDRESS 				0x1F
+#define I2C_ADDRESS 				0x2A
 /* USER CODE END 0 */
 
 I2C_HandleTypeDef hi2c1;
