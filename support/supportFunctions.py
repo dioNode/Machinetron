@@ -119,3 +119,10 @@ def cropImage(img):
     crop_img = img[offset: h-offset, offset: w-offset]
     return crop_img
 
+def splitNumberHex(val):
+    hexval = round(val)
+    mshalf = (hexval & 0xFF00) >> 8
+    lshalf = hexval & 0xFF
+    return mshalf, lshalf
+
+

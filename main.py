@@ -1,17 +1,20 @@
 from Controller import Controller
-from STL.STLProcessor import STLProcessor
+#from STL.STLProcessor import STLProcessor
 from Simulators.OutputSimulator import OutputSimulator
 
-controller = Controller(True)
+controller = Controller()
 
-stlProcessor = STLProcessor()
+#stlProcessor = STLProcessor()
 
 def main():
     setMountFace(76.6, 80, 110)
     controller.tick()
 
     ################ Commands go here ################
-    stlProcessor.generateCommands('part0.STL', controller)
+    from Commands.RaiseCommand import RaiseCommand
+    controller.addCommand(RaiseCommand(controller.lathe, 8))
+    controller.addCommand(RaiseCommand(controller.lathe, 0))
+    # stlProcessor.generateCommands('part0.STL', controller)
 
     # lathe(50, 80, 25)
     # drill('front', -20, 25, 50)
@@ -28,8 +31,8 @@ def main():
 
     ################ End of Commands ################
 
-    controller.commandGenerator.resetAll()
-    controller.setFace('front')
+    # controller.commandGenerator.resetAll()
+    # controller.setFace('front')
     outputSimulator = OutputSimulator(controller)
     outputSimulator.simulate()
 

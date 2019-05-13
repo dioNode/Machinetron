@@ -42,6 +42,9 @@ class MicrocontrollerSimulator(Microcontroller):
 
         self.paused = True
 
+    def setupBus(self):
+        print('Nothing for bus')
+
     def processCommand(self, command):
         self._clearTargets()
         targets = command.generateTargets()

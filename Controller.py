@@ -70,8 +70,8 @@ class Controller:
     def start(self):
         """Allows the controller to start issuing commands."""
         # TODO init bus
-        if not self.useSimulator:
-            self.bus = smbus.SMBus(1)
+
+        self.microcontroller.setupBus()
         self.startNextCommand()
         self.state = statusMap['started']
 
