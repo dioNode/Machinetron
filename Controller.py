@@ -12,8 +12,8 @@ from config import configurationMap
 
 import time
 
-TIME_STEP = 0.001
-# TIME_STEP = 1
+# TIME_STEP = 0.001
+TIME_STEP = 1
 
 class Controller:
     """The class that controls all functionality of MACHINETRON.
@@ -148,7 +148,6 @@ class Controller:
         """
         self.microcontroller.processCommand(self.currentCommand)
         self.microcontroller.sendStartCommand()
-        print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
 
     def updateEndeffactorValues(self):
         """Updates the information for the end location for each of the actuators.

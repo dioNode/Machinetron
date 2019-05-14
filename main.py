@@ -1,11 +1,13 @@
 USE_GUI = False
 
+import time
+
 from Controller import Controller
 #from STL.STLProcessor import STLProcessor
 if USE_GUI:
     from Simulators.OutputSimulator import OutputSimulator
 
-controller = Controller(True)
+controller = Controller()
 
 #stlProcessor = STLProcessor()
 
@@ -18,18 +20,17 @@ def main():
     from Commands.CombinedCommand import CombinedCommand
     from Commands.PushCommand import PushCommand
 
+    # controller.addCommand(RaiseCommand(controller.drill, 60, startSpeed=20, endSpeed=30))
+    # controller.addCommand(RaiseCommand(controller.drill, 0, startSpeed=30, endSpeed=20))
+
     controller.addCommand(CombinedCommand([
-        RaiseCommand(controller.lathe, 40, 5, 10),
-        PushCommand(controller.lathe, 30, controller.currentFaceDepth),
-        # RaiseCommand(controller.drill, 40, 5, 10),
-        # PushCommand(controller.drill, 30, controller.currentFaceDepth),
+        RaiseCommand(controller.drill, 60, startSpeed=20, endSpeed=30),
+        RaiseCommand(controller.lathe, 60, startSpeed=20, endSpeed=30)
     ]))
-    controller.addCommand(RaiseCommand(controller.lathe, 10, 7))
+
     controller.addCommand(CombinedCommand([
-        RaiseCommand(controller.lathe, 0),
-        PushCommand(controller.lathe, 0, controller.currentFaceDepth),
-        # RaiseCommand(controller.drill, 0),
-        PushCommand(controller.drill, 0, controller.currentFaceDepth),
+        RaiseCommand(controller.drill, 0, startSpeed=20, endSpeed=30),
+        RaiseCommand(controller.lathe, 0, startSpeed=20, endSpeed=30)
     ]))
 
 
@@ -56,6 +57,14 @@ def main():
         outputSimulator.simulate()
 
     controller.goButtonClicked()
+
+    # TODO Remove to pause on start
+    controller.tick()
+    controller.updateEndeffactorValues()
+    controller.start()
+    # time.sleep(3)
+    # controller.goButtonClicked()
+    # time.sleep(1)
 
     while True:
         controller.tick()
