@@ -11,8 +11,8 @@ class Microcontroller:
 
 
     def processCommand(self, command):
-        print('process command')
         targets = command.generateTargets(True)
+        print(targets)
         instructions = self._targetsDictToInstruction(targets)
         print(instructions)
         for instruction in instructions:
@@ -70,7 +70,9 @@ class Microcontroller:
         motorInstructions = []
         for i in range(21):
             motorInstructions.append(0)
+        print(address, configurationMap['instructions']['START_INST'], motorInstructions)
         self.bus.write_i2c_block_data(address, configurationMap['instructions']['START_INST'], motorInstructions)
+
 
     def sendStartCommand(self):
         print('START_INST')
