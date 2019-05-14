@@ -1,4 +1,4 @@
-USE_GUI = True
+USE_GUI = False
 
 from Controller import Controller
 #from STL.STLProcessor import STLProcessor
@@ -21,14 +21,14 @@ def main():
     controller.addCommand(CombinedCommand([
         RaiseCommand(controller.lathe, 40, 5, 10),
         PushCommand(controller.lathe, 30, controller.currentFaceDepth),
-        RaiseCommand(controller.drill, 40, 5, 10),
-        PushCommand(controller.drill, 30, controller.currentFaceDepth),
+        # RaiseCommand(controller.drill, 40, 5, 10),
+        # PushCommand(controller.drill, 30, controller.currentFaceDepth),
     ]))
     controller.addCommand(RaiseCommand(controller.lathe, 10, 7))
     controller.addCommand(CombinedCommand([
         RaiseCommand(controller.lathe, 0),
         PushCommand(controller.lathe, 0, controller.currentFaceDepth),
-        RaiseCommand(controller.drill, 0),
+        # RaiseCommand(controller.drill, 0),
         PushCommand(controller.drill, 0, controller.currentFaceDepth),
     ]))
 
@@ -55,6 +55,7 @@ def main():
         outputSimulator = OutputSimulator(controller)
         outputSimulator.simulate()
 
+    controller.goButtonClicked()
 
     while True:
         controller.tick()

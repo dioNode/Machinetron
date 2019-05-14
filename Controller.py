@@ -148,7 +148,6 @@ class Controller:
         """
         self.microcontroller.processCommand(self.currentCommand)
         self.microcontroller.sendStartCommand()
-        print(self.currentCommand.generateTargets(True))
         print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
 
     def updateEndeffactorValues(self):
