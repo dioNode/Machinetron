@@ -11,34 +11,36 @@ def main():
     controller.tick()
 
     ################ Commands go here ################
-    from Commands.RaiseCommand import RaiseCommand
-    from Commands.CombinedCommand import CombinedCommand
-    from Commands.PushCommand import PushCommand
+    # from Commands.RaiseCommand import RaiseCommand
+    # from Commands.CombinedCommand import CombinedCommand
+    # from Commands.PushCommand import PushCommand
+    #
+    # controller.addCommand(CombinedCommand([
+    #     RaiseCommand(controller.lathe, 4, 0.5, 1),
+    #     PushCommand(controller.lathe, 3, controller.currentFaceDepth),
+    #     RaiseCommand(controller.drill, 4, 0.5, 1),
+    #     PushCommand(controller.drill, 3, controller.currentFaceDepth),
+    # ]))
+    # controller.addCommand(RaiseCommand(controller.lathe, 1, 0.7))
+    # controller.addCommand(CombinedCommand([
+    #     RaiseCommand(controller.lathe, 0),
+    #     PushCommand(controller.lathe, 0, controller.currentFaceDepth),
+    #     RaiseCommand(controller.drill, 0),
+    #     PushCommand(controller.drill, 0, controller.currentFaceDepth),
+    # ]))
 
-    controller.addCommand(CombinedCommand([
-        RaiseCommand(controller.lathe, 4, 0.5, 1),
-        PushCommand(controller.lathe, 3, controller.currentFaceDepth),
-        RaiseCommand(controller.drill, 4, 0.5, 1),
-        PushCommand(controller.drill, 3, controller.currentFaceDepth),
-    ]))
-    controller.addCommand(RaiseCommand(controller.lathe, 1, 0.7))
-    controller.addCommand(CombinedCommand([
-        RaiseCommand(controller.lathe, 0),
-        PushCommand(controller.lathe, 0, controller.currentFaceDepth),
-        RaiseCommand(controller.drill, 0),
-        PushCommand(controller.drill, 0, controller.currentFaceDepth),
-    ]))
+
     # stlProcessor.generateCommands('part0.STL', controller)
 
-    # drill('front', -20, 85, 50)
-    # drill('front', 20, 85, 50)
-    # lathe(50, 80, 25)
-    # cutInCircle('top', 0, 40, 25, 40)
-    # fillet('top', -38.3, 0, 10, 3, 30)
-    # fillet('top', -38.3, 80, 10, 2, 30)
-    # fillet('top', 38.3, 80, 10, 1, 30)
-    # fillet('top', 38.3, 0, 10, 4, 30)
-    # intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 6)
+    drill('front', -20, 85, 50)
+    drill('front', 20, 85, 50)
+    lathe(50, 80, 25)
+    cutInCircle('top', 0, 40, 25, 40)
+    fillet('top', -38.3, 0, 10, 3, 30)
+    fillet('top', -38.3, 80, 10, 2, 30)
+    fillet('top', 38.3, 80, 10, 1, 30)
+    fillet('top', 38.3, 0, 10, 4, 30)
+    intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 6)
 
 
 

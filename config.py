@@ -65,5 +65,6 @@ configurationMap = {
         'mmPerPixelRatio': 80/1200,
         'mmError': 1.0,
         'numRotationSteps': 200,
+        'speedMultiplier': 10,
     }
 }

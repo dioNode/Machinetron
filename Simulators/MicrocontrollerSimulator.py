@@ -9,10 +9,11 @@ class MicrocontrollerSimulator(Microcontroller):
     displacement since the motor steps can be inferred from the displacement.
 
     """
-    def __init__(self):
+    def __init__(self, speedMultiplier=1):
         # These results are purely to simulate endeffactor movement
         # Actual STM microcontroller will need to monitor steps too
         self.currentTime = datetime.datetime.now()
+        self.speedMultiplier = speedMultiplier
         self.results = {
             'drill': {
                 'spin': 0,
@@ -89,7 +90,7 @@ class MicrocontrollerSimulator(Microcontroller):
 
         """
         newTime = datetime.datetime.now()
-        deltaTime = newTime - self.currentTime
+        deltaTime = (newTime - self.currentTime) * self.speedMultiplier
         deltaTime = deltaTime.total_seconds() if not self.paused else 0
         for submachine, motors in self.targets.items():
             for motor, values in motors.items():

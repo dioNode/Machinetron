@@ -83,15 +83,15 @@ class Microcontroller:
                 address = configurationMap[submachine]['id']
 
                 # Process motors to have all three motors inside
-                unusedMotorsNum = [1, 2, 3]
+                usedMotorNum = []
                 for motorName in motors:
-                    unusedMotorsNum.pop(configurationMap['motorMap'][motorName] - 1)
+                    usedMotorNum.append(configurationMap['motorMap'][motorName])
 
 
                 motorInstructions = []
 
                 for motorNum in range(1, 4):
-                    if motorNum in unusedMotorsNum:
+                    if motorNum not in usedMotorNum:
                         # Generate unused motor code
                         motorInstructions.append(motorNum << 6 | 1 << 5)    # Shift motor ID and direction bit
                         for i in range(6):

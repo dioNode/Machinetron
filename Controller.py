@@ -44,7 +44,8 @@ class Controller:
         self.state = statusMap['stopped']
         self.facename = 'front'
 
-        self.microcontroller = MicrocontrollerSimulator() if useSimulator else Microcontroller()
+        speedMultiplier = configurationMap['other']['speedMultiplier']
+        self.microcontroller = MicrocontrollerSimulator(speedMultiplier) if useSimulator else Microcontroller()
         self.microcontroller.setupBus()
 
     def __repr__(self):

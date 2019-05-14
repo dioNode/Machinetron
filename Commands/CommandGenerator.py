@@ -84,7 +84,7 @@ class CommandGenerator:
         """
         # Align to face
         controller = self.controller
-        z = controller.currentFaceHeight - z
+        # z = controller.currentFaceHeight - z
         self.selectFace(face)
         controller.addCommand(CombinedCommand([
             ShiftCommand(controller.drill, controller.handler, x),
