@@ -120,7 +120,7 @@ def cropImage(img):
     return crop_img
 
 def splitNumberHex(val):
-    hexval = round(val)
+    hexval = int(round(val))
     mshalf = (hexval & 0xFF00) >> 8
     lshalf = hexval & 0xFF
     return mshalf, lshalf

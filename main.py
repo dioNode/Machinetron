@@ -36,13 +36,11 @@ def main():
     drill('front', 20, 85, 50)
     lathe(50, 80, 25)
     cutInCircle('top', 0, 40, 25, 40)
-    fillet('top', -38.3, 0, 10, 3, 30)
-    fillet('top', -38.3, 80, 10, 2, 30)
     fillet('top', 38.3, 80, 10, 1, 30)
+    fillet('top', -38.3, 80, 10, 2, 30)
+    fillet('top', -38.3, 0, 10, 3, 30)
     fillet('top', 38.3, 0, 10, 4, 30)
     intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 6)
-
-
 
 
     ################ End of Commands ################

@@ -108,22 +108,22 @@ class CommandGenerator:
         """
         controller = self.controller
         if z0 > z1:
-            zBot = controller.currentFaceHeight - z1
-            zTop = controller.currentFaceHeight - z0
+            zBot = z1
+            zTop = z0
         else:
-            zBot = controller.currentFaceHeight - z0
-            zTop = controller.currentFaceHeight - z1
+            zBot = z0
+            zTop = z1
 
         # Offset to account for lathe length
         latheLength = configurationMap['lathe']['length']
-        zTop += latheLength
+        zTop -= latheLength
 
         pushIncrement = configurationMap['lathe']['pushIncrement']
         handlerSpinCommand = SpinCommand(controller.handler)
         # Set starting positions
         controller.addCommand(CombinedCommand([
             SpinCommand(controller.handler, 0),
-            RaiseCommand(controller.lathe, 0),
+            RaiseCommand(controller.lathe, zBot),
             ShiftCommand(controller.lathe, controller.handler, 0),
         ]))
         controller.addCommand(RaiseCommand(controller.lathe, zTop))
@@ -136,16 +136,16 @@ class CommandGenerator:
                 PushCommand(controller.lathe, currentRadius, controller.currentFaceDepth, True),
                 handlerSpinCommand
             ], 'Push Lathe in'))
-            # Go down
-            controller.addCommand(CombinedCommand([
-                RaiseCommand(controller.lathe, zBot),
-                handlerSpinCommand
-            ], 'Lathe Down'))
-            # Back up
+            # Go up
             controller.addCommand(CombinedCommand([
                 RaiseCommand(controller.lathe, zTop),
                 handlerSpinCommand
             ], 'Lathe Up'))
+            # Back down
+            controller.addCommand(CombinedCommand([
+                RaiseCommand(controller.lathe, zBot),
+                handlerSpinCommand
+            ], 'Lathe Down'))
 
         self.retractLathe()
 
@@ -195,7 +195,7 @@ class CommandGenerator:
         # Set starting location
         self.selectFace(face)
         # Start with top right quadrant
-        actualZ = self.controller.currentFaceHeight - z
+        actualZ = z
         angle = startAngle
         currentX = x + radius * math.cos(angle)
         currentZ = actualZ + radius * math.sin(angle)
@@ -347,23 +347,31 @@ class CommandGenerator:
 
         """
         if quadrant == 1:
-            startAngle = 3*math.pi/2
-            endAngle = 2*math.pi
+            # startAngle = 3*math.pi/2
+            # endAngle = 2*math.pi
+            startAngle = 0
+            endAngle = math.pi/2
             x -= radius
             z -= radius
         elif quadrant == 2:
-            startAngle = math.pi
-            endAngle = 3*math.pi/2
-            x += radius
-            z -= radius
-        elif quadrant == 3:
+            # startAngle = math.pi
+            # endAngle = 3*math.pi/2
             startAngle = math.pi/2
             endAngle = math.pi
             x += radius
+            z -= radius
+        elif quadrant == 3:
+            # startAngle = math.pi/2
+            # endAngle = math.pi
+            startAngle = math.pi
+            endAngle = 3*math.pi/2
+            x += radius
             z += radius
         elif quadrant == 4:
-            startAngle = 0
-            endAngle = math.pi/2
+            # startAngle = 0
+            # endAngle = math.pi/2
+            startAngle = 3*math.pi/2
+            endAngle = 2 * math.pi
             x -= radius
             z += radius
         else:
