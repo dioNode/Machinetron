@@ -37,7 +37,7 @@ class CommandGenerator:
         # Get to initial positioning
         self.selectFace(face)
         controller.addCommand(CombinedCommand([
-            RaiseCommand(controller.mill, controller.currentFaceHeight),
+            RaiseCommand(controller.mill, 0),
             ShiftCommand(controller.mill, controller.handler, -controller.currentFaceWidth / 2 - radius, startSpeed=200, endSpeed=50)
         ], 'Setup initial position and face'))
 
@@ -54,7 +54,7 @@ class CommandGenerator:
             width, height = widthHeightTuple
             currentHeight += height
             x = -width / 2 - radius
-            z = controller.zLength - currentHeight - radius
+            z = currentHeight + radius
             controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, controller.handler, x), millSpinCommand]))
             controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
 
@@ -64,12 +64,12 @@ class CommandGenerator:
             width, height = widthHeightTuple
             currentHeight -= height
             x = width / 2 + radius
-            z = controller.zLength - currentHeight - radius
+            z = currentHeight + radius
             controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, controller.handler, x), millSpinCommand]))
             controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
 
         # Go back down to bottom
-        controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, controller.currentFaceHeight), millSpinCommand]))
+        controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, 0), millSpinCommand]))
         controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
 
     def drill(self, face, x, z, depth):
@@ -443,18 +443,19 @@ class CommandGenerator:
         """
         self.selectFace(face)
         controller = self.controller
+        print(z0, z1)
         if z0 > z1:
-            zLow = controller.currentFaceHeight - z1
+            zLow = z1
             xLow = x1
             dLow = d1
-            zHigh = controller.currentFaceHeight - z0
+            zHigh = z0
             xHigh = x0
             dHigh = d0
         else:
-            zLow = controller.currentFaceHeight - z0
+            zLow = z0
             xLow = x0
             dLow = d0
-            zHigh = controller.currentFaceHeight - z1
+            zHigh = z1
             xHigh = x1
             dHigh = d1
         millRadius = configurationMap['mill']['diameter']/2
@@ -478,7 +479,7 @@ class CommandGenerator:
         self.controller.addCommand(self.getSpinningPushCommand(controller.mill, dHigh))
         for r in np.arange(radius-millRadius, 0, -millRadius*2):
             # Half circle around to right hand side
-            self.millArcDiscrete(face, xHigh, self.controller.currentFaceHeight - zHigh, r, dHigh,
+            self.millArcDiscrete(face, xHigh, zHigh, r, dHigh,
                                  math.pi + tiltAngle, 2*math.pi + tiltAngle)
             # Move down to bottom right
             self.controller.addCommand(CombinedCommand([
@@ -488,7 +489,7 @@ class CommandGenerator:
                 PushCommand(controller.mill, dLow, controller.currentFaceDepth, startSpeed=dSpeed)
             ]))
             # Half circle around to left hand side
-            self.millArcDiscrete(face, xLow, self.controller.currentFaceHeight - zLow, r,
+            self.millArcDiscrete(face, xLow, zLow, r,
                                  dLow, 0 + tiltAngle, math.pi + tiltAngle)
             # Move up to top left
             self.controller.addCommand(CombinedCommand([
