@@ -36,6 +36,12 @@ class RaiseCommand(Command):
         startSpeed = self.startSpeed
         endSpeed = self.endSpeed
 
+        # Cap variables
+        cutMachineName = cutMachine.name.lower()
+        heightDisplacement = min(heightDisplacement, configurationMap[cutMachineName]['maxRaise'])
+        startSpeed = min(startSpeed, configurationMap[cutMachineName]['maxRaiseSpeed'])
+        endSpeed = min(endSpeed, configurationMap[cutMachineName]['maxRaiseSpeed'])
+
         if inSteps:
             heightDisplacement = cutMachine.vertMotor.displacementToSteps(heightDisplacement)
             startSpeed = cutMachine.vertMotor.displacementToSteps(startSpeed)

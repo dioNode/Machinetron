@@ -35,6 +35,11 @@ class FlipCommand(Command):
         startSpeed = self.startSpeed
         endSpeed = self.endSpeed
 
+        # Cap variables
+        targetValue = min(targetValue, configurationMap['handler']['maxFlip'])
+        startSpeed = min(startSpeed, configurationMap['handler']['maxFlipSpeed'])
+        endSpeed = min(endSpeed, configurationMap['handler']['maxFlipSpeed'])
+
         if inSteps:
             targetValue = handler.flipMotor.displacementToSteps(targetValue)
             startSpeed = handler.flipMotor.displacementToSteps(startSpeed)

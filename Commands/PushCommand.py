@@ -52,6 +52,12 @@ class PushCommand(Command):
         startSpeed = self.startSpeed
         endSpeed = self.endSpeed
 
+        # Cap variables
+        cutMachineName = cutMachine.name.lower()
+        depth = min(depth, configurationMap[cutMachineName]['maxPush'])
+        startSpeed = min(startSpeed, configurationMap[cutMachineName]['maxPushSpeed'])
+        endSpeed = min(endSpeed, configurationMap[cutMachineName]['maxPushSpeed'])
+
         if inSteps:
             depth = cutMachine.penMotor.displacementToSteps(depth)
             startSpeed = cutMachine.penMotor.displacementToSteps(startSpeed)

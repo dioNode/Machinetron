@@ -36,6 +36,11 @@ class ShiftCommand(Command):
         startSpeed = self.startSpeed
         endSpeed = self.endSpeed
 
+        # Cap variables
+        globalTargetX = min(globalTargetX, configurationMap['handler']['maxRail'])
+        startSpeed = min(startSpeed, configurationMap['handler']['maxRailSpeed'])
+        endSpeed = min(endSpeed, configurationMap['handler']['maxRailSpeed'])
+
         if inSteps:
             globalTargetX = handler.railMotor.displacementToSteps(globalTargetX)
             startSpeed = handler.railMotor.displacementToSteps(startSpeed)
