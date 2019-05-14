@@ -20,16 +20,17 @@ def main():
     from Commands.CombinedCommand import CombinedCommand
     from Commands.PushCommand import PushCommand
 
+    # controller.addCommand(RaiseCommand(controller.drill, 60, startSpeed=20, endSpeed=30))
+    # controller.addCommand(RaiseCommand(controller.drill, 0, startSpeed=30, endSpeed=20))
+
     controller.addCommand(CombinedCommand([
-        # RaiseCommand(controller.lathe, 80),
-        PushCommand(controller.lathe, 70, controller.currentFaceDepth, startSpeed=30, endSpeed=50),
+        RaiseCommand(controller.drill, 60, startSpeed=20, endSpeed=30),
+        RaiseCommand(controller.lathe, 60, startSpeed=20, endSpeed=30)
     ]))
-    controller.addCommand(RaiseCommand(controller.lathe, 60, startSpeed=20, endSpeed=30))
+
     controller.addCommand(CombinedCommand([
-        RaiseCommand(controller.lathe, 0, startSpeed=30, endSpeed=20),
-        PushCommand(controller.lathe, 0, controller.currentFaceDepth, startSpeed=30, endSpeed=20),
-        # RaiseCommand(controller.drill, 0),
-        # PushCommand(controller.drill, 0, controller.currentFaceDepth),
+        RaiseCommand(controller.drill, 0, startSpeed=20, endSpeed=30),
+        RaiseCommand(controller.lathe, 0, startSpeed=20, endSpeed=30)
     ]))
 
 
