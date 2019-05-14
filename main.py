@@ -1,6 +1,9 @@
+USE_GUI = True
+
 from Controller import Controller
 #from STL.STLProcessor import STLProcessor
-from Simulators.OutputSimulator import OutputSimulator
+if USE_GUI:
+    from Simulators.OutputSimulator import OutputSimulator
 
 controller = Controller(True)
 
@@ -48,14 +51,16 @@ def main():
 
     # controller.commandGenerator.resetAll()
     # controller.setFace('front')
-    outputSimulator = OutputSimulator(controller)
-    outputSimulator.simulate()
+    if USE_GUI:
+        outputSimulator = OutputSimulator(controller)
+        outputSimulator.simulate()
 
 
     while True:
         controller.tick()
         controller.updateEndeffactorValues()
-        outputSimulator.update()
+        if USE_GUI:
+            outputSimulator.update()
 
 
 
