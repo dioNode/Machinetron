@@ -1,4 +1,5 @@
 USE_GUI = False
+USE_SIM = False
 
 import time
 
@@ -7,7 +8,7 @@ from Controller import Controller
 if USE_GUI:
     from Simulators.OutputSimulator import OutputSimulator
 
-controller = Controller()
+controller = Controller(USE_SIM)
 
 #stlProcessor = STLProcessor()
 
@@ -19,6 +20,7 @@ def main():
     from Commands.RaiseCommand import RaiseCommand
     from Commands.CombinedCommand import CombinedCommand
     from Commands.PushCommand import PushCommand
+    from Commands.FlipCommand import FlipCommand
 
 
     ## Test 1: Vertical Movement for both
@@ -33,14 +35,31 @@ def main():
     # ]))
 
     ## Test 2: Push Movement for both
+    # controller.addCommand(CombinedCommand([
+    #     PushCommand(controller.mill, 50, controller.currentFaceDepth),
+    #     RaiseCommand(controller.lathe, 50)
+    # ]))
+    #
+    # controller.addCommand(CombinedCommand([
+    #     PushCommand(controller.mill, 0, controller.currentFaceDepth),
+    #     RaiseCommand(controller.lathe, 0)
+    # ]))
+
+
+    ## DEMO STUFF
+    controller.addCommand(RaiseCommand(controller.mill, 70, 20, 30))
+    controller.addCommand(PushCommand(controller.mill, 50, controller.currentFaceDepth))
+    controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
+
+    controller.addCommand(RaiseCommand(controller.lathe, 70, 20, 30))
+    controller.addCommand(RaiseCommand(controller.lathe, 50))
+    controller.addCommand(RaiseCommand(controller.lathe, 70))
+
     controller.addCommand(CombinedCommand([
-        PushCommand(controller.mill, 50, controller.currentFaceDepth),
-        RaiseCommand(controller.lathe, 50)
+        RaiseCommand(controller.mill, 0, 30, 15),
+        RaiseCommand(controller.lathe, 0, 30, 15)
     ]))
-    controller.addCommand(CombinedCommand([
-        PushCommand(controller.mill, 0, controller.currentFaceDepth),
-        RaiseCommand(controller.lathe, 0)
-    ]))
+
 
     ## Test 3: Vertical and Push Movement for both
     # controller.addCommand(CombinedCommand([
@@ -57,7 +76,7 @@ def main():
     # ]))
 
     ## Test 4: Handler rail test
-
+    # controller.addCommand(FlipCommand(controller.handler, 'up'))
 
     # stlProcessor.generateCommands('part0.STL', controller)
 

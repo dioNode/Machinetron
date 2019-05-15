@@ -8,14 +8,12 @@ class Microcontroller:
     def setupBus(self):
         import smbus
         self.bus = smbus.SMBus(1)
-        self.submachinesUsed = ['mill', 'lathe']
+        self.submachinesUsed = ['lathe', 'mill']
 
 
     def processCommand(self, command):
         targets = command.generateTargets(True)
-        print(targets)
         instructions = self._targetsDictToInstruction(targets)
-        print(instructions)
         for instruction in instructions:
             address = instruction['address']
             commandByte = instruction['commandByte']

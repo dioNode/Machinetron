@@ -146,6 +146,7 @@ class Controller:
         This sends the current command to be processed by the STM.
 
         """
+        print(self.currentCommand.generateTargets(True))
         self.microcontroller.processCommand(self.currentCommand)
 
     def updateEndeffactorValues(self):
