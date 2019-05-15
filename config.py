@@ -1,7 +1,7 @@
 configurationMap = {
     'handler': {
-        'railSpeed': 100,
-        'flipSpeed': 20,
+        'railSpeed': 50,
+        'flipSpeed': 12,
         'spinSpeed': 500,
         'maxRailSpeed': 80,
         'maxFlipSpeed': 20,
