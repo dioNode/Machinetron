@@ -279,8 +279,8 @@ void stopCurrentInstruction(void);
 #define I2CSDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 /*___________________Definition of current submachine____________________*/
-//#define HANDLER
-#define LATHE
+#define HANDLER
+//#define LATHE
 //#define MILL
 //#define DRILL
 
