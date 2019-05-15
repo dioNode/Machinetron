@@ -1,5 +1,6 @@
-USE_GUI = False
-USE_SIM = False
+USE_GUI = True
+USE_SIM = True
+AUTO_START = True
 
 import time
 
@@ -100,7 +101,8 @@ def main():
         outputSimulator = OutputSimulator(controller)
         outputSimulator.simulate()
 
-    controller.goButtonClicked()
+    if AUTO_START:
+        controller.goButtonClicked()
 
     # TODO Remove to pause on start
     controller.tick()

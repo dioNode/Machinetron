@@ -12,9 +12,6 @@ from config import configurationMap
 
 import time
 
-# TIME_STEP = 0.001
-TIME_STEP = 1
-
 class Controller:
     """The class that controls all functionality of MACHINETRON.
     
@@ -44,6 +41,7 @@ class Controller:
         self.state = statusMap['stopped']
         self.facename = 'front'
 
+        self.timeStep = 0.001 if useSimulator else 1
         speedMultiplier = configurationMap['other']['speedMultiplier']
         self.microcontroller = MicrocontrollerSimulator(speedMultiplier) if useSimulator else Microcontroller()
         self.microcontroller.setupBus()
@@ -66,8 +64,8 @@ class Controller:
                 if self.commandComplete():
                     self.startNextCommand()
 
-        time.sleep(TIME_STEP)
-        self.currentTime += TIME_STEP
+        time.sleep(self.timeStep)
+        self.currentTime += self.timeStep
         self.updateDirectionFaced()
 
     def start(self):
