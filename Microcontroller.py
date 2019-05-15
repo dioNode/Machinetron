@@ -8,7 +8,7 @@ class Microcontroller:
     def setupBus(self):
         import smbus
         self.bus = smbus.SMBus(1)
-        self.submachinesUsed = ['drill', 'lathe']
+        self.submachinesUsed = ['mill', 'lathe']
 
 
     def processCommand(self, command):
@@ -23,7 +23,7 @@ class Microcontroller:
             self.bus.write_i2c_block_data(address, commandByte, motorInstructions)
             time.sleep(0.1)
             # Start instruction
-            self.bus.write_i2c_block_data(address, 1, motorInstructions)
+        self.bus.write_i2c_block_data(0, 1, motorInstructions)
 
     def isComplete(self):
         # TODO Work for all submachines

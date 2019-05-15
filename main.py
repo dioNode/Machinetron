@@ -20,18 +20,43 @@ def main():
     from Commands.CombinedCommand import CombinedCommand
     from Commands.PushCommand import PushCommand
 
-    # controller.addCommand(RaiseCommand(controller.drill, 60, startSpeed=20, endSpeed=30))
-    # controller.addCommand(RaiseCommand(controller.drill, 0, startSpeed=30, endSpeed=20))
 
+    ## Test 1: Vertical Movement for both
+    # controller.addCommand(CombinedCommand([
+    #     RaiseCommand(controller.mill, 60, startSpeed=20, endSpeed=30),
+    #     RaiseCommand(controller.lathe, 60, startSpeed=20, endSpeed=30),
+    # ]))
+    #
+    # controller.addCommand(CombinedCommand([
+    #     RaiseCommand(controller.mill, 0, startSpeed=20, endSpeed=30),
+    #     RaiseCommand(controller.lathe, 0, startSpeed=20, endSpeed=30),
+    # ]))
+
+    ## Test 2: Push Movement for both
     controller.addCommand(CombinedCommand([
-        RaiseCommand(controller.drill, 60, startSpeed=20, endSpeed=30),
-        RaiseCommand(controller.lathe, 60, startSpeed=20, endSpeed=30)
+        PushCommand(controller.mill, 50, controller.currentFaceDepth),
+        RaiseCommand(controller.lathe, 50)
+    ]))
+    controller.addCommand(CombinedCommand([
+        PushCommand(controller.mill, 0, controller.currentFaceDepth),
+        RaiseCommand(controller.lathe, 0)
     ]))
 
-    controller.addCommand(CombinedCommand([
-        RaiseCommand(controller.drill, 0, startSpeed=20, endSpeed=30),
-        RaiseCommand(controller.lathe, 0, startSpeed=20, endSpeed=30)
-    ]))
+    ## Test 3: Vertical and Push Movement for both
+    # controller.addCommand(CombinedCommand([
+    #     PushCommand(controller.mill, 50, controller.currentFaceDepth),
+    #     PushCommand(controller.lathe, 50, controller.currentFaceDepth),
+    #     RaiseCommand(controller.mill, 60, startSpeed=20, endSpeed=30),
+    #     RaiseCommand(controller.lathe, 60, startSpeed=20, endSpeed=30),
+    # ]))
+    # controller.addCommand(CombinedCommand([
+    #     PushCommand(controller.mill, 0, controller.currentFaceDepth),
+    #     PushCommand(controller.lathe, 0, controller.currentFaceDepth),
+    #     RaiseCommand(controller.mill, 0, startSpeed=20, endSpeed=30),
+    #     RaiseCommand(controller.lathe, 0, startSpeed=20, endSpeed=30),
+    # ]))
+
+    ## Test 4: Handler rail test
 
 
     # stlProcessor.generateCommands('part0.STL', controller)

@@ -75,7 +75,7 @@ class Controller:
         # TODO init bus
 
         self.microcontroller.setupBus()
-        self.startNextCommand()
+        # self.startNextCommand()
         self.state = statusMap['started']
 
     def pause(self):
@@ -147,7 +147,6 @@ class Controller:
 
         """
         self.microcontroller.processCommand(self.currentCommand)
-        self.microcontroller.sendStartCommand()
 
     def updateEndeffactorValues(self):
         """Updates the information for the end location for each of the actuators.
