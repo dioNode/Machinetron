@@ -6,6 +6,7 @@ from Commands.Command import Command
 from Microcontroller import Microcontroller
 from Simulators.MicrocontrollerSimulator import MicrocontrollerSimulator
 from Commands.CommandGenerator import CommandGenerator
+from GoButton import GoButton
 
 from support.supportMaps import statusMap
 from config import configurationMap
@@ -40,6 +41,7 @@ class Controller:
         self.currentCommand = None
 
         self.state = statusMap['stopped']
+        self.goButton = GoButton(self) if not useSimulator else None
         self.facename = 'front'
 
         self.timeStep = 0.001 if useSimulator else 1

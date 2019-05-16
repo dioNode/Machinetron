@@ -57,24 +57,25 @@ def main():
 
     ## Test 4: Handler rail test
     # for i in range(3):
-    #     controller.addCommand(FlipCommand(controller.handler, 'up'))
+    controller.addCommand(FlipCommand(controller.handler, 'up'))
+    # controller.addCommand(FlipCommand(controller.handler, 'down'))
     #     controller.addCommand(FlipCommand(controller.handler, 'down'))
 
-    controller.addCommand(CombinedCommand([
-        ShiftCommand(controller.mill, controller.handler, 0),
-        RaiseCommand(controller.mill, 50)
-    ]))
-
-    controller.addCommand(PushCommand(controller.mill, 50, controller.currentFaceDepth))
-    controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
-
-    controller.addCommand(CombinedCommand([
-        ShiftCommand(controller.lathe, controller.handler, 0),
-        RaiseCommand(controller.mill, 0)
-    ]))
-
-    controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0))
-    controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, inAbsolute=True))
+    # controller.addCommand(CombinedCommand([
+    #     ShiftCommand(controller.mill, controller.handler, 0),
+    #     RaiseCommand(controller.mill, 50)
+    # ]))
+    #
+    # controller.addCommand(PushCommand(controller.mill, 50, controller.currentFaceDepth))
+    # controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
+    #
+    # controller.addCommand(CombinedCommand([
+    #     ShiftCommand(controller.lathe, controller.handler, 0),
+    #     RaiseCommand(controller.mill, 0)
+    # ]))
+    #
+    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0))
+    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, inAbsolute=True))
 
     # controller.addCommand(SpinCommand(controller.handler, 0))
 
