@@ -95,26 +95,6 @@ void printMotorDetails(struct Motor motor);
 int getCurrentPositionSteps(struct Motor *motor);
 
 /**
- * Finds the current position of the motor (mm or degrees).
- * @param[in] motor The motor you want to read from.
- * @return    The motor's position (mm or degrees).
- */
-/*
-double getCurrentPosition(struct Motor *motor);
-*/
-
-/**
-* Converts the world units (displacement:mm,deg, speed: mm/s,deg/s, acceleration: mm/s^2,deg/s^2) 
- * of the motor to step units (displacement:steps, speed: steps/s, acceleration: steps/s^2).
- * @param[in] worldUnitValue  The value in World units to be converted
- * @param[in] motor         	The motor for which this conversion is being done
- * @return  The equivalent value in steps Units ot produce the Value Units.
- */
- /*
-int worldUnitsToStepUnits(double worldUnitValue, struct Motor *motor);
-*/
-
-/**
  * Calculates the number of milliseconds before each step.
  * @param[in] motor The motor being examined.
  * @return  The number of milliseconds before each step for the motor.
@@ -216,18 +196,6 @@ int isMotorFinished(struct Motor *motor);
  * @return  Double containing the total duration of the entire movement
  */
 double calculateDurationSteps(int startSpeedSteps, int endSpeedSteps, int displacementSteps);
-
-/**
- * Function to calculate the duration (in Sec) of an instruction given the 
- * start and end speeds in mm/s and the distance to travel in mm.
- * @param[in] startSpeedMM The start speed in mm/s
- * @param[in] endSpeedMM The end speed in mm/s
- * @param[in] distanceMM the distance to travel in mm
- * @return  Double containing the total duration of the entire movement
- */
- /*
-double calculateDurationMMSEC(int startSpeedMM, int endSpeedMM, int distanceMM);
-*/
 
 /**
  * Function to calculate the acceleration (in mm/s^2) of an instruction given the 

@@ -198,8 +198,6 @@ void incrementFirstEmptyIndex(void);
 
 void incrementFirstIndex(void);
 
-//struct Motor Get_Motor_Struct(int motorNum);
-
 uint16_t getTimerMSHalf(void);
 
 void setTimerMSHalf(uint16_t newValue);
@@ -279,10 +277,10 @@ void stopCurrentInstruction(void);
 #define I2CSDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 /*___________________Definition of current submachine____________________*/
-#define HANDLER
+//#define HANDLER
 //#define LATHE
 //#define MILL
-//#define DRILL
+#define DRILL
 
 // Define the submachine variable as global across files
 extern struct SubMachine subMachine;

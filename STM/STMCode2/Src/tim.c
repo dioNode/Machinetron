@@ -324,12 +324,9 @@ void stepperTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *subma
 	// Reset the sudo 32 bit timer to zero
 	setSudoTimerCounter(htim, /*newValue*/ 0);
 	// Based on which motors are running, set the timer interrupts and compare registers
-	// TODO set these registers
 	for(int i = 0; i < sizeof(submachine_ptr -> motors)/sizeof(*(submachine_ptr -> motors)); i++) {
 		struct Motor *motor_ptr = getMotorById(submachine_ptr, i+1);
-		int testMotor = motor_ptr->motorRun;
-		//printf(testMotor);
-		//if(1) {
+		
 		if((motor_ptr->motorRun) == 1) {
 			if(strcmp(motor_ptr -> type, "STEP") == 0) {
 				// Enable the motor driver since the motor will be used

@@ -186,15 +186,9 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 	if(getI2CReceiveBuffer()[0] == NORM_INST) {
 		// Standard straight path instruction received
 		// For every element in the receive buffer, add it to the First Empty Index of the instructionArray
-		//HAL_UART_Transmit(&huart1,(uint8_t *)getI2CReceiveBuffer(),getI2CReceiveSize(),HAL_MAX_DELAY);
-	  //HAL_UART_Transmit(&huart1,(uint8_t *)"\n",sizeof("\n"),HAL_MAX_DELAY);
-		//printArray(getI2CReceiveBuffer());
-		//HAL_UART_Transmit(&huart1,(uint8_t *)"\n",sizeof("\n"),HAL_MAX_DELAY);
 		for(int i = 0; i < (getI2CReceiveSize() - 1); i++) {
 			setInstructionArrayAtIndex(getI2CReceiveBuffer()[i+1], getInstArrayFirstEmptyIndex(), i);
 		}
-		//HAL_UART_Transmit(&huart1,(uint8_t *)getInstructionAtIndex(getInstArrayFirstIndex()),getI2CReceiveSize(),HAL_MAX_DELAY);
-	  //HAL_UART_Transmit(&huart1,(uint8_t *)"\n",sizeof("\n"),HAL_MAX_DELAY);
 		// Increment the first empty index
 		incrementFirstEmptyIndex();
 	} else if(getI2CReceiveBuffer()[0] == START_INST) {
@@ -212,9 +206,6 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 	
 	// Turn off the PC13 LED
 	HAL_GPIO_WritePin(PC13LED_GPIO_Port,PC13LED_Pin,GPIO_PIN_RESET);
-	//printf("ListenCpltCallback\n");
-	//HAL_UART_Transmit(&huart1,(uint8_t *)getI2CReceiveBuffer(),getI2CReceiveSize(),HAL_MAX_DELAY);
-	//HAL_UART_Transmit(&huart1,(uint8_t *)"\n",sizeof("\n"),HAL_MAX_DELAY);
 	
 	//Empty the transmit and receive buffers ready for the next transmission
 	Flush_Buffer(getI2CReceiveBuffer(), getI2CReceiveSize());
@@ -229,9 +220,6 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c) {
 void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 	// Turn off PC13 LED
 	HAL_GPIO_WritePin(PC13LED_GPIO_Port,PC13LED_Pin,GPIO_PIN_RESET);
-	//HAL_UART_Transmit(&UartDebugHandle,TransmitBuf,RXBUFFERSIZE,HAL_MAX_DELAY);
-	//HAL_UART_Transmit(&UartDebugHandle,newline,RXBUFFERSIZE,HAL_MAX_DELAY);
-	//printf("SlaveTxCpltCallback\n");
 }
 
 /**
@@ -275,7 +263,6 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 	
 	// Turn on PC13 LED
 	HAL_GPIO_WritePin(PC13LED_GPIO_Port,PC13LED_Pin,GPIO_PIN_SET);
-	//printf("SlaveRxCpltCallback\n");
 }
 /* USER CODE END 1 */
 

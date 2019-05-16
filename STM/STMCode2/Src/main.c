@@ -73,33 +73,19 @@ char DebugBuffer[DEBUGBUFFERSIZE] = {NULL};
 
 /*____________________Creation of Motors for Submachines____________________*/
 #ifdef HANDLER
-//struct SubMachine subMachine = {"Handler", 1,
-      //{{/*Name*/ "Rail motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
-			///*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			///*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
-			///*Step Size*/ 1},
-      //{/*Name*/ "Spin motor",/*Type*/ "STEP",/*Mode*/ "ROT",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
-			///*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			///*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
-			///*Step Size*/ 1},
-      //{/*Name*/ "Flip motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 3,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
-			///*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
-			///*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
-			///*Step Size*/ 1}},
-   //};
 struct SubMachine subMachine = {"Handler", 1,
-      {{"Rail motor", "STEP", "NORM", 1, 0, 0, 0, 1, 0,
-			 0, 0, 0, 0, 0, 0,
-			 0, 0, 0, 200, 0,
-			 1},
-      {"Spin motor","STEP","ROT",2,0,0,0,1,0,
-			0, 0,0,0,0,0,
-			0,0,0,200,0,
-			1},
-      {"Flip motor","STEP","NORM",3,0,0,0,1,0,
-			0,0,0,0,0,0,
-			0,0,0,200,0,
-			1}},
+      {{/*Name*/ "Rail motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 1,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Spin motor",/*Type*/ "STEP",/*Mode*/ "ROT",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1},
+      {/*Name*/ "Flip motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 3,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
+			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
+			/*Step Size*/ 1}},
    };
 #endif
 #ifdef LATHE
@@ -185,6 +171,7 @@ void Flush_Buffer(uint8_t* pBuffer, uint16_t BufferLength);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// Code to allow printf to be redirected to UART1
 PUTCHAR_PROTOTYPE
 {
 	// Place implementation of fputc here //
@@ -193,28 +180,6 @@ PUTCHAR_PROTOTYPE
 	
 	return ch;
 }
-
-// Code to allow printf to be redirected to UART1
-/*
-struct __FILE{
-  int handle;
-  // Whatever you require here. If the only file you are using is //
-  // standard output using printf() for debugging, no file handling //
-  // is required. //
-};
-
-FILE __stdout;
-
-int fputc(int ch, FILE *f){
-	HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
-  return ch;
-}
-
-int ferror(FILE *f){
-  // Your implementation of ferror(). //
-  return 0;
-}
-*/
 /* USER CODE END 0 */
 
 /**
@@ -276,9 +241,6 @@ int main(void)
     Error_Handler();        
   }
 	
-	// Indicate start of program
-	//printf("Started Program\n");
-	
 	// Create an array of the motors
 	struct Motor motors_array[3] = {*getMotorById(&subMachine, 1), *getMotorById(&subMachine, 2), *getMotorById(&subMachine, 3)};
 	// Initialise the step size for the motors if they are step motors
@@ -300,59 +262,18 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		/*
-		for( int i = 0; i < RXBUFFERSIZE; i++) {
-			printf("%x", getInstructionAtIndex(0)[i]);
-			printf(",");
-		}
-		
-		printf("\n");
-		*/
-		/*
-		printf("%d", getInstArrayFirstIndex());
-		printf("\n");
-		printf("%d", getInstArrayFirstEmptyIndex());
-		printf("\n");
-		*/
-		
-		//printInteger("Testifitworks", 13, 567);
-		//HAL_UART_Transmit(&huart1, (uint8_t *)"\n\r", sizeof("\n\r"),HAL_MAX_DELAY);
-		//HAL_Delay(500)
 		// Is the machine in a running state (should be processing instructions
 		if(getMachineState() == MACHINE_RUNNING) {
-			
-			//printf("Machine Running");
-			//printf("\n");
-			
+
 			// Check if there are instructions to process in the Instruction Array
 			if(getInstArrayFirstIndex() != getInstArrayFirstEmptyIndex()) {
 				
-				//printf("Instruction to process");
-				//printf("\n");
-				
-				// So the instruction array contains new instructions that have not yet been processed
+				// The instruction array contains new instructions that have not yet been processed
 				// So process the instruction at the First Instruction Index
-				
-				/*
-				for( int i = 0; i < RXBUFFERSIZE; i++) {
-					
-					printf("%x", getInstructionAtIndex(getInstArrayFirstIndex())[i]);
-					printf(",");
-					
-				}
-				*/
-				//printf("PreProcessed Instruction\n");
-				//printf("submachine id, %d", subMachine.id);
-				
 				processInstruction(getInstructionAtIndex(getInstArrayFirstIndex()),&subMachine);
-				
-				//printf("Processed Instruction\n");
 				
 				//Reset and initialise timer and its interrupts
 				stepperTimerResetAndSetUp(&htim1, &subMachine);
-				
-				//printf("Set Up Stepper Timer");
-				//printf("\n");
 				
 				#if defined MILL || defined DRILL
 				DCTimerResetAndSetUp(&htim4, &subMachine);
@@ -364,14 +285,11 @@ int main(void)
 				#endif
 				while(isComplete(subMachine) != 1) {
 					// Waiting for instruction to finish
-					
-					//printf("Test");
-					//printf("\n");
-					
 				}
 				
 				// Instruction has finished processing, increment the Instruction Index
 				incrementFirstIndex();
+				
 				// Stop all timer interrupts and the timers
 				HAL_TIM_Base_Stop_IT(&htim1);
 				HAL_TIM_OC_Stop(&htim1,1);
@@ -398,47 +316,9 @@ int main(void)
 				setMachineState(MACHINE_READY);
 			}
 		}
-		
-		//Test Stepper Motor Two
-		//Enable Stepper
-		// HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_SET);
-		/*
-		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_RESET);
-		// Set direction
-		HAL_GPIO_WritePin(ST2DIR_GPIO_Port,ST2DIR_Pin, GPIO_PIN_SET);
-		// for loop to run the stepper in this direction for 50 steps
-		for(int a = 0; a < 525; a = a + 1 ){
-      HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)1);
-			HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)0);
-			HAL_Delay(1);
-		}
-		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)1);
-		HAL_Delay(200);
-		
-		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)0);
-		HAL_GPIO_WritePin(ST2DIR_GPIO_Port,ST2DIR_Pin,(GPIO_PinState)0);
-		for(int a = 0; a < 525; a = a + 1 ){
-      HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)1);
-			HAL_GPIO_WritePin(ST2STEP_GPIO_Port,ST2STEP_Pin,(GPIO_PinState)0);
-			HAL_Delay(1);
-		}
-		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin,(GPIO_PinState)1);
-		HAL_Delay(200);
-		
-		HAL_GPIO_WritePin(ST2EN_GPIO_Port,ST2EN_Pin, GPIO_PIN_SET);
-		*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		//HAL_Delay(2000);
-		/*
-		HAL_UART_Transmit(&huart1,(uint8_t *)instructionArray[instArrFirstEmptyIndex],28,HAL_MAX_DELAY);
-	  HAL_UART_Transmit(&huart1,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
-		HAL_UART_Transmit(&huart1,(uint8_t *)instructionArray[instArrFirstIndex],28,HAL_MAX_DELAY);
-	  HAL_UART_Transmit(&huart1,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
-		HAL_UART_Transmit(&huart1,(uint8_t *)ReceiveBuf,sizeof(ReceiveBuf),HAL_MAX_DELAY);
-	  HAL_UART_Transmit(&huart1,(uint8_t *)newline,sizeof(newline),HAL_MAX_DELAY);
-		*/
   }
   /* USER CODE END 3 */
 }
@@ -673,48 +553,6 @@ void incrementFirstIndex(void) {
 	}
 }
 
-/**
-  * @brief  Function to retrieve the Motor struct instance (not pointer) based on the supplied motorNum 
-  * @retval The value of instArrNextFree
-  */
-/*
-struct Motor Get_Motor_Struct(int motorNum) {
-	struct Motor tempMotor;
-	switch(motorNum) {
-		case 1:
-			tempMotor = motor1;
-			break; 
-		case 2:
-			tempMotor = motor2;
-			break;
-		case 3:
-			tempMotor = motor3;
-			break;
-	}
-	return tempMotor;
-}
-*/
-/**
-  * @brief  Function to retrieve the Motor struct pointer based on the supplied motorNum 
-  * @retval The value of instArrNextFree
-  */
-	/*
-struct Motor *Get_Motor_Pointer(int motorNum) {
-	struct Motor *tempMotorPointer;
-	switch(motorNum) {
-		case 1:
-			tempMotorPointer = &motor1;
-			break; 
-		case 2:
-			tempMotorPointer = &motor2;
-			break;
-		case 3:
-			tempMotorPointer = &motor3;
-			break;
-	}
-	return tempMotorPointer;
-}
-*/
 /**
   * @brief  Function to return the upper half of the sudo 32 bit timer 
 	* @retval The value of the sudo 32bit timer MS Half
