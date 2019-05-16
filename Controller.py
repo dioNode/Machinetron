@@ -64,7 +64,7 @@ class Controller:
                 if self.commandComplete():
                     self.startNextCommand()
             else:
-                self.goButtonClicked()
+                # self.goButtonClicked()
                 # Reset buffer
                 self.commandQueue = self.commandQueueHistory.copy()
 

@@ -23,6 +23,7 @@ class Microcontroller:
             time.sleep(0.1)
             # Start instruction
         self.bus.write_i2c_block_data(0, 1, motorInstructions)
+        time.sleep(0.1)
 
     def isComplete(self):
         # TODO Work for all submachines
@@ -31,6 +32,7 @@ class Microcontroller:
         for submachineName in self.submachinesUsed:
             address = configurationMap[submachineName]['id']
             retreivedata = self.bus.read_i2c_block_data(address, READ_MACHINE_STATE, 2)
+            time.sleep(0.1)
             ready &= retreivedata[1] == 1
         return ready
 
@@ -68,6 +70,7 @@ class Microcontroller:
             for i in range(21):
                 motorInstructions.append(0)
             self.bus.write_i2c_block_data(address, configurationMap['instructions']['PAUSE_INST'], motorInstructions)
+            time.sleep(0.1)
 
     def resume(self):
         for submachineName in self.submachinesUsed:
@@ -77,6 +80,7 @@ class Microcontroller:
                 motorInstructions.append(0)
             print(address, configurationMap['instructions']['START_INST'], motorInstructions)
             self.bus.write_i2c_block_data(address, configurationMap['instructions']['START_INST'], motorInstructions)
+            time.sleep(0.1)
 
 
     def sendStartCommand(self):
