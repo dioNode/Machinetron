@@ -92,24 +92,6 @@ void printSubMachineDetails(struct SubMachine submachine) {
     //submachine.motors[2].currentStep, submachine.motors[2].targetStep);
 }
 
-/*
-void tickSubMachine(struct SubMachine *submachine_ptr, double delay) {
-  for (int motorNum = 0; motorNum < 3; motorNum++) {
-    // Update time for motor
-    struct Motor * motor_ptr = &submachine_ptr -> motors[motorNum];
-    motor_ptr -> msSinceLastStep += delay;
-    motor_ptr -> currentSpeed += motor_ptr -> acceleration * (delay/1000);
-    // Check if enough time has passed for new tick
-    double msPerStepVal = msPerStep(*motor_ptr);
-    if (motor_ptr -> msSinceLastStep > msPerStepVal) {
-      // Step motor
-      stepMotor(motor_ptr);
-      motor_ptr -> msSinceLastStep -= msPerStepVal;
-    }
-  }
-}
-*/
-
 struct Motor * getMotorById(struct SubMachine *submachine_ptr, int id) {
   struct Motor *motor_ptr;
   for (int motorNum = 0; motorNum < 3; motorNum++) {
@@ -126,23 +108,8 @@ struct Motor * getMotorById(struct SubMachine *submachine_ptr, int id) {
 // on definitie positions for each motor
 // InstData *pointer rather than Array of 28
 void processInstruction(uint8_t *instData, struct SubMachine *submachine_ptr) {
-  // Extract important variables
-	
-	
-	
-	///////Problematic Line
-	//printf("ProcessInstructionEntered\n\r");
-	
-	
-	
-	//printf("SubmachineID: %d", submachine_ptr -> id);
 	int motorByteLocations[3] = {0,7,14};
-	/*
-	uint8_t motor1Byte = instData[MOTOR1_BYTE_LOC];
-	uint8_t motor2Byte = instData[MOTOR2_BYTE_LOC];
-	uint8_t motor3Byte = instData[MOTOR3_BYTE_LOC];
-	*/
-	//printf("SIze of motor Id Locs %d",sizeof(motorByteLocations)/sizeof(*motorByteLocations));
+	
 	for(int i = 0; i < sizeof(motorByteLocations)/sizeof(*motorByteLocations); i++) {
 		uint8_t motorByte = instData[motorByteLocations[i]];
 		int motorID = (int)((motorByte & MOTOR_BITS_MASK) >> MOTOR_BITS_SHIFT);
@@ -150,47 +117,27 @@ void processInstruction(uint8_t *instData, struct SubMachine *submachine_ptr) {
 		int motorRun = (int)((motorByte & MOTOR_RUN_BIT_MASK) >> MOTOR_RUN_BIT_SHIFT);
 		int motorHome = (int)((motorByte & HOME_MOTOR_BIT_MASK) >> HOME_MOTOR_BIT_SHIFT);
 		int motorInfSpin = (int)((motorByte & INF_SPIN_BIT_MASK) >> INF_SPIN_BIT_SHIFT);
-		//printf("motorID %d, direction %d, motorRun %d, motorHome %d, motorInfSpin %d\n\r", 
-		//motorID,direction,motorRun,motorHome,motorInfSpin);
 		
 		uint8_t newPosMSH = instData[motorByteLocations[i] + 1];
 		uint8_t newPosLSH = instData[motorByteLocations[i] + 2];
-		//printf("newPosMSH %d, newPosLSH %d\n\r", newPosMSH,newPosLSH);
 		
 		uint8_t startSpeedMSH = instData[motorByteLocations[i] + 3];
 		uint8_t startSpeedLSH = instData[motorByteLocations[i] + 4];
-		//printf("startSpeedMSH %d, startSpeedLSH %d\n\r", startSpeedMSH,newPosLSH);
 		
 		uint8_t endSpeedMSH = instData[motorByteLocations[i] + 5];
 		uint8_t endSpeedLSH = instData[motorByteLocations[i] + 6];
-		//printf("endSpeedMSH %d, endSpeedLSH %d\n\r", endSpeedMSH,endSpeedLSH);
-		
-		//printf("newPosMSH %d, newPosLSH %d, startSpeedMSH %d, startSpeedLSH %d, endSpeedMSH %d, endSpeedLSH %d\n\r", 
-		//newPosMSH,newPosLSH,startSpeedMSH,startSpeedLSH,endSpeedMSH,endSpeedLSH);
 		
 		int newPos = (int)((newPosMSH << 8) | newPosLSH);
 		int startSpeed = (int)((startSpeedMSH << 8) | startSpeedLSH);
 		int endSpeed = (int)((endSpeedMSH << 8) | endSpeedLSH);
 		
-		//printf("newPos %d\n\r", startSpeed);
-		//printf("newPos %d, startSpeed %d, endSpeed %d\n\r", 
-		//newPos,startSpeed,endSpeed);
-		
-		//printf("newPosMSH %d, newPosLSH %d, startSpeedMSH %d, startSpeedLSH %d, endSpeedMSH %d, endSpeedLSH %d,newPos %d, startSpeed %d, endSpeed %d\n\r", 
-		//newPosMSH,newPosLSH,startSpeedMSH,startSpeedLSH,endSpeedMSH,endSpeedLSH,newPos,startSpeed,endSpeed);
-		
 		// Based on whether the motor is Homing or In Infinite Spin mode or normal mode 
 		// set the parameters accordingly
 		// As a test only set the motor parameters if the motor is running
 		if(motorRun == 1) {
-			//printf("Test stufff \n");
 			struct Motor *motor_ptr = getMotorById(submachine_ptr, motorID);
-			//printf("Motor run: %d, motor home: %d, motorInfSpin: %d, direction: %d, newPos: %d, startSpeed: %d, endSpeed: %d\n\r", motorRun, motorHome, motorInfSpin, direction, newPos, startSpeed, endSpeed);
 			
-			//setMotorParams2(motor_ptr, motorRun, motorHome, motorInfSpin, direction, newPos, startSpeed, endSpeed);
 			setMotorParams(motor_ptr, motorRun, motorHome, motorInfSpin, direction, newPos, startSpeed, endSpeed);
-			//printf("TestmotorRunAfter");
-			
 		}
 	}
 }
@@ -226,104 +173,3 @@ int isComplete(struct SubMachine submachine) {
   return complete;
 }
 
-// Temp function
-void setMotorParams2(struct Motor *motor_ptr, int motorRun, int motorHome, int motorInfSpin, int dir, int newPos, int startSpeed, int endSpeed) {
-  printf("got here\n");
-	// First extract all the parameters from the motor
-	/*
-	
-	char *name = motor_ptr -> name;
-	char *type = motor_ptr -> type; 	
-	char *mode = motor_ptr -> mode;
-	int motorId = motor_ptr -> id; 
-	int currentMotorRun = motor_ptr -> motorRun;
-	int currentMotorHome = motor_ptr -> motorHome; 
-	int currentInfSpin = motor_ptr -> infSpin;
-	int currentDir = motor_ptr -> direction; 
-	double currentDuration = motor_ptr -> duration;
-	double currentTimePassed = motor_ptr -> timePassed; 
-	int currentDisplacement = motor_ptr -> displacement;
-	int currentStartStep = motor_ptr -> startStep;
-	int currentStep = motor_ptr -> currentStep;
-	int currentTargetStep = motor_ptr -> targetStep;
-	double currentStartSpeed = motor_ptr -> startSpeed;
-	double currentSpeed = motor_ptr -> currentSpeed;
-	double currentTargetSpeed = motor_ptr -> targetSpeed;
-  double currentAcceleration = motor_ptr -> acceleration;
-  double motorDPR = motor_ptr -> dpr;
-  int currentuSDelay = motor_ptr -> currentuSDelay;  // The Current uS Delay between steps
-	int motorStepSize = motor_ptr -> stepsize;	
-	*/
-	// First check if the motor is in NORM or ROT mode
-	
-	//HAL_UART_Transmit(&huart1, (uint8_t *)motorRun, sizeof(motorRun), HAL_MAX_DELAY);
-	//printInteger("Test if it works", 16, motorRun);
-	
-	int displacementWU =10;
-	int targetPos = 10;
-	/*
-	
-	if(strcmp(motor_ptr -> mode, "ROT") == 0) {
-		// Motor is in ROT mode meaning displacement and newPos need to be calculated based on input data
-		int modPos = ((int)getCurrentPosition(*motor_ptr) % (int)(motor_ptr -> dpr));
-		int newPosNegRev = newPos - motor_ptr -> dpr;
-		
-		if(abs(newPos-modPos) <= abs(newPosNegRev-modPos)) {
-			displacementWU = newPos-modPos;
-			targetPos = (int)getCurrentPosition(*motor_ptr) + displacementWU;
-		} else {
-			displacementWU = newPosNegRev-modPos;
-			targetPos = (int)getCurrentPosition(*motor_ptr) + displacementWU;
-		}
-	} else if(strcmp(motor_ptr -> mode, "NORM") == 0){
-		displacementWU = newPos - (int)getCurrentPosition(*motor_ptr); //Calculates the displacement in mm or degrees
-		targetPos = newPos;
-	}*/
-	
-	//int displacementStep = (int)worldUnitsToStepUnits((double)displacementWU, *motor_ptr);
-	//int id = motor_ptr -> id;
-	double startStepSpeed;
-	double endStepSpeed;
-	/*
-	// Set the speeds as negative or positive depending on the direction of travel
-	if(displacementStep >= 0) {
-		startStepSpeed = worldUnitsToStepUnits((double)startSpeed, *motor_ptr);
-		endStepSpeed = worldUnitsToStepUnits((double)endSpeed, *motor_ptr);
-	} else {
-		startStepSpeed = worldUnitsToStepUnits(-1 * startSpeed, *motor_ptr);
-		endStepSpeed = worldUnitsToStepUnits(-1 * endSpeed, *motor_ptr);
-	}
-	
-	double accelerationStep = (pow(endStepSpeed, 2) - pow(startStepSpeed, 2)) / (2*displacementStep);
-	
-	
-	// Set all motor parameters
-	motor_ptr -> motorRun = motorRun;
-	motor_ptr -> motorHome = motorHome;
-	motor_ptr -> infSpin = motorInfSpin;
-	motor_ptr -> direction = dir;
-	motor_ptr -> duration = calculateDurationMMSEC(startSpeed, endSpeed, displacementWU);
-	motor_ptr -> timePassed = 0;
-	motor_ptr -> displacement = displacementStep;
-	motor_ptr -> startStep = motor_ptr -> currentStep;
-	motor_ptr -> targetStep = worldUnitsToStepUnits((double)targetPos, *motor_ptr);
-	motor_ptr -> startSpeed = startStepSpeed;
-	motor_ptr -> currentSpeed = startStepSpeed;
-	motor_ptr -> targetSpeed = endStepSpeed;
-  motor_ptr -> acceleration = accelerationStep;
-	
-	int uSDelay = calculateuSDelay(motor_ptr -> currentSpeed);
-	
-	motor_ptr -> currentuSDelay = uSDelay;*/
-  // Deal with speeds
-  // v^2 = u^2 + 2as --> a = (v^2-u^2)/(2s)
-	
-	/*
-  if (newPos != 0){
-		double accelerationStep = (pow(endStepSpeed, 2) - pow(startStepSpeed, 2)) / (2*displacementStep);
-    motor_ptr -> currentSpeed = startStepSpeed;
-		motor_ptr -> targetSpeed = endStepSpeed;
-    motor_ptr -> acceleration = accelerationStep;
-  }
-	*/
-}
