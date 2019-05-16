@@ -1,9 +1,10 @@
-import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
-import time
+
 
 class GoButton:
 
     def __init__(self, controller):
+        import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO library
+        import time
         # GPIO.setwarnings(False)  # Ignore warning for now
         GPIO.setmode(GPIO.BOARD)  # Use physical pin numbering
         GPIO.setup(37, GPIO.IN,
@@ -11,15 +12,28 @@ class GoButton:
         GPIO.add_event_detect(37, GPIO.RISING, callback=self.buttonClicked)  # Setup event on pin 37 rising edge
         self.depressed = False
         self.controller = controller
+        self.lastPressedTime = 0
 
     def buttonClicked(self, channel):
-        if not self.depressed:
-            # DO button press
-            print('Go button pressed!')
+        currentTime = time.time()
+
+        if currentTime - self.lastPressedTime > 1:
+            self.lastPressedTime = currentTime
+            print('pressed')
             self.controller.goButtonClicked()
-            self.depressed = True
-            time.sleep(1)
-            self.depressed = False
+
+
+        # if not self.depressed:
+        #     # DO button press
+        #     print('Go button pressed!')
+        #
+        #
+        #     self.controller.goButtonClicked()
+        #     self.depressed = True
+        #     time.sleep(1)
+        #     self.depressed = False
+        # else:
+        #     print('blocked')
 
 
 

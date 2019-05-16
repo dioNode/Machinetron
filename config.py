@@ -49,7 +49,7 @@ configurationMap = {
         'minDetectionRadius': 10,
         'maxDetectionRadius': 100,
     }, 'mill': {
-        'homeX': 220,
+        'homeX': 200, #220
         'raiseSpeed': 25,
         'pushSpeed': 50,
         'spinSpeed': 500,
@@ -84,7 +84,7 @@ configurationMap = {
         'infVal': 9999,
         'mmPerPixelRatio': 80/1200,
         'mmError': 1.0,
-        'speedMultiplier': 3,
+        'speedMultiplier': 5,
         'numRotationSteps': 200,
     }
 }

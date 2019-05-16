@@ -44,7 +44,7 @@ class Controller:
         self.goButton = GoButton(self) if not useSimulator else None
         self.facename = 'front'
 
-        self.timeStep = 0.001 if useSimulator else 1
+        self.timeStep = 0.001 if useSimulator else 1.5
         speedMultiplier = configurationMap['other']['speedMultiplier']
         self.microcontroller = MicrocontrollerSimulator(speedMultiplier) if useSimulator else Microcontroller()
 
@@ -66,7 +66,8 @@ class Controller:
                 if self.commandComplete():
                     self.startNextCommand()
             else:
-                # self.goButtonClicked()
+                # Pause the machine
+                self.goButtonClicked()
                 # Reset buffer
                 self.commandQueue = self.commandQueueHistory.copy()
 

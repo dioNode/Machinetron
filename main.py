@@ -1,5 +1,5 @@
 USE_GUI = False
-USE_SIM = False
+USE_SIM = True
 AUTO_START = True
 
 import time
@@ -26,7 +26,7 @@ def main():
     from Commands.SpinCommand import SpinCommand
 
 
-    ## DEMO STUFF
+    ## 75% DEMO STUFF
     # controller.addCommand(RaiseCommand(controller.mill, 70, 20, 30))
     # controller.addCommand(PushCommand(controller.mill, 50, controller.currentFaceDepth))
     # controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
@@ -41,25 +41,17 @@ def main():
     # ]))
 
 
-    ## Test 3: Vertical and Push Movement for both
-    # controller.addCommand(CombinedCommand([
-    #     PushCommand(controller.mill, 50, controller.currentFaceDepth),
-    #     PushCommand(controller.lathe, 50, controller.currentFaceDepth),
-    #     RaiseCommand(controller.mill, 60, startSpeed=20, endSpeed=30),
-    #     RaiseCommand(controller.lathe, 60, startSpeed=20, endSpeed=30),
-    # ]))
-    # controller.addCommand(CombinedCommand([
-    #     PushCommand(controller.mill, 0, controller.currentFaceDepth),
-    #     PushCommand(controller.lathe, 0, controller.currentFaceDepth),
-    #     RaiseCommand(controller.mill, 0, startSpeed=20, endSpeed=30),
-    #     RaiseCommand(controller.lathe, 0, startSpeed=20, endSpeed=30),
-    # ]))
-
-    ## Test 4: Handler rail test
-    # for i in range(3):
-    controller.addCommand(FlipCommand(controller.handler, 'up'))
-    # controller.addCommand(FlipCommand(controller.handler, 'down'))
+    ## Test 4: Handler flip test
+    # for i in range(1):
+    #     controller.addCommand(FlipCommand(controller.handler, 'up'))
     #     controller.addCommand(FlipCommand(controller.handler, 'down'))
+
+    # reshapeSideM([(50, 40), (20, 30)])
+
+    # intrude('front', -10, 10, 30, 70, 20, 20, 20)
+
+    lathe(30, 40, 3)
+    controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, inAbsolute=True))
 
     # controller.addCommand(CombinedCommand([
     #     ShiftCommand(controller.mill, controller.handler, 0),
