@@ -14,9 +14,10 @@ class ShiftCommand(Command):
         endSpeed (double): Final speed of push (mm/s).
 
     """
-    def __init__(self, cutMachine, handler, horizontalDisplacement, startSpeed=None, endSpeed=None):
+    def __init__(self, cutMachine, handler, horizontalDisplacement, startSpeed=None, endSpeed=None, inAbsolute=False):
         super().__init__()
         self.name = "Shifting "+cutMachine.name
+        self.inAbsolute = inAbsolute
         self.horizontalDisplacement = horizontalDisplacement
         if not isinstance(cutMachine, CutMachine):
             print("ShiftCommand: Not a cut machine")
@@ -32,7 +33,7 @@ class ShiftCommand(Command):
         targets = {}
         cutMachine = self.cutMachine
         handler = self.handler
-        globalTargetX = self.horizontalDisplacement + cutMachine.homeX
+        globalTargetX = self.horizontalDisplacement + cutMachine.homeX if not self.inAbsolute else self.horizontalDisplacement
         startSpeed = self.startSpeed
         endSpeed = self.endSpeed
 

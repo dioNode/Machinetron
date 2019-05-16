@@ -1,19 +1,19 @@
 configurationMap = {
     'handler': {
-        'railSpeed': 50,
+        'railSpeed': 25,
         'flipSpeed': 12,
-        'spinSpeed': 500,
+        'spinSpeed': 200,
         'maxRailSpeed': 80,
         'maxFlipSpeed': 20,
         'maxSpinSpeed': 500,
         'railDPR': 40,
         'flipDPR': 24.8276,
-        'spinDPR': 1,
+        'spinDPR': 360,
         'maxRail': 200,
         'maxFlip': 100,
         'id': 0x1A,
     }, 'drill': { # Location of lathe is measured relative to bottom
-        'homeX': 100,
+        'homeX': 35,
         'raiseSpeed': 25,
         'pushSpeed': 50,
         'spinSpeed': 500,
@@ -30,7 +30,7 @@ configurationMap = {
         'id': 0x1F,
         'detectionTolerance': 5,
     }, 'lathe': {
-        'homeX': 300,
+        'homeX': 160,
         'raiseSpeed': 25,
         'pushSpeed': 50,
         'spinSpeed': 0,
@@ -49,7 +49,7 @@ configurationMap = {
         'minDetectionRadius': 10,
         'maxDetectionRadius': 100,
     }, 'mill': {
-        'homeX': 500,
+        'homeX': 220,
         'raiseSpeed': 25,
         'pushSpeed': 50,
         'spinSpeed': 500,

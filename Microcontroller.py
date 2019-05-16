@@ -14,7 +14,6 @@ class Microcontroller:
 
     def processCommand(self, command):
         targets = command.generateTargets(True)
-        self.processDirectCommand(targets)
         instructions = self._targetsDictToInstruction(targets)
         for instruction in instructions:
             address = instruction['address']

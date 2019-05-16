@@ -1,6 +1,6 @@
-USE_GUI = True
-USE_SIM = True
-AUTO_START = False
+USE_GUI = False
+USE_SIM = False
+AUTO_START = True
 
 import time
 
@@ -22,6 +22,8 @@ def main():
     from Commands.CombinedCommand import CombinedCommand
     from Commands.PushCommand import PushCommand
     from Commands.FlipCommand import FlipCommand
+    from Commands.ShiftCommand import ShiftCommand
+    from Commands.SpinCommand import SpinCommand
 
 
     ## DEMO STUFF
@@ -54,8 +56,27 @@ def main():
     # ]))
 
     ## Test 4: Handler rail test
-    controller.addCommand(FlipCommand(controller.handler, 'up'))
+    # for i in range(3):
+    #     controller.addCommand(FlipCommand(controller.handler, 'up'))
+    #     controller.addCommand(FlipCommand(controller.handler, 'down'))
 
+    controller.addCommand(CombinedCommand([
+        ShiftCommand(controller.mill, controller.handler, 0),
+        RaiseCommand(controller.mill, 50)
+    ]))
+
+    controller.addCommand(PushCommand(controller.mill, 50, controller.currentFaceDepth))
+    controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
+
+    controller.addCommand(CombinedCommand([
+        ShiftCommand(controller.lathe, controller.handler, 0),
+        RaiseCommand(controller.mill, 0)
+    ]))
+
+    controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0))
+    controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, inAbsolute=True))
+
+    # controller.addCommand(SpinCommand(controller.handler, 0))
 
     # stlProcessor.generateCommands('part0.STL', controller)
 
