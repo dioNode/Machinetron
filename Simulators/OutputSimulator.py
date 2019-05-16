@@ -149,11 +149,11 @@ class OutputSimulator:
         handlerMotors = [handler.railMotor, handler.flipMotor, handler.spinMotor]
         motorY = int(self.handlerMotorDisplayTop + motorRadius + self.padding/2)
 
-        for j in range(3):
+        for j, motor in enumerate(handlerMotors):
             # Handler motors
             motorX = int(x + j * ((width - 2 * motorRadius) / 2) + motorRadius)
             pygame.draw.circle(win, (0, 0, 0), (motorX, motorY), motorRadius, 1)
-            angle = math.radians(handlerMotors[j].currentAngle())
+            angle = math.radians(motor.currentAngle())
             deltaX = motorRadius * math.cos(angle)
             deltaY = motorRadius * math.sin(angle)
             pygame.draw.line(win, (0, 0, 0), (motorX, motorY),

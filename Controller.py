@@ -12,9 +12,6 @@ from config import configurationMap
 
 import time
 
-# TIME_STEP = 0.001
-TIME_STEP = 1
-
 class Controller:
     """The class that controls all functionality of MACHINETRON.
     
@@ -39,14 +36,15 @@ class Controller:
         self.commandGenerator = CommandGenerator(self)
 
         self.commandQueue = []
+        self.commandQueueHistory = []
         self.currentCommand = None
 
         self.state = statusMap['stopped']
         self.facename = 'front'
 
+        self.timeStep = 0.001 if useSimulator else 1
         speedMultiplier = configurationMap['other']['speedMultiplier']
         self.microcontroller = MicrocontrollerSimulator(speedMultiplier) if useSimulator else Microcontroller()
-        self.microcontroller.setupBus()
 
     def __repr__(self):
         print(self.commandQueue)
@@ -65,18 +63,21 @@ class Controller:
             if not self.isComplete():
                 if self.commandComplete():
                     self.startNextCommand()
+            else:
+                self.goButtonClicked()
+                # Reset buffer
+                self.commandQueue = self.commandQueueHistory.copy()
 
-        time.sleep(TIME_STEP)
-        self.currentTime += TIME_STEP
+        time.sleep(self.timeStep)
+        self.currentTime += self.timeStep
         self.updateDirectionFaced()
 
     def start(self):
         """Allows the controller to start issuing commands."""
-        # TODO init bus
-
+        # Store current command list in history to be reloaded again when finished
+        self.commandQueueHistory = self.commandQueue.copy()
+        # Setup bus to allow i2c transfer
         self.microcontroller.setupBus()
-        # self.startNextCommand()
-        self.state = statusMap['started']
 
     def pause(self):
         """Pauses the current controls so no new commands can be issued."""
@@ -148,6 +149,7 @@ class Controller:
         """
         print(self.currentCommand.generateTargets(True))
         self.microcontroller.processCommand(self.currentCommand)
+        self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
 
     def updateEndeffactorValues(self):
         """Updates the information for the end location for each of the actuators.

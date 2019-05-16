@@ -5,14 +5,16 @@ import time
 
 class Microcontroller:
 
+    def __init__(self):
+        self.submachinesUsed = []
+
     def setupBus(self):
         import smbus
         self.bus = smbus.SMBus(1)
-        self.submachinesUsed = ['lathe', 'mill']
-
 
     def processCommand(self, command):
         targets = command.generateTargets(True)
+        self.processDirectCommand(targets)
         instructions = self._targetsDictToInstruction(targets)
         for instruction in instructions:
             address = instruction['address']
@@ -143,3 +145,14 @@ class Microcontroller:
                 instructions.append(currentInstruction)
 
         return instructions
+
+    def updateSubmachinesUsed(self, targets):
+        """Updates the current submachines being used to help with isComplete checking.
+
+        Args:
+            targets (dict): The target commands being sent out.
+
+        """
+        self.submachinesUsed = []
+        for submachine in targets:
+            self.submachinesUsed.append(submachine)
