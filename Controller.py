@@ -79,8 +79,6 @@ class Controller:
         # Setup bus to allow i2c transfer
         self.microcontroller.setupBus()
 
-
-
     def pause(self):
         """Pauses the current controls so no new commands can be issued."""
         # TODO change to pause immediately
@@ -151,6 +149,7 @@ class Controller:
         """
         print(self.currentCommand.generateTargets(True))
         self.microcontroller.processCommand(self.currentCommand)
+        self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
 
     def updateEndeffactorValues(self):
         """Updates the information for the end location for each of the actuators.
