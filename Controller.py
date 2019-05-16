@@ -45,7 +45,6 @@ class Controller:
         self.timeStep = 0.001 if useSimulator else 1
         speedMultiplier = configurationMap['other']['speedMultiplier']
         self.microcontroller = MicrocontrollerSimulator(speedMultiplier) if useSimulator else Microcontroller()
-        self.microcontroller.setupBus()
 
     def __repr__(self):
         print(self.commandQueue)
@@ -77,8 +76,8 @@ class Controller:
         """Allows the controller to start issuing commands."""
         # Store current command list in history to be reloaded again when finished
         self.commandQueueHistory = self.commandQueue.copy()
-
-        # self.microcontroller.setupBus()
+        # Setup bus to allow i2c transfer
+        self.microcontroller.setupBus()
 
 
 
