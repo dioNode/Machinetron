@@ -36,6 +36,7 @@ class Controller:
         self.commandGenerator = CommandGenerator(self)
 
         self.commandQueue = []
+        self.commandQueueHistory = []
         self.currentCommand = None
 
         self.state = statusMap['stopped']
@@ -63,6 +64,10 @@ class Controller:
             if not self.isComplete():
                 if self.commandComplete():
                     self.startNextCommand()
+            else:
+                self.goButtonClicked()
+                # Reset buffer
+                self.commandQueue = self.commandQueueHistory.copy()
 
         time.sleep(self.timeStep)
         self.currentTime += self.timeStep
@@ -70,11 +75,12 @@ class Controller:
 
     def start(self):
         """Allows the controller to start issuing commands."""
-        # TODO init bus
+        # Store current command list in history to be reloaded again when finished
+        self.commandQueueHistory = self.commandQueue.copy()
 
-        self.microcontroller.setupBus()
-        # self.startNextCommand()
-        self.state = statusMap['started']
+        # self.microcontroller.setupBus()
+
+
 
     def pause(self):
         """Pauses the current controls so no new commands can be issued."""

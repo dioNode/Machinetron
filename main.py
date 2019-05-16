@@ -1,6 +1,6 @@
 USE_GUI = True
 USE_SIM = True
-AUTO_START = True
+AUTO_START = False
 
 import time
 
@@ -22,29 +22,6 @@ def main():
     from Commands.CombinedCommand import CombinedCommand
     from Commands.PushCommand import PushCommand
     from Commands.FlipCommand import FlipCommand
-
-
-    ## Test 1: Vertical Movement for both
-    # controller.addCommand(CombinedCommand([
-    #     RaiseCommand(controller.mill, 60, startSpeed=20, endSpeed=30),
-    #     RaiseCommand(controller.lathe, 60, startSpeed=20, endSpeed=30),
-    # ]))
-    #
-    # controller.addCommand(CombinedCommand([
-    #     RaiseCommand(controller.mill, 0, startSpeed=20, endSpeed=30),
-    #     RaiseCommand(controller.lathe, 0, startSpeed=20, endSpeed=30),
-    # ]))
-
-    ## Test 2: Push Movement for both
-    # controller.addCommand(CombinedCommand([
-    #     PushCommand(controller.mill, 50, controller.currentFaceDepth),
-    #     RaiseCommand(controller.lathe, 50)
-    # ]))
-    #
-    # controller.addCommand(CombinedCommand([
-    #     PushCommand(controller.mill, 0, controller.currentFaceDepth),
-    #     RaiseCommand(controller.lathe, 0)
-    # ]))
 
 
     ## DEMO STUFF
@@ -97,20 +74,15 @@ def main():
 
     # controller.commandGenerator.resetAll()
     # controller.setFace('front')
+
+    controller.start()
+
     if USE_GUI:
         outputSimulator = OutputSimulator(controller)
         outputSimulator.simulate()
 
     if AUTO_START:
         controller.goButtonClicked()
-
-    # TODO Remove to pause on start
-    controller.tick()
-    controller.updateEndeffactorValues()
-    controller.start()
-    # time.sleep(3)
-    # controller.goButtonClicked()
-    # time.sleep(1)
 
     while True:
         controller.tick()
