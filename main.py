@@ -25,18 +25,18 @@ def main():
 
 
     ## DEMO STUFF
-    controller.addCommand(RaiseCommand(controller.mill, 70, 20, 30))
-    controller.addCommand(PushCommand(controller.mill, 50, controller.currentFaceDepth))
-    controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
-
-    controller.addCommand(RaiseCommand(controller.lathe, 70, 20, 30))
-    controller.addCommand(RaiseCommand(controller.lathe, 50))
-    controller.addCommand(RaiseCommand(controller.lathe, 70))
-
-    controller.addCommand(CombinedCommand([
-        RaiseCommand(controller.mill, 0, 30, 15),
-        RaiseCommand(controller.lathe, 0, 30, 15)
-    ]))
+    # controller.addCommand(RaiseCommand(controller.mill, 70, 20, 30))
+    # controller.addCommand(PushCommand(controller.mill, 50, controller.currentFaceDepth))
+    # controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
+    #
+    # controller.addCommand(RaiseCommand(controller.lathe, 70, 20, 30))
+    # controller.addCommand(RaiseCommand(controller.lathe, 50))
+    # controller.addCommand(RaiseCommand(controller.lathe, 70))
+    #
+    # controller.addCommand(CombinedCommand([
+    #     RaiseCommand(controller.mill, 0, 30, 15),
+    #     RaiseCommand(controller.lathe, 0, 30, 15)
+    # ]))
 
 
     ## Test 3: Vertical and Push Movement for both
@@ -54,7 +54,8 @@ def main():
     # ]))
 
     ## Test 4: Handler rail test
-    # controller.addCommand(FlipCommand(controller.handler, 'up'))
+    controller.addCommand(FlipCommand(controller.handler, 'up'))
+
 
     # stlProcessor.generateCommands('part0.STL', controller)
 
@@ -83,6 +84,7 @@ def main():
 
     if AUTO_START:
         controller.goButtonClicked()
+
 
     while True:
         controller.tick()
