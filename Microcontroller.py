@@ -7,9 +7,11 @@ class Microcontroller:
 
     def __init__(self):
         self.submachinesUsed = []
+        self.i2cSleep = 0.1
 
     def setupBus(self):
         import smbus
+        time.sleep(self.i2cSleep)
         self.bus = smbus.SMBus(1)
 
     def processCommand(self, command):
@@ -19,11 +21,13 @@ class Microcontroller:
             address = instruction['address']
             commandByte = instruction['commandByte']
             motorInstructions = instruction['motorInstructions']
+            time.sleep(self.i2cSleep)
             self.bus.write_i2c_block_data(address, commandByte, motorInstructions)
-            time.sleep(0.1)
-            # Start instruction
+            time.sleep(self.i2cSleep)
+        # Start instruction
+        time.sleep(self.i2cSleep)
         self.bus.write_i2c_block_data(0, 1, motorInstructions)
-        time.sleep(0.1)
+        time.sleep(self.i2cSleep)
 
     def isComplete(self):
         # TODO Work for all submachines
@@ -31,8 +35,9 @@ class Microcontroller:
         ready = True
         for submachineName in self.submachinesUsed:
             address = configurationMap[submachineName]['id']
+            time.sleep(self.i2cSleep)
             retreivedata = self.bus.read_i2c_block_data(address, READ_MACHINE_STATE, 2)
-            time.sleep(0.1)
+            time.sleep(self.i2cSleep)
             ready &= retreivedata[1] == 1
         return ready
 
@@ -69,8 +74,9 @@ class Microcontroller:
             motorInstructions = []
             for i in range(21):
                 motorInstructions.append(0)
+            time.sleep(self.i2cSleep)
             self.bus.write_i2c_block_data(address, configurationMap['instructions']['PAUSE_INST'], motorInstructions)
-            time.sleep(0.1)
+            time.sleep(self.i2cSleep)
 
     def resume(self):
         for submachineName in self.submachinesUsed:
@@ -79,8 +85,9 @@ class Microcontroller:
             for i in range(21):
                 motorInstructions.append(0)
             print(address, configurationMap['instructions']['START_INST'], motorInstructions)
+            time.sleep(self.i2cSleep)
             self.bus.write_i2c_block_data(address, configurationMap['instructions']['START_INST'], motorInstructions)
-            time.sleep(0.1)
+            time.sleep(self.i2cSleep)
 
 
     def sendStartCommand(self):
@@ -115,7 +122,7 @@ class Microcontroller:
                                 infSpin = 0
                                 motorID = configurationMap['motorMap'][motor]
                                 targetValue = targetVals['targetValue']
-                                if targetValue is None:
+                                if targetValue is None or targetValue == configurationMap['other']['infVal']:
                                     targetValue = 0
                                     infSpin = 1
                                 startSpeed = targetVals['startSpeed']

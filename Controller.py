@@ -151,6 +151,7 @@ class Controller:
 
         """
         print(self.currentCommand.generateTargets(True))
+        print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
         self.microcontroller.processCommand(self.currentCommand)
         self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
 

@@ -1,6 +1,6 @@
 USE_GUI = False
-USE_SIM = True
-AUTO_START = True
+USE_SIM = False
+AUTO_START = False
 
 import time
 
@@ -43,15 +43,23 @@ def main():
 
     ## Test 4: Handler flip test
     # for i in range(1):
-    #     controller.addCommand(FlipCommand(controller.handler, 'up'))
-    #     controller.addCommand(FlipCommand(controller.handler, 'down'))
+    #     controller.addCommand(CombinedCommand([
+    #         FlipCommand(controller.handler, 'up'),
+    #         SpinCommand(controller.handler, 180)
+    #     ]))
+    #     controller.addCommand(CombinedCommand([
+    #         FlipCommand(controller.handler, 'down'),
+    #         SpinCommand(controller.handler, 90)
+    #     ]))
+    #     SpinCommand(controller.handler, 0)
 
     # reshapeSideM([(50, 40), (20, 30)])
 
     # intrude('front', -10, 10, 30, 70, 20, 20, 20)
 
-    lathe(30, 40, 3)
-    controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, inAbsolute=True))
+    lathe(30, 40, 20)
+
+    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, inAbsolute=True))
 
     # controller.addCommand(CombinedCommand([
     #     ShiftCommand(controller.mill, controller.handler, 0),

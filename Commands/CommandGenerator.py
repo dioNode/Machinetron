@@ -133,7 +133,7 @@ class CommandGenerator:
         for currentRadius in np.arange(maxRadius, radius, -pushIncrement):
             # Push in
             controller.addCommand(CombinedCommand([
-                PushCommand(controller.lathe, currentRadius, controller.currentFaceDepth, True),
+                PushCommand(controller.lathe, currentRadius, controller.currentFaceDepth, fromCenter=True),
                 handlerSpinCommand
             ], 'Push Lathe in'))
             # Go up

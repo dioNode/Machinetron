@@ -34,7 +34,7 @@ class PushCommand(Command):
                 if not fromCenter:
                     self.depth = depth + offset2Face
                 else:
-                    self.depth = offset2Face - depth
+                    self.depth = offset2Face + configurationMap['offsets']['cuttingBit2HandlerCenter'] - depth
 
         else:
             self.depth = 0
@@ -55,6 +55,7 @@ class PushCommand(Command):
         # Cap variables
         cutMachineName = cutMachine.name.lower()
         depth = min(depth, configurationMap[cutMachineName]['maxPush'])
+        depth = max(0, depth)
         startSpeed = min(startSpeed, configurationMap[cutMachineName]['maxPushSpeed'])
         endSpeed = min(endSpeed, configurationMap[cutMachineName]['maxPushSpeed'])
 
