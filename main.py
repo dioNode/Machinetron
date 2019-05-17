@@ -1,5 +1,5 @@
 USE_GUI = False
-USE_SIM = False
+USE_SIM = True
 AUTO_START = True
 
 import time
