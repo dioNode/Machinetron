@@ -84,7 +84,7 @@ configurationMap = {
         'infVal': 9999,
         'mmPerPixelRatio': 80/1200,
         'mmError': 1.0,
-        'speedMultiplier': 5,
+        'speedMultiplier': 10,
         'numRotationSteps': 200,
     }
 }

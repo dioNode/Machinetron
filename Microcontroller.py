@@ -24,10 +24,7 @@ class Microcontroller:
             time.sleep(self.i2cSleep)
             self.bus.write_i2c_block_data(address, commandByte, motorInstructions)
             time.sleep(self.i2cSleep)
-        # Start instruction
-        time.sleep(self.i2cSleep)
-        self.bus.write_i2c_block_data(0, 1, motorInstructions)
-        time.sleep(self.i2cSleep)
+        self.sendStartCommand()
 
     def isComplete(self):
         # TODO Work for all submachines
@@ -91,7 +88,10 @@ class Microcontroller:
 
 
     def sendStartCommand(self):
-        print('START_INST')
+        # Start instruction
+        time.sleep(self.i2cSleep)
+        self.bus.write_i2c_block_data(0, 1, motorInstructions)
+        time.sleep(self.i2cSleep)
 
     def _targetsDictToInstruction(self, targets):
         """Generate a list of instruction dictionaries to be sent off"""

@@ -6,6 +6,7 @@ from Commands.Command import Command
 from Microcontroller import Microcontroller
 from Simulators.MicrocontrollerSimulator import MicrocontrollerSimulator
 from Commands.CommandGenerator import CommandGenerator
+from Commands.SequentialCommand import SequentialCommand
 from GoButton import GoButton
 
 from support.supportMaps import statusMap
@@ -152,8 +153,12 @@ class Controller:
         """
         print(self.currentCommand.generateTargets(True))
         print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
-        self.microcontroller.processCommand(self.currentCommand)
-        self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
+        if isinstance(self.currentCommand, SequentialCommand):
+            print('sequential command detected')
+
+        else:
+            self.microcontroller.processCommand(self.currentCommand)
+            self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
 
     def updateEndeffactorValues(self):
         """Updates the information for the end location for each of the actuators.

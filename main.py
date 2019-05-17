@@ -1,5 +1,5 @@
-USE_GUI = False
-USE_SIM = False
+USE_GUI = True
+USE_SIM = True
 AUTO_START = False
 
 import time
@@ -57,7 +57,7 @@ def main():
 
     # intrude('front', -10, 10, 30, 70, 20, 20, 20)
 
-    lathe(30, 40, 20)
+    # lathe(30, 40, 20)
 
     # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, inAbsolute=True))
 
@@ -82,15 +82,15 @@ def main():
     # stlProcessor.generateCommands('part0.STL', controller)
 
 
-    # drill('front', -20, 85, 50)
-    # drill('front', 20, 85, 50)
-    # lathe(50, 80, 25)
-    # cutInCircle('top', 0, 40, 25, 40)
-    # fillet('top', 38.3, 80, 10, 1, 30)
-    # fillet('top', -38.3, 80, 10, 2, 30)
-    # fillet('top', -38.3, 0, 10, 3, 30)
-    # fillet('top', 38.3, 0, 10, 4, 30)
-    # intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 6)
+    drill('front', -20, 85, 50)
+    drill('front', 20, 85, 50)
+    lathe(50, 80, 25)
+    cutInCircle('top', 0, 40, 25, 40)
+    fillet('top', 38.3, 80, 10, 1, 30)
+    fillet('top', -38.3, 80, 10, 2, 30)
+    fillet('top', -38.3, 0, 10, 3, 30)
+    fillet('top', 38.3, 0, 10, 4, 30)
+    intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 6)
 
 
     ################ End of Commands ################
