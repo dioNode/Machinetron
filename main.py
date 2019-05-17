@@ -48,6 +48,10 @@ def main():
 
 
     ## Test 4: Handler flip test
+    for i in range(3):
+        controller.addCommand(FlipCommand(controller.handler, 'up')),
+        controller.addCommand(FlipCommand(controller.handler, 'down'))
+
     # for i in range(1):
     #     controller.addCommand(CombinedCommand([
     #         FlipCommand(controller.handler, 'up'),
@@ -59,12 +63,14 @@ def main():
     #     ]))
     #     SpinCommand(controller.handler, 0)
 
-    controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
-    # controller.commandGenerator.millCircleDiscrete('front', -20, 50, 30, 60)
+    # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
+    # controller.commandGenerator.millCircleDiscrete('front', -20, 50, 50, 60)
 
     # controller.addCommand(ShiftCommand(controller.lathe, controller.handler, 0))
-    controller.commandGenerator.homeMill()
-    controller.commandGenerator.homeHandler()
+    # controller.commandGenerator.homeMill()
+    # controller.commandGenerator.homeHandler()
+
+
 
     # lathe(30, 40, 20)
 

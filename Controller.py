@@ -131,7 +131,7 @@ class Controller:
             if self.useSimulator:
                 if isinstance(command, SequentialCommand):
                     # Convert sequential command to combined command
-                    print('Converting sequential command', command.commandList)
+                    print('Converting sequential command', len(command.commandList), command.commandList)
                     for c in command.commandList:
                         self.commandQueue.append(c)
                     return
