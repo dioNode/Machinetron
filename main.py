@@ -1,6 +1,6 @@
-USE_GUI = True
-USE_SIM = True
-AUTO_START = False
+USE_GUI = False
+USE_SIM = False
+AUTO_START = True
 
 import time
 
@@ -24,6 +24,7 @@ def main():
     from Commands.FlipCommand import FlipCommand
     from Commands.ShiftCommand import ShiftCommand
     from Commands.SpinCommand import SpinCommand
+    from Commands.SequentialCommand import SequentialCommand
 
 
     ## 75% DEMO STUFF
@@ -40,6 +41,10 @@ def main():
     #     RaiseCommand(controller.lathe, 0, 30, 15)
     # ]))
 
+    sequentialCommand = SequentialCommand([])
+    sequentialCommand.addCommand(RaiseCommand(controller.mill, 50))
+    sequentialCommand.addCommand(RaiseCommand(controller.mill, 0))
+    controller.addCommand(sequentialCommand)
 
     ## Test 4: Handler flip test
     # for i in range(1):
@@ -82,15 +87,15 @@ def main():
     # stlProcessor.generateCommands('part0.STL', controller)
 
 
-    drill('front', -20, 85, 50)
-    drill('front', 20, 85, 50)
-    lathe(50, 80, 25)
-    cutInCircle('top', 0, 40, 25, 40)
-    fillet('top', 38.3, 80, 10, 1, 30)
-    fillet('top', -38.3, 80, 10, 2, 30)
-    fillet('top', -38.3, 0, 10, 3, 30)
-    fillet('top', 38.3, 0, 10, 4, 30)
-    intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 6)
+    # drill('front', -20, 85, 50)
+    # drill('front', 20, 85, 50)
+    # lathe(50, 80, 25)
+    # cutInCircle('top', 0, 40, 25, 40)
+    # fillet('top', 38.3, 80, 10, 1, 30)
+    # fillet('top', -38.3, 80, 10, 2, 30)
+    # fillet('top', -38.3, 0, 10, 3, 30)
+    # fillet('top', 38.3, 0, 10, 4, 30)
+    # intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 6)
 
 
     ################ End of Commands ################

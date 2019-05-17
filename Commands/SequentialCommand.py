@@ -29,6 +29,3 @@ class SequentialCommand(Command):
     def addCommand(self, command):
         self.commandList.append(command)
 
-    def getCombinedCommandEquivalent(self):
-        combinedCommand = CombinedCommand(self.commandList, self.name)
-        return combinedCommand

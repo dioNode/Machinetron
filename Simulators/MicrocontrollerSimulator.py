@@ -10,6 +10,7 @@ class MicrocontrollerSimulator(Microcontroller):
 
     """
     def __init__(self, speedMultiplier=1):
+        super().__init__()
         # These results are purely to simulate endeffactor movement
         # Actual STM microcontroller will need to monitor steps too
         self.currentTime = datetime.datetime.now()

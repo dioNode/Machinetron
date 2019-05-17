@@ -99,6 +99,7 @@ class Microcontroller:
     def sendStartCommand(self):
         # Start instruction
         time.sleep(self.i2cSleep)
+        motorInstructions = [0]*21
         self.bus.write_i2c_block_data(0, 1, motorInstructions)
         time.sleep(self.i2cSleep)
 

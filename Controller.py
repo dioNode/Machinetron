@@ -127,8 +127,10 @@ class Controller:
             if self.useSimulator:
                 if isinstance(command, SequentialCommand):
                     # Convert sequential command to combined command
-                    combinedCommand = command.getCombinedCommandEquivalent()
-                    command = combinedCommand
+                    print('Converting sequential command', command.commandList)
+                    for c in command.commandList:
+                        self.commandQueue.append(c)
+                    return
 
             self.commandQueue.append(command)
         else:
@@ -161,7 +163,7 @@ class Controller:
         print(self.currentCommand.generateTargets(True))
         # print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
         if isinstance(self.currentCommand, SequentialCommand):
-            self.microcontroller.processSequentialCommands(self.currentCommand)
+            self.microcontroller.processSequentialCommands(self.currentCommand.commandList)
             self.microcontroller.updateSequentialSubmachinesUsed(self.currentCommand)
         else:
             self.microcontroller.processCommand(self.currentCommand)
