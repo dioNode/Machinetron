@@ -30,9 +30,9 @@ class Microcontroller:
             address = instruction['address']
             commandByte = instruction['commandByte']
             motorInstructions = instruction['motorInstructions']
-            time.sleep(self.i2cSleep)
+            time.sleep(self.i2cSleep/2)
             self.bus.write_i2c_block_data(address, commandByte, motorInstructions)
-            time.sleep(self.i2cSleep)
+            time.sleep(self.i2cSleep/2)
 
 
     def isComplete(self):

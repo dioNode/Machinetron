@@ -1,10 +1,9 @@
-
+import time
 
 class GoButton:
 
     def __init__(self, controller):
         import RPi.GPIO as GPIO  # Import Raspberry Pi GPIO library
-        import time
         # GPIO.setwarnings(False)  # Ignore warning for now
         GPIO.setmode(GPIO.BOARD)  # Use physical pin numbering
         GPIO.setup(37, GPIO.IN,
@@ -21,20 +20,6 @@ class GoButton:
             self.lastPressedTime = currentTime
             print('pressed')
             self.controller.goButtonClicked()
-
-
-        # if not self.depressed:
-        #     # DO button press
-        #     print('Go button pressed!')
-        #
-        #
-        #     self.controller.goButtonClicked()
-        #     self.depressed = True
-        #     time.sleep(1)
-        #     self.depressed = False
-        # else:
-        #     print('blocked')
-
 
 
 

@@ -41,10 +41,11 @@ def main():
     #     RaiseCommand(controller.lathe, 0, 30, 15)
     # ]))
 
-    sequentialCommand = SequentialCommand([])
-    sequentialCommand.addCommand(RaiseCommand(controller.mill, 50))
-    sequentialCommand.addCommand(RaiseCommand(controller.mill, 0))
-    controller.addCommand(sequentialCommand)
+    # sequentialCommand = SequentialCommand([])
+    # sequentialCommand.addCommand(RaiseCommand(controller.mill, 50))
+    # sequentialCommand.addCommand(RaiseCommand(controller.mill, 0))
+    # controller.addCommand(sequentialCommand)
+
 
     ## Test 4: Handler flip test
     # for i in range(1):
@@ -58,9 +59,12 @@ def main():
     #     ]))
     #     SpinCommand(controller.handler, 0)
 
-    # reshapeSideM([(50, 40), (20, 30)])
+    controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
+    # controller.commandGenerator.millCircleDiscrete('front', -20, 50, 30, 60)
 
-    # intrude('front', -10, 10, 30, 70, 20, 20, 20)
+    # controller.addCommand(ShiftCommand(controller.lathe, controller.handler, 0))
+    controller.commandGenerator.homeMill()
+    controller.commandGenerator.homeHandler()
 
     # lathe(30, 40, 20)
 

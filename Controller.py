@@ -8,6 +8,7 @@ from Simulators.MicrocontrollerSimulator import MicrocontrollerSimulator
 from Commands.CommandGenerator import CommandGenerator
 from Commands.SequentialCommand import SequentialCommand
 from GoButton import GoButton
+from StatusLed import StatusLed
 
 from support.supportMaps import statusMap
 from config import configurationMap
@@ -43,6 +44,8 @@ class Controller:
 
         self.state = statusMap['stopped']
         self.goButton = GoButton(self) if not useSimulator else None
+        self.statusLed = StatusLed() if not useSimulator else StatusLed(False)
+        self.statusLed.turnRed()
         self.facename = 'front'
 
         self.useSimulator = useSimulator
@@ -76,6 +79,7 @@ class Controller:
         time.sleep(self.timeStep)
         self.currentTime += self.timeStep
         self.updateDirectionFaced()
+
 
     def start(self):
         """Allows the controller to start issuing commands."""
@@ -160,6 +164,7 @@ class Controller:
         This sends the current command to be processed by the STM.
 
         """
+        self.statusLed.turnRed()
         print(self.currentCommand.generateTargets(True))
         # print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
         if isinstance(self.currentCommand, SequentialCommand):
@@ -168,6 +173,7 @@ class Controller:
         else:
             self.microcontroller.processCommand(self.currentCommand)
             self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
+        self.statusLed.turnYellow()
 
     def updateEndeffactorValues(self):
         """Updates the information for the end location for each of the actuators.
@@ -189,7 +195,10 @@ class Controller:
 
     def commandComplete(self):
         """Checks whether the current command has been complete."""
-        return self.microcontroller.isComplete()
+        self.statusLed.turnRed()
+        isCommandComplete = self.microcontroller.isComplete()
+        self.statusLed.turnYellow()
+        return isCommandComplete
 
     def getMicrocontrollerResults(self):
         """Gets all the current positions of each of the motors.

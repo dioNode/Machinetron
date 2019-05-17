@@ -5,6 +5,7 @@ from Commands.PushCommand import PushCommand
 from Commands.SpinCommand import SpinCommand
 from Commands.RaiseCommand import RaiseCommand
 from Commands.ShiftCommand import ShiftCommand
+from Commands.FlipCommand import FlipCommand
 from Commands.CombinedCommand import CombinedCommand
 from Commands.SelectFaceCommand import SelectFaceCommand
 from Commands.SequentialCommand import SequentialCommand
@@ -189,8 +190,8 @@ class CommandGenerator:
             z (double): The vertical displacement of the center point of the mill arc.
             radius (double): The radius that the mill is working around.
             depth (double): The depth of the mill from the foam surface.
-            startAngle(double): The starting angle of the mill in degrees.
-            endAngle(double): The ending angle of the mill in degrees.
+            startAngle(double): The starting angle of the mill in radians.
+            endAngle(double): The ending angle of the mill in radians.
 
         """
         sequentialCommand = SequentialCommand([])
@@ -409,6 +410,28 @@ class CommandGenerator:
         self.controller.addCommand(CombinedCommand([
             PushCommand(self.controller.lathe, 0, self.controller.currentFaceDepth),
             SpinCommand(self.controller.handler, 0)
+        ]))
+
+    def homeCutmachine(self, cutmachine):
+        self.controller.addCommand(CombinedCommand([
+            PushCommand(cutmachine, 0, self.controller.currentFaceDepth),
+            RaiseCommand(cutmachine, 0),
+        ]))
+
+    def homeMill(self):
+        self.homeCutmachine(self.controller.mill)
+
+    def homeLathe(self):
+        self.homeCutmachine(self.controller.lathe)
+
+    def homeDrill(self):
+        self.homeCutmachine(self.controller.drill)
+
+    def homeHandler(self):
+        self.controller.addCommand(CombinedCommand([
+            ShiftCommand(self.controller.drill, self.controller.handler, 0, inAbsolute=True),
+            SpinCommand(self.controller.handler, 0),
+            FlipCommand(self.controller.handler, 'down')
         ]))
 
     def selectFace(self, face):
