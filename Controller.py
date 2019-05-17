@@ -45,6 +45,7 @@ class Controller:
         self.goButton = GoButton(self) if not useSimulator else None
         self.facename = 'front'
 
+        self.useSimulator = useSimulator
         self.timeStep = 0.001 if useSimulator else 1.5
         speedMultiplier = configurationMap['other']['speedMultiplier']
         self.microcontroller = MicrocontrollerSimulator(speedMultiplier) if useSimulator else Microcontroller()
@@ -123,6 +124,12 @@ class Controller:
 
         """
         if isinstance(command, Command):
+            if self.useSimulator:
+                if isinstance(command, SequentialCommand):
+                    # Convert sequential command to combined command
+                    combinedCommand = command.getCombinedCommandEquivalent()
+                    command = combinedCommand
+
             self.commandQueue.append(command)
         else:
             print("Throw not a command exception")
@@ -152,10 +159,10 @@ class Controller:
 
         """
         print(self.currentCommand.generateTargets(True))
-        print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
+        # print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
         if isinstance(self.currentCommand, SequentialCommand):
-            print('sequential command detected')
-
+            self.microcontroller.processSequentialCommands(self.currentCommand)
+            self.microcontroller.updateSequentialSubmachinesUsed(self.currentCommand)
         else:
             self.microcontroller.processCommand(self.currentCommand)
             self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())

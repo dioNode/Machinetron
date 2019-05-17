@@ -7,6 +7,7 @@ from Commands.RaiseCommand import RaiseCommand
 from Commands.ShiftCommand import ShiftCommand
 from Commands.CombinedCommand import CombinedCommand
 from Commands.SelectFaceCommand import SelectFaceCommand
+from Commands.SequentialCommand import SequentialCommand
 from support.supportFunctions import getLinearVelocityTime
 from config import configurationMap
 
@@ -192,6 +193,7 @@ class CommandGenerator:
             endAngle(double): The ending angle of the mill in degrees.
 
         """
+        sequentialCommand = SequentialCommand([])
         # Set starting location
         self.selectFace(face)
         # Start with top right quadrant
@@ -203,6 +205,7 @@ class CommandGenerator:
             ShiftCommand(self.controller.mill, self.controller.handler, currentX),
             RaiseCommand(self.controller.mill, currentZ),
         ]))
+        # Insert mill into foam
         self.controller.addCommand(CombinedCommand([
             PushCommand(self.controller.mill, depth, self.controller.currentFaceDepth),
             SpinCommand(self.controller.mill),
@@ -213,7 +216,12 @@ class CommandGenerator:
         for angle in np.arange(startAngle, endAngle, angleStep):
             currentX = x + radius * math.cos(angle)
             currentZ = actualZ + radius * math.sin(angle)
-            self.controller.addCommand(CombinedCommand([
+            # self.controller.addCommand(CombinedCommand([
+            #     SpinCommand(self.controller.mill),
+            #     ShiftCommand(self.controller.mill, self.controller.handler, currentX),
+            #     RaiseCommand(self.controller.mill, currentZ),
+            # ]))
+            sequentialCommand.addCommand(CombinedCommand([
                 SpinCommand(self.controller.mill),
                 ShiftCommand(self.controller.mill, self.controller.handler, currentX),
                 RaiseCommand(self.controller.mill, currentZ),
@@ -221,11 +229,17 @@ class CommandGenerator:
         angle = endAngle
         currentX = x + radius * math.cos(angle)
         currentZ = actualZ + radius * math.sin(angle)
-        self.controller.addCommand(CombinedCommand([
+        # self.controller.addCommand(CombinedCommand([
+        #     SpinCommand(self.controller.mill),
+        #     ShiftCommand(self.controller.mill, self.controller.handler, currentX),
+        #     RaiseCommand(self.controller.mill, currentZ),
+        # ]))
+        sequentialCommand.addCommand(CombinedCommand([
             SpinCommand(self.controller.mill),
             ShiftCommand(self.controller.mill, self.controller.handler, currentX),
             RaiseCommand(self.controller.mill, currentZ),
         ]))
+        self.controller.addCommand(sequentialCommand)
 
     def cutInCircle(self, face, x, z, radius, depth):
         """Completely cuts out the inside of a given circle.

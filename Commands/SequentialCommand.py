@@ -1,4 +1,5 @@
 from Commands.Command import Command
+from Commands.CombinedCommand import CombinedCommand
 from support.supportFunctions import dict_merge
 
 
@@ -16,8 +17,7 @@ class SequentialCommand(Command):
         self.commandList = commandList
         self.name = name
         if self.name == "":
-            for command in commandList:
-                self.name += command.name + ' | '
+            self.name = "Sequential Command"
 
     def generateTargets(self, inSteps=False):
         targets = []
@@ -25,3 +25,10 @@ class SequentialCommand(Command):
             targets.append(command.generateTargets(inSteps))
 
         return targets
+
+    def addCommand(self, command):
+        self.commandList.append(command)
+
+    def getCombinedCommandEquivalent(self):
+        combinedCommand = CombinedCommand(self.commandList, self.name)
+        return combinedCommand

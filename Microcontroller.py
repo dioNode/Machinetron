@@ -14,7 +14,16 @@ class Microcontroller:
         time.sleep(self.i2cSleep)
         self.bus = smbus.SMBus(1)
 
+    def processSequentialCommands(self, commandList):
+        for command in commandList:
+            self._processCommandDetails(command)
+        self.sendStartCommand()
+
     def processCommand(self, command):
+        self._processCommandDetails(command)
+        self.sendStartCommand()
+
+    def _processCommandDetails(self, command):
         targets = command.generateTargets(True)
         instructions = self._targetsDictToInstruction(targets)
         for instruction in instructions:
@@ -24,7 +33,7 @@ class Microcontroller:
             time.sleep(self.i2cSleep)
             self.bus.write_i2c_block_data(address, commandByte, motorInstructions)
             time.sleep(self.i2cSleep)
-        self.sendStartCommand()
+
 
     def isComplete(self):
         # TODO Work for all submachines
@@ -166,3 +175,11 @@ class Microcontroller:
         self.submachinesUsed = []
         for submachine in targets:
             self.submachinesUsed.append(submachine)
+
+    def updateSequentialSubmachinesUsed(self, sequentialCommand):
+        self.submachinesUsed = []
+        totalTargets = sequentialCommand.generateTargets()
+        for targets in totalTargets:
+            for submachine in targets:
+                if submachine not in self.submachinesUsed:
+                    self.submachinesUsed.append(submachine)
