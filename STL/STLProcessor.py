@@ -44,6 +44,7 @@ class STLProcessor:
         pxSliceDepth = mm2pixel(self.sliceDepth)
         sliceNum = math.ceil(pxHeight/pxSliceDepth)
         self._storeImageSlices(sliceNum)
+        self._clearFaces()
         self.generateDrillCommands()
         self.generateLatheCommands()
 
@@ -171,6 +172,14 @@ class STLProcessor:
         clearFolder('STL/output/frontback')
         clearFolder('STL/output/leftright')
         clearFolder('STL/output/topdown')
+
+    def _clearFaces(self):
+        for faceNum in range(2, 6):
+            filePath = 'face' + str(faceNum) + '.stl'
+            try:
+                os.remove(filePath)
+            except:
+                print("Error while deleting file ", filePath)
 
     def _storeImageSlices(self, sliceNum):
         self._clearFolders()

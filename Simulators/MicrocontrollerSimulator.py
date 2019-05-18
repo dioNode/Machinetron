@@ -1,6 +1,6 @@
 import datetime
 from support.supportMaps import statusMap
-from Microcontroller import Microcontroller
+from CircuitComponents.Microcontroller import Microcontroller
 
 class MicrocontrollerSimulator(Microcontroller):
     """Class that simulates what the microcontrollers in the sub machines should do.

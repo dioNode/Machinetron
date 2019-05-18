@@ -1,14 +1,16 @@
+
 from SubMachines.Handler import Handler
 from SubMachines.Drill import Drill
 from SubMachines.Mill import Mill
 from SubMachines.Lathe import Lathe
 from Commands.Command import Command
-from Microcontroller import Microcontroller
+from CircuitComponents.Microcontroller import Microcontroller
 from Simulators.MicrocontrollerSimulator import MicrocontrollerSimulator
 from Commands.CommandGenerator import CommandGenerator
 from Commands.SequentialCommand import SequentialCommand
-from GoButton import GoButton
-from StatusLed import StatusLed
+from Commands.PauseCommand import PauseCommand
+from CircuitComponents.GoButton import GoButton
+from CircuitComponents.StatusLed import StatusLed
 
 from support.supportMaps import statusMap
 from config import configurationMap
@@ -90,8 +92,12 @@ class Controller:
 
     def pause(self):
         """Pauses the current controls so no new commands can be issued."""
-        # TODO change to pause immediately
         self.state = statusMap['stopped']
+        self.sendPauseCommand()
+
+    def resume(self):
+        self.state = statusMap['started']
+        self.sendResumeCommand()
 
     def stop(self):
         """Stops the current controls so no new commands can be issued."""
@@ -165,11 +171,14 @@ class Controller:
 
         """
         self.statusLed.turnRed()
-        print(self.currentCommand.generateTargets(True))
+        print(self.currentCommand.generateTargets())
         # print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
         if isinstance(self.currentCommand, SequentialCommand):
             self.microcontroller.processSequentialCommands(self.currentCommand.commandList)
             self.microcontroller.updateSequentialSubmachinesUsed(self.currentCommand)
+        elif isinstance(self.currentCommand, PauseCommand):
+            self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
+            self.pause()
         else:
             self.microcontroller.processCommand(self.currentCommand)
             self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
@@ -303,11 +312,9 @@ class Controller:
 
     def goButtonClicked(self):
         if self.state == statusMap['started']:
-            self.state = statusMap['stopped']
-            self.sendPauseCommand()
+            self.pause()
         else:
-            self.state = statusMap['started']
-            self.sendResumeCommand()
+            self.resume()
 
     def sendPauseCommand(self):
         self.microcontroller.pause()

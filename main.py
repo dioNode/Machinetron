@@ -1,17 +1,21 @@
-USE_GUI = False
+USE_GUI = True
 USE_SIM = True
-AUTO_START = True
+AUTO_START = False
+AUTO_TOOLPATH = False
 
 import time
 
 from Controller import Controller
-#from STL.STLProcessor import STLProcessor
+
+if AUTO_TOOLPATH:
+    from STL.STLProcessor import STLProcessor
+    stlProcessor = STLProcessor()
+
 if USE_GUI:
     from Simulators.OutputSimulator import OutputSimulator
 
 controller = Controller(USE_SIM)
 
-#stlProcessor = STLProcessor()
 
 def main():
     setMountFace(76.6, 80, 110)
@@ -27,41 +31,6 @@ def main():
     from Commands.SequentialCommand import SequentialCommand
 
 
-    ## 75% DEMO STUFF
-    # controller.addCommand(RaiseCommand(controller.mill, 70, 20, 30))
-    # controller.addCommand(PushCommand(controller.mill, 50, controller.currentFaceDepth))
-    # controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
-    #
-    # controller.addCommand(RaiseCommand(controller.lathe, 70, 20, 30))
-    # controller.addCommand(RaiseCommand(controller.lathe, 50))
-    # controller.addCommand(RaiseCommand(controller.lathe, 70))
-    #
-    # controller.addCommand(CombinedCommand([
-    #     RaiseCommand(controller.mill, 0, 30, 15),
-    #     RaiseCommand(controller.lathe, 0, 30, 15)
-    # ]))
-
-    # sequentialCommand = SequentialCommand([])
-    # sequentialCommand.addCommand(RaiseCommand(controller.mill, 50))
-    # sequentialCommand.addCommand(RaiseCommand(controller.mill, 0))
-    # controller.addCommand(sequentialCommand)
-
-
-    ## Test 4: Handler flip test
-    for i in range(3):
-        controller.addCommand(FlipCommand(controller.handler, 'up')),
-        controller.addCommand(FlipCommand(controller.handler, 'down'))
-
-    # for i in range(1):
-    #     controller.addCommand(CombinedCommand([
-    #         FlipCommand(controller.handler, 'up'),
-    #         SpinCommand(controller.handler, 180)
-    #     ]))
-    #     controller.addCommand(CombinedCommand([
-    #         FlipCommand(controller.handler, 'down'),
-    #         SpinCommand(controller.handler, 90)
-    #     ]))
-    #     SpinCommand(controller.handler, 0)
 
     # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
     # controller.commandGenerator.millCircleDiscrete('front', -20, 50, 50, 60)
@@ -70,11 +39,6 @@ def main():
     # controller.commandGenerator.homeMill()
     # controller.commandGenerator.homeHandler()
 
-
-
-    # lathe(30, 40, 20)
-
-    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, inAbsolute=True))
 
     # controller.addCommand(CombinedCommand([
     #     ShiftCommand(controller.mill, controller.handler, 0),
@@ -89,23 +53,14 @@ def main():
     #     RaiseCommand(controller.mill, 0)
     # ]))
     #
-    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0))
-    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, inAbsolute=True))
 
-    # controller.addCommand(SpinCommand(controller.handler, 0))
+    calibrationRoutine()
 
-    # stlProcessor.generateCommands('part0.STL', controller)
+    if AUTO_TOOLPATH:
+        stlProcessor.generateCommands('part0.STL', controller)
 
 
-    # drill('front', -20, 85, 50)
-    # drill('front', 20, 85, 50)
-    # lathe(50, 80, 25)
-    # cutInCircle('top', 0, 40, 25, 40)
-    # fillet('top', 38.3, 80, 10, 1, 30)
-    # fillet('top', -38.3, 80, 10, 2, 30)
-    # fillet('top', -38.3, 0, 10, 3, 30)
-    # fillet('top', 38.3, 0, 10, 4, 30)
-    # intrude('top', 0, 0, 12.5, 80-12.5, 40, 40, 6)
+    # runDemoPart1()
 
 
     ################ End of Commands ################
@@ -263,6 +218,65 @@ def drill(face, x, z, depth):
     """
     controller.commandGenerator.drill(face, x, z, depth)
 
+
+def calibrationRoutine():
+    controller.commandGenerator.calibrationRoutine()
+
+
+def runDemoPart0():
+    drill('front', -20, 85, 50)
+    drill('front', 20, 85, 50)
+    lathe(50, 80, 25)
+    cutInCircle('top', 0, 40, 25, 40)
+    fillet('top', 38.3, 80, 10, 1, 30)
+    fillet('top', -38.3, 80, 10, 2, 30)
+    fillet('top', -38.3, 0, 10, 3, 30)
+    fillet('top', 38.3, 0, 10, 4, 30)
+    intrude('top', 0, 0, 12.5, 80 - 12.5, 40, 40, 6)
+
+
+def runDemoPart1():
+    #12 mins
+    reshapeFrontM([(76.6, 20), (40, 90-55-20), (80, 40), (40, 55-20)])
+    reshapeSideM([(76.6, 20), (40, 90 - 55 - 20), (80, 40), (40, 55 - 20)])
+    lathe(20, 100-55-20, 20)
+    for face in ['front', 'right', 'back', 'left']:
+        cutOutCircle(face, 0, 110-55, 20, 18.3)
+
+    fillet('top', 20, 60, 10, 1, 20)
+    fillet('top', -20, 60, 10, 2, 20)
+    fillet('top', -20, 20, 10, 3, 20)
+    fillet('top', 20, 20, 10, 4, 20)
+
+    drill('front', 0, 110-10, 40+18.3)
+    drill('right', 0, 110 - 10, 40 + 18.3)
+
+
+def runDemoPart2():
+    #20min
+    reshapeFrontM([(76.6, 20), (65, 5), (70, 5), (60, 110-5-5-20)])
+    reshapeSideM([(76.6, 20), (65, 6), (70, 5), (60, 110 - 5 - 5 - 20)])
+    lathe(20, 25, 32.5)
+    lathe(25, 30, 35)
+    lathe(30, 50, 30)
+    drill('top', 0, 40, 40)
+    fillet('top', 30-10, 40+30-10, 10, 1, 60)
+    fillet('top', -30+10, 40+30-10, 10, 2, 60)
+    fillet('top', -30+10, 40-30+10, 10, 3, 60)
+    fillet('top', 30-10, 40-30+10, 10, 4, 60)
+
+
+def runDemoPart3():
+    reshapeFrontM([(80, 30), (30, 80)])
+    lathe(30, 110, 37.5)
+    drill('front', -27.5, 100, 72)
+    drill('front', -27.5, 40, 72)
+    drill('front', 0, 100, 72)
+    drill('front', 0, 40, 72)
+    drill('front', 27.5, 100, 72)
+    drill('front', 27.5, 40, 72)
+    intrude('front', -15, -15, 45, 95, 72, 72, 5)
+    intrude('front', 15, 15, 45, 95, 72, 72, 5)
 
 if __name__== "__main__":
     main()

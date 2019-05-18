@@ -28,12 +28,12 @@ class SpinCommand(Command):
         targets = {}
         subMachine = self.subMachine
 
-        if self.targetValue != None:
-            # Set target value relative to where the current angle is
-            currentValue = subMachine.spinMotor.currentDisplacement
-            offsetFromZero = currentValue % 360
-            zeroValue = currentValue - offsetFromZero
-            self.targetValue += zeroValue
+        # if self.targetValue != None:
+        #     # Set target value relative to where the current angle is
+        #     currentValue = subMachine.spinMotor.currentDisplacement
+        #     offsetFromZero = currentValue % 360
+        #     zeroValue = currentValue - offsetFromZero
+        #     self.targetValue += zeroValue
 
         targetValue = self.targetValue
         startSpeed = self.startSpeed

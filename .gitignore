@@ -188,3 +188,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+face2.stl
+face3.stl
+face4.stl
+face5.stl
+
+STL/output
