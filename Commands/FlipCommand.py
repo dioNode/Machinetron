@@ -1,5 +1,5 @@
 from Commands.Command import Command
-
+from config import configurationMap
 
 class FlipCommand(Command):
     """Flips the handler up and down.
@@ -11,10 +11,11 @@ class FlipCommand(Command):
           endSpeed (double): Final speed of push (degrees/s).
 
     """
-    def __init__(self, handler, position, startSpeed=None, endSpeed=None):
+    def __init__(self, handler, position, startSpeed=None, endSpeed=None, home=False):
         super().__init__()
         self.name = 'Flipping ' + position
         self.position = position
+        self.home = home if position == 'up' else True
         if not isinstance(handler, Handler):
             print("SpinCommand: Not a cut machine")
         else:
@@ -47,7 +48,7 @@ class FlipCommand(Command):
 
         name = handler.name.lower()
         targets[name] = {'flip': {
-            'targetValue': targetValue,
+            'targetValue': targetValue if not self.home else configurationMap['other']['homeVal'],
             'startSpeed': startSpeed,
             'endSpeed': endSpeed,
             'status': statusMap['started']

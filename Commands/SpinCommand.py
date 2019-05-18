@@ -1,4 +1,5 @@
 from Commands.Command import Command
+from config import configurationMap
 
 
 class SpinCommand(Command):
@@ -11,10 +12,11 @@ class SpinCommand(Command):
         endSpeed (double): Final speed of push (mm/s).
 
     """
-    def __init__(self, subMachine, targetValue=None, startSpeed=None, endSpeed=None):
+    def __init__(self, subMachine, targetValue=None, startSpeed=None, endSpeed=None, home=False):
         super().__init__()
         self.name = "Spinning "+subMachine.name
         self.targetValue = targetValue
+        self.home = home
         if not isinstance(subMachine, SubMachine):
             print("SpinCommand: Not a cut machine")
         else:
@@ -49,7 +51,7 @@ class SpinCommand(Command):
 
         name = subMachine.name.lower()
         targets[name] = {'spin': {
-            'targetValue': targetValue,
+            'targetValue': targetValue if not self.home else configurationMap['other']['homeVal'],
             'startSpeed': startSpeed,
             'endSpeed': endSpeed,
             'status': statusMap['started']

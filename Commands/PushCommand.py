@@ -18,26 +18,26 @@ class PushCommand(Command):
         endSpeed (double): Final speed of push (mm/s).
 
     """
-    def __init__(self, cutMachine, depth, faceDepth, fromCenter=False, flipped=False, startSpeed=None, endSpeed=None):
+    def __init__(self, cutMachine, depth, faceDepth, fromCenter=False, flipped=False, startSpeed=None, endSpeed=None,
+                 home=False):
         super().__init__()
         self.name = "Pushing "+cutMachine.name
 
         self.startSpeed = startSpeed if startSpeed is not None else configurationMap[cutMachine.name.lower()]['pushSpeed']
         self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
 
-        if depth != 0:
-            if flipped:
-                offset2Face = configurationMap['offsets']['cuttingBit2HandlerFlipBase'] - faceDepth
+        self.home = home
+
+        if flipped:
+            offset2Face = configurationMap['offsets']['cuttingBit2HandlerFlipBase'] - faceDepth
+            self.depth = depth + offset2Face
+        else:
+            offset2Face = configurationMap['offsets']['cuttingBit2HandlerCenter'] * 2 - faceDepth
+            if not fromCenter:
                 self.depth = depth + offset2Face
             else:
-                offset2Face = configurationMap['offsets']['cuttingBit2HandlerCenter'] * 2 - faceDepth
-                if not fromCenter:
-                    self.depth = depth + offset2Face
-                else:
-                    self.depth = offset2Face + configurationMap['offsets']['cuttingBit2HandlerCenter'] - depth
+                self.depth = offset2Face + configurationMap['offsets']['cuttingBit2HandlerCenter'] - depth
 
-        else:
-            self.depth = 0
         if not isinstance(cutMachine, CutMachine):
             print("PushCommand: Not a cut machine")
         else:
@@ -66,7 +66,7 @@ class PushCommand(Command):
 
         name = cutMachine.name.lower()
         targets[name] = {'pen': {
-            'targetValue': depth,
+            'targetValue': depth if not self.home else configurationMap['other']['homeVal'],
             'startSpeed': startSpeed,
             'endSpeed': endSpeed,
             'status': statusMap['started']

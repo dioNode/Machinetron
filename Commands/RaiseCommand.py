@@ -15,10 +15,11 @@ class RaiseCommand(Command):
         endSpeed (double): Final speed of push (mm/s).
 
     """
-    def __init__(self, cutMachine, heightDisplacement, startSpeed=None, endSpeed=None):
+    def __init__(self, cutMachine, heightDisplacement, startSpeed=None, endSpeed=None, home=False):
         super().__init__()
         self.name = "Raising "+cutMachine.name
         self.heightDisplacement = heightDisplacement
+        self.home = home
         if not isinstance(cutMachine, CutMachine):
             print("RaiseCommand: Not a cut machine")
         else:
@@ -47,9 +48,13 @@ class RaiseCommand(Command):
             startSpeed = cutMachine.vertMotor.displacementToSteps(startSpeed)
             endSpeed = cutMachine.vertMotor.displacementToSteps(endSpeed)
 
+        if self.heightDisplacement == -1:
+            # Indicate homing bit
+            heightDisplacement = -1
+
         name = cutMachine.name.lower()
         targets[name] = {'vert': {
-            'targetValue': heightDisplacement,
+            'targetValue': heightDisplacement if not self.home else configurationMap['other']['homeVal'],
             'startSpeed': startSpeed,
             'endSpeed': endSpeed,
             'status': statusMap['started']

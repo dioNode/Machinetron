@@ -82,6 +82,7 @@ configurationMap = {
         'STOP_INST': 3,
     }, 'other': {
         'infVal': 9999,
+        'homeVal': -10,
         'mmPerPixelRatio': 80/1200,
         'mmError': 1.0,
         'speedMultiplier': 10,

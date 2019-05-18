@@ -423,8 +423,8 @@ class CommandGenerator:
 
     def homeCutmachine(self, cutmachine):
         self.controller.addCommand(CombinedCommand([
-            PushCommand(cutmachine, 0, self.controller.currentFaceDepth),
-            RaiseCommand(cutmachine, 0),
+            PushCommand(cutmachine, 0, self.controller.currentFaceDepth, home=True),
+            RaiseCommand(cutmachine, 0, home=True),
         ]))
 
     def homeMill(self):
@@ -438,9 +438,10 @@ class CommandGenerator:
 
     def homeHandler(self):
         self.controller.addCommand(CombinedCommand([
-            ShiftCommand(self.controller.drill, self.controller.handler, 0, inAbsolute=True),
-            SpinCommand(self.controller.handler, 0),
-            FlipCommand(self.controller.handler, 'down')
+            ShiftCommand(self.controller.drill, self.controller.handler, configurationMap['other']['homeVal'],
+                         inAbsolute=True, home=True),
+            SpinCommand(self.controller.handler, configurationMap['other']['homeVal'], home=True),
+            FlipCommand(self.controller.handler, 'down', home=True)
         ]))
 
     def selectFace(self, face):
@@ -577,7 +578,7 @@ class CommandGenerator:
         # Poke foam
         self.controller.addCommand(PushCommand(cutmachine, 0, self.controller.currentFaceDepth))
         self.pauseCommand()
-        self.controller.addCommand(PushCommand(cutmachine, -1, self.controller.currentFaceDepth))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller.currentFaceDepth, home=True))
 
         # Move to top right corner
         self.controller.addCommand(CombinedCommand([
@@ -587,7 +588,7 @@ class CommandGenerator:
         # Poke foam
         self.controller.addCommand(PushCommand(cutmachine, 0, self.controller.currentFaceDepth))
         self.pauseCommand()
-        self.controller.addCommand(PushCommand(cutmachine, -1, self.controller.currentFaceDepth))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller.currentFaceDepth, home=True))
 
 
     def calibrateHandler(self):

@@ -139,7 +139,11 @@ class Microcontroller:
                                 endSpeed = targetVals['endSpeed']
                                 direction = 1 if targetValue >= 0 else 0
                                 # Set motorByte configurations
-                                homeBit = 0# if targetValue != 0 else 1
+                                homeBit = 0
+                                if targetValue == configurationMap['other']['homeVal']:
+                                    # Home command
+                                    homeBit = 1
+                                    targetValue = 0
                                 motorByte = 0
                                 motorByte |= motorID << 6
                                 motorByte |= direction << 5
