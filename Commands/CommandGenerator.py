@@ -565,28 +565,39 @@ class CommandGenerator:
             SpinCommand(cutMachine)
         ])
 
-    def calibrateMill(self):
+    def pauseCommand(self):
+        self.controller.addCommand(PauseCommand())
+
+    def calibrateCutmachine(self, cutmachine):
         # Move to bottom left corner
         self.controller.addCommand(CombinedCommand([
-            ShiftCommand(self.controller.mill, self.controller.handler, -38.8),
-            RaiseCommand(self.controller.mill, 0)
+            ShiftCommand(cutmachine, self.controller.handler, -38.8),
+            RaiseCommand(cutmachine, 0)
         ]))
         # Poke foam
-        self.controller.addCommand(PushCommand(self.controller.mill, 0, self.controller.currentFaceDepth))
-        self.controller.addCommand(PauseCommand())
-        self.controller.addCommand(PushCommand(self.controller.mill, -1, self.controller.currentFaceDepth))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller.currentFaceDepth))
+        self.pauseCommand()
+        self.controller.addCommand(PushCommand(cutmachine, -1, self.controller.currentFaceDepth))
 
         # Move to top right corner
         self.controller.addCommand(CombinedCommand([
-            ShiftCommand(self.controller.mill, self.controller.handler, 38.8),
-            RaiseCommand(self.controller.mill, 110)
+            ShiftCommand(cutmachine, self.controller.handler, 38.8),
+            RaiseCommand(cutmachine, 110)
         ]))
         # Poke foam
-        self.controller.addCommand(PushCommand(self.controller.mill, 0, self.controller.currentFaceDepth))
-        self.controller.addCommand(PushCommand(self.controller.mill, -1, self.controller.currentFaceDepth))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller.currentFaceDepth))
+        self.pauseCommand()
+        self.controller.addCommand(PushCommand(cutmachine, -1, self.controller.currentFaceDepth))
+
+
+    def calibrateHandler(self):
+        self.controller.addCommand(FlipCommand(self.controller.handler, 'up'))
+        self.pauseCommand()
+        self.controller.addCommand(FlipCommand(self.controller.handler, 'down'))
 
 
     def calibrationRoutine(self):
         cutmachines = [self.controller.mill, self.controller.drill, self.controller.lathe]
-        self.calibrateMill()
-
+        for cutmachine in cutmachines:
+            self.calibrateCutmachine(cutmachine)
+        self.calibrateHandler()
