@@ -22,7 +22,7 @@ class STLProcessor:
     def __init__(self):
         self.controller = None
         self.path = None
-        self.sliceDepth = 10
+        self.sliceDepth = 1
         self.filename = ''
         self.imageSlicesLeftRight = []
         self.imageSlicesTopDown = []
@@ -40,10 +40,7 @@ class STLProcessor:
         self.filename = filename
         self._clearFolders()
         self.path = 'STL/output'
-        pxHeight = 1724
-        pxSliceDepth = mm2pixel(self.sliceDepth)
-        sliceNum = math.ceil(pxHeight/pxSliceDepth)
-        self._storeImageSlices(sliceNum)
+        self._storeImageSlices()
         self._clearFaces()
         self.generateDrillCommands()
         self.generateLatheCommands()
@@ -172,6 +169,7 @@ class STLProcessor:
         clearFolder('STL/output/frontback')
         clearFolder('STL/output/leftright')
         clearFolder('STL/output/topdown')
+        clearFolder('STL/dump')
 
     def _clearFaces(self):
         for faceNum in range(2, 6):
@@ -181,29 +179,37 @@ class STLProcessor:
             except:
                 print("Error while deleting file ", filePath)
 
-    def _storeImageSlices(self, sliceNum):
+    def _storeImageSlices(self):
         self._clearFolders()
         self._getRotated()
         # Generate slices for topdown
+        sliceNum = math.ceil(110/self.sliceDepth)
         throughFace = 'topdown'
         generateSlices(self.filename, throughFace, sliceNum)
         facePath = self.path + '/' + throughFace
-        self.imageSlicesTopDown = self._getImageSlices(facePath, 55, 1145, 57, 1196)
-        # Generate slices for left right
-        generateSlices('face3.stl', 'leftright', sliceNum)
-        self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright', 55, 1145, 78, 1645)
-        # Generate slices for front back
-        generateSlices('face2.stl', 'frontback', sliceNum)
-        self.imageSlicesFrontBack = self._getImageSlices('STL/output/frontback', 55, 1145, 78, 1645)
+        self.imageSlicesTopDown = self._getImageSlices(facePath, 55, 1145, 57, 1196, 76.6, 80)
 
-    def _getImageSlices(self, facePath, x0, x1, y0, y1):
+        # Generate slices for left right
+        sliceNum = math.ceil(int(76.6/self.sliceDepth))
+        generateSlices('face3.stl', 'leftright', sliceNum)
+        self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright', 55, 1145, 75, 1575, 80, 110)
+
+        # Generate slices for front back
+        sliceNum = math.ceil(80/self.sliceDepth)
+        generateSlices('face2.stl', 'frontback', sliceNum+1)
+        self.imageSlicesFrontBack = self._getImageSlices('STL/output/frontback', 55, 1145, 78, 1645, 76.6, 110)
+
+    def _getImageSlices(self, facePath, x0, x1, y0, y1, width, height):
         imageSlices = []
         for image_path in os.listdir(facePath):
             # create the full input path and read the file
             input_path = os.path.join(facePath, image_path)
             img = cv2.imread(input_path, 0)
+            ratio = configurationMap['other']['mmPerPixelRatio']
             croppedIm = img[y0:y1, x0:x1]
-            imageSlices.append(croppedIm)
+            resizedIm = cv2.resize(croppedIm, (int(width/ratio), int(height/ratio)))
+            imageSlices.append(resizedIm)
+            cv2.imwrite('STL/dump/'+image_path, resizedIm)
         return imageSlices
 
     def _getRotated(self):
@@ -267,7 +273,7 @@ class STLProcessor:
         pxRadius = round(mm2pixel(configurationMap['drill']['diameter']/2))
         tolerance = configurationMap['drill']['detectionTolerance']
 
-        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 2.2, 100,
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1.2, 100,
                                     param1=100, param2=30, minRadius=pxRadius-tolerance, maxRadius=pxRadius+tolerance)
         drillPoints = []
         if circles is not None:
