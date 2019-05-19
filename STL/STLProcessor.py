@@ -198,13 +198,6 @@ class STLProcessor:
                                      mm2pixel(configurationMap['drill']['diameter']/2+1), 1) # Added 1 just in case
                 imageSlices[imnum] = pim
 
-
-
-
-
-
-
-
     def _clearFolders(self):
         clearFolder('STL/output/frontback')
         clearFolder('STL/output/leftright')
@@ -256,7 +249,6 @@ class STLProcessor:
         for i,imSlices in enumerate([self.imageSlicesFrontBack, self.imageSlicesLeftRight, self.imageSlicesTopDown]):
             for j,im in enumerate(imSlices):
                 cv2.imwrite('STL/dump/' + names[i] + str(j) + '.png', im)
-
 
     def _getRotated(self):
         rx = 90
