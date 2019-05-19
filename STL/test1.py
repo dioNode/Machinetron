@@ -48,15 +48,18 @@ def _containsHole(img, pos, radius, state=0): #default hole is black
             return False
 
 
-def _fillHole(img, pos, radius, state): # state is 1 for white, 0 for black
+def _fillHole(img, pos, radius, state):#state=1(fill inside circle white for drill),state=0(fill outside white for lathe)
     cv2.namedWindow('test1', cv2.WINDOW_NORMAL)
     # If state is 1 we want the hole filled white
     if state == 1:
         # the -1 signifies a filled circle (circle thickness)
         cv2.circle(img, pos, radius, (255, 255, 255), -1)
-    # If the state is 0 we want the hole filled black
+    # If the state is 0 we want the outside filled white for the lathe
     else:
-        cv2.circle(img, pos, radius, (0, 0, 0), -1)
+        # Fill all pixels that are black, white
+        img[np.where((im == [0,0,0]).all(axis = 2))] = [255,255,255]
+        # Also fill a circle with thickness 5 white with specified radius to patch up slight missed thickness
+        cv2.circle(img, pos, radius, (255, 255, 255), 5)
     cv2.imshow('test1', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
@@ -150,7 +153,7 @@ def _expand(contours):
 
 
 
-im = cv2.imread('output/topdown/part2_0004.png')
+im = cv2.imread('dump/topdown5.png')
 
 #testagain again
 
@@ -166,8 +169,8 @@ a = detectDrill(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY))
 print(a)
 
 #_containsHole(im, (x1, y1), 40)
-#_fillHole(im, (x1, y1), 100, 0)
-contours, toolpathList = _detectEdge(im)
-contours, toolpathList = _shrink(contours)
-_expand(contours)
+_fillHole(im, (383, 400), 348, 0)
+#contours, toolpathList = _detectEdge(im)
+#contours, toolpathList = _shrink(contours)
+#_expand(contours)
 
