@@ -55,7 +55,7 @@ def main():
     # calibrationRoutine()
 
     if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part3.STL', controller)
+        stlProcessor.generateCommands('part0.STL', controller)
 
 
     # runDemoPart1()

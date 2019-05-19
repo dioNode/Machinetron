@@ -22,7 +22,7 @@ class STLProcessor:
     def __init__(self):
         self.controller = None
         self.path = None
-        self.sliceDepth = 1
+        self.sliceDepth = 10
         self.filename = ''
         self.imageSlicesLeftRight = []
         self.imageSlicesTopDown = []
@@ -51,9 +51,15 @@ class STLProcessor:
 
         # Detect lathes
         totalLatheRadiusList = []
-        for img in self.imageSlicesTopDown:
+        for imNum, img in enumerate(self.imageSlicesTopDown):
             latheRadius = self._detectLathe(img)
             totalLatheRadiusList.append(latheRadius)
+
+            for radius in latheRadius:
+                # Patch up image
+                height = img.shape[0]
+                width = img.shape[1]
+                pim = self._fillHole(img, (int(width/2), int(height/2)), pixel2mm(radius), 1)
 
         startIdx = None
         endIdx = None
@@ -83,6 +89,7 @@ class STLProcessor:
             z0 = startIdx * self.sliceDepth
             z1 = endIdx * self.sliceDepth
             radius = pixel2mm(lathePoint)
+            # Trigger command
             self.controller.commandGenerator.lathe(z0, z1, radius)
 
     def generateDrillCommands(self):
@@ -105,6 +112,7 @@ class STLProcessor:
             drillPoints = self._detectDrill(img)
             totalDrillPoints.append(drillPoints)
         # Detect holes
+
         totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesFrontBack)
         self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'front')
         # Detect back drills
@@ -136,10 +144,12 @@ class STLProcessor:
         for img in imageSlices:
             drillPointsWithHoles = []
             for drillPoint in unique(totalDrillPoints):
-                pxRadius = 40 #mm2pixel(configurationMap['drill']['diameter']/2)
+                pxRadius = mm2pixel(configurationMap['drill']['diameter']/2) - \
+                           configurationMap['drill']['detectionTolerance']/2
                 pxDrillPoint = mmPos2PixelPos(drillPoint, img)
                 if self._containsHole(img, pxDrillPoint, pxRadius):
                     drillPointsWithHoles.append(drillPoint)
+
             totalDrillPointsWithHoles.append(drillPointsWithHoles)
         return totalDrillPointsWithHoles
 
@@ -273,7 +283,7 @@ class STLProcessor:
         pxRadius = round(mm2pixel(configurationMap['drill']['diameter']/2))
         tolerance = configurationMap['drill']['detectionTolerance']
 
-        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 2.0, 100,
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 2.2, 100,
                                     param1=100, param2=30, minRadius=pxRadius-tolerance, maxRadius=pxRadius+tolerance)
         drillPoints = []
         if circles is not None:
@@ -301,7 +311,7 @@ class STLProcessor:
         pxRadiusMax = round(mm2pixel(configurationMap['lathe']['maxDetectionRadius']))
         pxRadiusMin = round(mm2pixel(configurationMap['lathe']['minDetectionRadius']))
 
-        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1.2, 100,
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1.6, 100,
                                    param1=100, param2=30, minRadius=pxRadiusMin,
                                    maxRadius=pxRadiusMax)
 

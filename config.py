@@ -28,7 +28,7 @@ configurationMap = {
         'diameter': 6,
         'depth': 80,
         'id': 0x1F,
-        'detectionTolerance': 20,
+        'detectionTolerance': 5,
     }, 'lathe': {
         'homeX': 160,
         'raiseSpeed': 25,
