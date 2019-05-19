@@ -273,7 +273,7 @@ class STLProcessor:
         pxRadius = round(mm2pixel(configurationMap['drill']['diameter']/2))
         tolerance = configurationMap['drill']['detectionTolerance']
 
-        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1.2, 100,
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 2.0, 100,
                                     param1=100, param2=30, minRadius=pxRadius-tolerance, maxRadius=pxRadius+tolerance)
         drillPoints = []
         if circles is not None:

@@ -86,6 +86,7 @@ class CommandGenerator:
             depth (double): Depth of the drill into the foam.
 
         """
+        print('drill', x, z, depth)
         # Align to face
         controller = self.controller
         # z = controller.currentFaceHeight - z
