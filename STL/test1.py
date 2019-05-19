@@ -56,10 +56,8 @@ def _fillHole(img, pos, radius, state):#state=1(fill inside circle white for dri
         cv2.circle(img, pos, radius, (255, 255, 255), -1)
     # If the state is 0 we want the outside filled white for the lathe
     else:
-        # Fill all pixels that are black, white
-        img[np.where((im == [0,0,0]).all(axis = 2))] = [255,255,255]
-        # Also fill a circle with thickness 5 white with specified radius to patch up slight missed thickness
-        cv2.circle(img, pos, radius, (255, 255, 255), 5)
+        #Offset a circle 400 radius and draw a white circle with thickness 2*400 to fill outside of lathe circle white
+        cv2.circle(img, pos, radius+400, (255, 255, 255), 800)
     cv2.imshow('test1', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
