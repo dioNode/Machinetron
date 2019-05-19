@@ -44,6 +44,7 @@ class STLProcessor:
         self._clearFaces()
         self.generateDrillCommands()
         self.generateLatheCommands()
+        self._dumpImageSlices()
 
     def generateLatheCommands(self):
         """Generates the commands to use the lathe."""
@@ -59,7 +60,9 @@ class STLProcessor:
                 # Patch up image
                 height = img.shape[0]
                 width = img.shape[1]
-                pim = self._fillHole(img, (int(width/2), int(height/2)), pixel2mm(radius), 1)
+                pim = self._fillHole(img, (int(width/2), int(height/2)), radius, 1)
+                # Remask over existing image
+                self.imageSlicesTopDown[imNum] = pim
 
         startIdx = None
         endIdx = None
@@ -112,7 +115,6 @@ class STLProcessor:
             drillPoints = self._detectDrill(img)
             totalDrillPoints.append(drillPoints)
         # Detect holes
-
         totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesFrontBack)
         self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'front')
         # Detect back drills
@@ -172,8 +174,36 @@ class STLProcessor:
             trackingPoints = updatedTrackingPoints
 
         for drillPoint, depth in drillHoleLengths.items():
+            # Drill command
             self.controller.commandGenerator.drill(
                 face, drillPoint[0], drillPoint[1], depth)
+            # Fill in hole in image
+            numSlices = int(depth/self.sliceDepth)
+            imageSlices = []
+            if face == 'top':
+                imageSlices = self.imageSlicesTopDown
+            elif face == 'right':
+                imageSlices = self.imageSlicesLeftRight
+                imageSlices.reverse()
+            elif face == 'left':
+                imageSlices = self.imageSlicesLeftRight
+            elif face == 'front':
+                imageSlices = self.imageSlicesFrontBack
+            elif face == 'back':
+                imageSlices = self.imageSlicesFrontBack
+                imageSlices.reverse()
+            for imnum in range(numSlices):
+                im = imageSlices[imnum]
+                pim = self._fillHole(im, mmPos2PixelPos(drillPoint, im),
+                                     mm2pixel(configurationMap['drill']['diameter']/2+1), 1) # Added 1 just in case
+                imageSlices[imnum] = pim
+
+
+
+
+
+
+
 
     def _clearFolders(self):
         clearFolder('STL/output/frontback')
@@ -219,8 +249,14 @@ class STLProcessor:
             croppedIm = img[y0:y1, x0:x1]
             resizedIm = cv2.resize(croppedIm, (int(width/ratio), int(height/ratio)))
             imageSlices.append(resizedIm)
-            cv2.imwrite('STL/dump/'+image_path, resizedIm)
         return imageSlices
+
+    def _dumpImageSlices(self):
+        names = ['frontback', 'leftright', 'topdown']
+        for i,imSlices in enumerate([self.imageSlicesFrontBack, self.imageSlicesLeftRight, self.imageSlicesTopDown]):
+            for j,im in enumerate(imSlices):
+                cv2.imwrite('STL/dump/' + names[i] + str(j) + '.png', im)
+
 
     def _getRotated(self):
         rx = 90
@@ -273,7 +309,14 @@ class STLProcessor:
                 return False
 
     def _fillHole(self, img, pos, radius, state): # state is 1 for white, 0 for black
-        x, y = pos
+        # If state is 1 we want the hole filled white
+        radius = int(radius)
+        if state == 1:
+            # the -1 signifies a filled circle (circle thickness)
+            cv2.circle(img, pos, radius, (255, 255, 255), -1)
+        # If the state is 0 we want the hole filled black
+        else:
+            cv2.circle(img, pos, radius, (0, 0, 0), -1)
         return img
 
     def _detectDrill(self, img):
