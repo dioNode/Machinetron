@@ -66,6 +66,7 @@ def generateSlices(filename, throughFace, sliceNum):
     if options.nslices != 0:
         for i in range(options.nslices):
             z = tzs.zlo + (tzs.zhi - tzs.zlo)*(i + 0.5)/options.nslices
+            print('zloose', z, tzs.zlo, tzs.zhi, i, options.nslices)
             tzs.SliceToPNG(z, pngname(options.outputfile, i, z), throughFace)
 
     i = options.nslices
