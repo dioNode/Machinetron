@@ -52,6 +52,10 @@ def main():
     # ]))
     #
 
+
+    # controller.addCommand(RaiseCommand(controller.mill, 50))
+    # controller.addCommand(RaiseCommand(controller.mill, 0))
+
     # calibrationRoutine()
 
     if AUTO_TOOLPATH:

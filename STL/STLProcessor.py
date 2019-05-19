@@ -60,7 +60,7 @@ class STLProcessor:
                 # Patch up image
                 height = img.shape[0]
                 width = img.shape[1]
-                pim = self._fillHole(img, (int(width/2), int(height/2)), radius, 1)
+                pim = self._fillHole(img, (int(width/2), int(height/2)), radius, 0)
                 # Remask over existing image
                 self.imageSlicesTopDown[imNum] = pim
 
@@ -308,7 +308,7 @@ class STLProcessor:
             cv2.circle(img, pos, radius, (255, 255, 255), -1)
         # If the state is 0 we want the hole filled black
         else:
-            cv2.circle(img, pos, radius, (0, 0, 0), -1)
+            cv2.circle(img, pos, radius+400, (255, 255, 255), 800)
         return img
 
     def _detectDrill(self, img):
