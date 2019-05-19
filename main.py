@@ -1,9 +1,7 @@
 USE_GUI = True
 USE_SIM = True
 AUTO_START = False
-AUTO_TOOLPATH = False
-
-import time
+AUTO_TOOLPATH = True
 
 from Controller import Controller
 
@@ -54,7 +52,7 @@ def main():
     # ]))
     #
 
-    calibrationRoutine()
+    # calibrationRoutine()
 
     if AUTO_TOOLPATH:
         stlProcessor.generateCommands('part0.STL', controller)

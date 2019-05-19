@@ -110,6 +110,7 @@ class CommandGenerator:
             radius (double): Radius of the circle being cut out.
 
         """
+        print(z0, z1, radius)
         controller = self.controller
         if z0 > z1:
             zBot = z1

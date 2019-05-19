@@ -83,7 +83,7 @@ configurationMap = {
     }, 'other': {
         'infVal': 9999,
         'homeVal': -10,
-        'mmPerPixelRatio': 80/1200,
+        'mmPerPixelRatio': 80/(1200-55-54), # Using the y direction
         'mmError': 1.0,
         'speedMultiplier': 10,
         'numRotationSteps': 200,

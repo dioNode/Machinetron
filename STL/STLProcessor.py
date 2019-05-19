@@ -188,21 +188,22 @@ class STLProcessor:
         throughFace = 'topdown'
         generateSlices(self.filename, throughFace, sliceNum)
         facePath = self.path + '/' + throughFace
-        self.imageSlicesTopDown = self._getImageSlices(facePath)
+        self.imageSlicesTopDown = self._getImageSlices(facePath, 55, 1145, 57, 1196)
         # Generate slices for left right
         generateSlices('face3.stl', 'leftright', sliceNum)
-        self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright')
+        self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright', 55, 1145, 78, 1645)
         # Generate slices for front back
         generateSlices('face2.stl', 'frontback', sliceNum)
-        self.imageSlicesFrontBack = self._getImageSlices('STL/output/frontback')
+        self.imageSlicesFrontBack = self._getImageSlices('STL/output/frontback', 55, 1145, 78, 1645)
 
-    def _getImageSlices(self, facePath):
+    def _getImageSlices(self, facePath, x0, x1, y0, y1):
         imageSlices = []
         for image_path in os.listdir(facePath):
             # create the full input path and read the file
             input_path = os.path.join(facePath, image_path)
             img = cv2.imread(input_path, 0)
-            imageSlices.append(img)
+            croppedIm = img[y0:y1, x0:x1]
+            imageSlices.append(croppedIm)
         return imageSlices
 
     def _getRotated(self):
