@@ -1,7 +1,7 @@
 USE_GUI = True
 USE_SIM = True
 AUTO_START = False
-AUTO_TOOLPATH = True
+AUTO_TOOLPATH = False
 
 from Controller import Controller
 
@@ -52,6 +52,9 @@ def main():
     # ]))
     #
 
+    controller.commandGenerator.millPointsSequence([
+        (0, 10), (-20, 50), (20, 50), (0, 10)
+    ], 30)
 
     # controller.addCommand(RaiseCommand(controller.mill, 50))
     # controller.addCommand(RaiseCommand(controller.mill, 0))

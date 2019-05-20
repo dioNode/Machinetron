@@ -6,6 +6,7 @@ import os
 import cv2
 from support.supportFunctions import clearFolder, unique, pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel, inRange
 from config import configurationMap
+import matplotlib.pyplot as plt
 
 
 class STLProcessor:
@@ -44,6 +45,7 @@ class STLProcessor:
         self._clearFaces()
         self.generateDrillCommands()
         self.generateLatheCommands()
+        self.generateMillCommands()
         self._dumpImageSlices()
 
     def generateLatheCommands(self):
@@ -380,3 +382,100 @@ class STLProcessor:
                 lathePointsMM.append(radius)
 
         return lathePointsMM
+
+
+
+
+
+
+    def generateMillCommands(self):
+        img = self.imageSlicesTopDown[9]
+        (contours, toolpathList) = self._detectEdge(img)
+        print(contours, toolpathList, 'contours and toolpaths')
+        (contours, toolpathList) = self._shrink(contours)
+
+
+    def _detectEdge(self, img):
+        #detect the edges of the mill using canny edge detector
+        edges = cv2.Canny(img, 100, 255)
+        #use contours to have the coordinates in an ordered fashion to use a straight line between consecutive points
+        contours, hierarchy = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        #make the contour list more readable
+        contourList = np.array([list(pt[0]) for ctr in contours for pt in ctr])
+        #extract all x and y points from contours
+        x = contourList[:,1]
+        y = contourList[:,0]
+        #create a list of tuples (x, y) which is ordered, sequencing through them will give the toolpath
+        toolpathList = list(zip(x, y))
+        #cv2.namedWindow('test1', cv2.WINDOW_NORMAL)
+        #cv2.imshow('test1', edges)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+        plt.scatter(x, y)
+        plt.show()
+        return contours, toolpathList
+
+    def _shrink(self, contours):
+        #make the contour list more readable
+        contourList = np.array([list(pt[0]) for ctr in contours for pt in ctr])
+        #extract all x and y points from contours
+        x = contourList[:,1]
+        y = contourList[:,0]
+        #max x distance of mill cutout
+        xdifference = max(x) - min(x)
+        #max y distance of mill cutout
+        ydifference = max(y) - min(y)
+        #Scaling coefficients to shrink using 10pixels = 1mm
+        coef_x = (xdifference - 100) / xdifference
+        coef_y = (ydifference - 100) / ydifference
+
+        #shrink the contour
+        for contour in contours:
+            contour[:, :, 0] = contour[:, :, 0] * coef_x
+            contour[:, :, 1] = contour[:, :,  1] * coef_y
+
+        #make the contour list more readable
+        contourList = np.array([list(pt[0]) for ctr in contours for pt in ctr])
+        #extract all x and y points from contours
+        x = contourList[:,1]
+        y = contourList[:,0]
+        #create a list of tuples (x, y) which is ordered, sequencing through them will give the toolpath
+        toolpathList = list(zip(x, y))
+        plt.scatter(x[:1000], y[:1000])
+        plt.show()
+        return contours, toolpathList
+
+
+    def _expand(self, contours):
+        #make the contour list more readable
+        contourList = np.array([list(pt[0]) for ctr in contours for pt in ctr])
+        #extract all x and y points from contours
+        x = contourList[:,1]
+        y = contourList[:,0]
+        #max x distance of mill cutout
+        xdifference = max(x) - min(x)
+        #max y distance of mill cutout
+        ydifference = max(y) - min(y)
+        #Scaling coefficients to shrink using 10pixels = 1mm
+        coef_x = (xdifference + 100) / xdifference
+        coef_y = (ydifference + 100) / ydifference
+
+        #shrink the contour
+        for contour in contours:
+            contour[:, :, 0] = contour[:, :, 0] * coef_x
+            contour[:, :, 1] = contour[:, :,  1] * coef_y
+
+        #make the contour list more readable
+        contourList = np.array([list(pt[0]) for ctr in contours for pt in ctr])
+        #extract all x and y points from contours
+        x = contourList[:,1]
+        y = contourList[:,0]
+        #create a list of tuples (x, y) which is ordered, sequencing through them will give the toolpath
+        toolpathList = list(zip(x, y))
+        plt.scatter(x[:1000], y[:1000])
+        plt.show()
+        return contours, toolpathList
+
+
+
+

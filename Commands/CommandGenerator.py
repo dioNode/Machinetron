@@ -604,3 +604,32 @@ class CommandGenerator:
         for cutmachine in cutmachines:
             self.calibrateCutmachine(cutmachine)
         self.calibrateHandler()
+
+    def millPointsSequence(self, ptsList, depth):
+        # Go to starting point
+        (x0, z0) = ptsList[0] if len(ptsList) > 0 else (0,0)
+        self.controller.addCommand(CombinedCommand([
+            RaiseCommand(self.controller.mill, z0),
+            ShiftCommand(self.controller.mill, self.controller.handler, x0),
+        ]))
+        # Push in with mill to depth
+        self.controller.addCommand(CombinedCommand([
+            PushCommand(self.controller.mill, depth, self.controller.currentFaceDepth),
+            SpinCommand(self.controller.mill)
+        ]))
+
+        # Make mill go through all the points in sequence
+        sequenceCommand = SequentialCommand([])
+        for (x, z) in ptsList:
+            sequenceCommand.addCommand(CombinedCommand([
+                SpinCommand(self.controller.mill),
+                RaiseCommand(self.controller.mill, z),
+                ShiftCommand(self.controller.mill, self.controller.handler, x),
+            ]))
+        self.controller.addCommand(sequenceCommand)
+
+        # Retract mill
+        self.retractMill()
+
+
+
