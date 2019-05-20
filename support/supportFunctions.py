@@ -112,6 +112,17 @@ def inRange(currentPos, desiredPos, errorRange):
     differenceX, differenceY = tuple(np.subtract(desiredPos, currentPos))
     return abs(differenceX) < errorRange and abs(differenceY) < errorRange
 
+def tupleArrayInRange(currentTupleArray, desiredTupleArray, errorRange):
+    if len(currentTupleArray) != len(desiredTupleArray):
+        return False
+
+    isInRange = True
+    for i, currentTuple in currentTupleArray:
+        desiredTuple = desiredTupleArray[i]
+        isInRange &= inRange(currentTuple, desiredTuple, errorRange)
+
+    return isInRange
+
 
 def cropImage(img):
     h, w = img.shape
@@ -124,5 +135,6 @@ def splitNumberHex(val):
     mshalf = (hexval & 0xFF00) >> 8
     lshalf = hexval & 0xFF
     return mshalf, lshalf
+
 
 

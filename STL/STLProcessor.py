@@ -4,7 +4,8 @@ import numpy as np
 import math
 import os
 import cv2
-from support.supportFunctions import clearFolder, unique, pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel, inRange
+from support.supportFunctions import clearFolder, unique, pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel, \
+    inRange, tupleArrayInRange
 from config import configurationMap
 import matplotlib.pyplot as plt
 
@@ -390,9 +391,35 @@ class STLProcessor:
 
     def generateMillCommands(self):
         img = self.imageSlicesTopDown[9]
-        (contours, toolpathList) = self._detectEdge(img)
-        print(contours, toolpathList, 'contours and toolpaths')
-        (contours, toolpathList) = self._shrink(contours)
+        imgSlices = self.imageSlicesTopDown
+
+        # Go through each image and get list of matching shapes
+        surfaceIm = imgSlices[0]
+        pathListWithShapes = self._detectEdge(surfaceIm)
+        imageNum = 1
+        for pathListPerShape in pathListWithShapes:
+            currentDepth = 0
+            while imageNum < self.imageSlicesTopDown and self._shapeExistsInImg(imgSlices[imageNum], pathListPerShape):
+                currentDepth += self.sliceDepth
+
+            # Generate toolpaths
+            depth = currentDepth
+            borderPath = pathListPerShape
+            # Shrink borderPath by mill radius
+
+            # Mill over path
+
+            # Keep shrinking and milling until area border path is too small
+
+
+
+
+    def _shapeExistsInImg(self, img, pathList):
+        pathListWithShapes = self._detectEdge(img)
+        for pathListPerShape in pathListWithShapes:
+            if tupleArrayInRange(pathListPerShape, pathList):
+                return True
+        return False
 
 
     def _detectEdge(self, img):
