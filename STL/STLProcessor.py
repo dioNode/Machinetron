@@ -108,74 +108,26 @@ class STLProcessor:
         imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
         imageSlicesRightLeft.reverse()
         faceOrder = ['top', 'front', 'right', 'back', 'left']
+        pxRadius = mm2pixel(configurationMap['drill']['diameter']/2 - 1)
         for facenum, imgSlices in enumerate([self.imageSlicesTopDown, self.imageSlicesFrontBack, imageSlicesRightLeft,
                                              imageSlicesBackFront, self.imageSlicesLeftRight]):
-            # Detect top down drills
-            totalDrillPoints = []
-            for img in imgSlices:
-                drillPoints = self._detectDrill(img)
-                totalDrillPoints.append(drillPoints)
-            # Detect holes
-            totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, imgSlices)
-            self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, faceOrder[facenum])
 
+            surfaceDrillHoles = self._detectDrill(imgSlices[0]) # This returns in pixels
 
-    def _getTotalDrillPointsWithHoles(self, totalDrillPoints, imageSlices):
-        totalDrillPointsWithHoles = []
-        for img in imageSlices:
-            drillPointsWithHoles = []
-            for drillPoint in unique(totalDrillPoints):
-                pxRadius = mm2pixel(configurationMap['drill']['diameter']/2) - \
-                           configurationMap['drill']['detectionTolerance']/2
-                pxDrillPoint = mmPos2PixelPos(drillPoint, img)
-                if self._containsHole(img, pxDrillPoint, pxRadius):
-                    drillPointsWithHoles.append(drillPoint)
-
-            totalDrillPointsWithHoles.append(drillPointsWithHoles)
-        return totalDrillPointsWithHoles
-
-    def _parseDrillPoints(self, totalDrillPoints, sliceDepth, face):
-
-        trackingPoints = []
-        drillHoleLengths = {}
-
-        # Get initial holes from surface
-        for drillPoint in totalDrillPoints[0]:
-            drillHoleLengths[drillPoint] = 0
-            trackingPoints.append(drillPoint)
-
-        for drillPoints in totalDrillPoints:
-            updatedTrackingPoints = []
-            for trackedPoint in trackingPoints:
-                if trackedPoint in drillPoints:
-                    drillHoleLengths[trackedPoint] += sliceDepth
-                    updatedTrackingPoints.append(trackedPoint)
-            trackingPoints = updatedTrackingPoints
-
-        for drillPoint, depth in drillHoleLengths.items():
-            # Drill command
-            self.controller.commandGenerator.drill(
-                face, drillPoint[0], drillPoint[1], depth)
-            # Fill in hole in image
-            numSlices = int(depth/self.sliceDepth)
-            imageSlices = []
-            if face == 'top':
-                imageSlices = self.imageSlicesTopDown
-            elif face == 'right':
-                imageSlices = self.imageSlicesLeftRight
-                imageSlices.reverse()
-            elif face == 'left':
-                imageSlices = self.imageSlicesLeftRight
-            elif face == 'front':
-                imageSlices = self.imageSlicesFrontBack
-            elif face == 'back':
-                imageSlices = self.imageSlicesFrontBack
-                imageSlices.reverse()
-            for imnum in range(numSlices):
-                im = imageSlices[imnum]
-                pim = self._fillHole(im, mmPos2PixelPos(drillPoint, im),
-                                     mm2pixel(configurationMap['drill']['diameter']/2+1), 1) # Added 1 just in case
-                imageSlices[imnum] = pim
+            for surfaceHole in surfaceDrillHoles:
+                imgnum = 1
+                depth = 0
+                while imgnum < len(imgSlices) and self._containsHole(
+                        imgSlices[imgnum],
+                        mmPos2PixelPos(surfaceHole, imgSlices[imgnum]),
+                        pxRadius):
+                    depth += self.sliceDepth
+                    imgnum += 1
+                # Do drill
+                if depth > 0:
+                    print(depth)
+                    (x, z) = surfaceHole
+                    self.controller.commandGenerator.drill(faceOrder[facenum], x, z, depth)
 
     def _clearFolders(self):
         clearFolder('STL/output/frontback')
@@ -384,13 +336,9 @@ class STLProcessor:
             imgSlices.reverse()
             surfaceIm = imgSlices[0]
             pathListWithShapes = self._detectEdge(surfaceIm)
-
-
-            print('length paths', len(pathListWithShapes))
             for i,pathListPerShape in enumerate(pathListWithShapes):
                 imageNum = 1
                 # Loop through each shape
-                print('looping through shape', i)
                 currentDepth = 0
                 while imageNum < len(self.imageSlicesTopDown) and self._shapeExistsInImg(
                         imgSlices[imageNum], pathListPerShape):
@@ -430,12 +378,9 @@ class STLProcessor:
 
     def _shapeExistsInImg(self, img, pathList, mmAccuracy=1):
         pathListWithShapes = self._detectEdge(img)
-        print('original', len(pathListWithShapes), len(pathList), pathList)
 
         for pathListPerShape in pathListWithShapes:
-            print('compare', pathListPerShape)
             if tupleArrayInRange(pathListPerShape, pathList, mm2pixel(mmAccuracy)):
-                print('worked')
                 return True
 
         pathListWithShapes.reverse()
