@@ -52,9 +52,9 @@ def main():
     # ]))
     #
 
-    controller.commandGenerator.millPointsSequence([
-        (0, 10), (-20, 50), (20, 50), (0, 10)
-    ], 30)
+    # controller.commandGenerator.millPointsSequence([
+    #     (0, 10), (-20, 50), (20, 50), (0, 10)
+    # ], 30)
 
     # controller.addCommand(RaiseCommand(controller.mill, 50))
     # controller.addCommand(RaiseCommand(controller.mill, 0))

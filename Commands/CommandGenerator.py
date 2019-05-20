@@ -526,13 +526,10 @@ class CommandGenerator:
         # Push in
         self.controller.addCommand(self.getSpinningPushCommand(controller.mill, dHigh))
 
-        print('hehlo', radius, millRadius)
         radiusRange = np.arange(radius-millRadius, 0, -millRadius*2)
         if float(radius) == float(millRadius):
             radiusRange = np.append(radiusRange, 0)
-            print(radiusRange, float(radius), float(millRadius))
         for r in radiusRange:
-            print(r)
             # Half circle around to right hand side
             self.millArcDiscrete(face, xHigh, zHigh, r, dHigh,
                                  math.pi + tiltAngle, 2*math.pi + tiltAngle)
@@ -605,7 +602,8 @@ class CommandGenerator:
             self.calibrateCutmachine(cutmachine)
         self.calibrateHandler()
 
-    def millPointsSequence(self, ptsList, depth):
+    def millPointsSequence(self, ptsList, depth, face):
+        self.selectFace(face)
         # Go to starting point
         (x0, z0) = ptsList[0] if len(ptsList) > 0 else (0,0)
         self.controller.addCommand(CombinedCommand([

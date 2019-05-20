@@ -117,7 +117,7 @@ def tupleArrayInRange(currentTupleArray, desiredTupleArray, errorRange):
         return False
 
     isInRange = True
-    for i, currentTuple in currentTupleArray:
+    for i, currentTuple in enumerate(currentTupleArray):
         desiredTuple = desiredTupleArray[i]
         isInRange &= inRange(currentTuple, desiredTuple, errorRange)
 
