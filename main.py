@@ -52,6 +52,13 @@ def main():
     # ]))
     #
 
+    # controller.commandGenerator.millPointsSequence([
+    #     (0, 10), (-20, 50), (20, 50), (0, 10)
+    # ], 30)
+
+    # controller.addCommand(RaiseCommand(controller.mill, 50))
+    # controller.addCommand(RaiseCommand(controller.mill, 0))
+
     # calibrationRoutine()
 
     if AUTO_TOOLPATH:
@@ -237,7 +244,7 @@ def runDemoPart1():
     #12 mins
     reshapeFrontM([(76.6, 20), (40, 90-55-20), (80, 40), (40, 55-20)])
     reshapeSideM([(76.6, 20), (40, 90 - 55 - 20), (80, 40), (40, 55 - 20)])
-    lathe(20, 100-55-20, 20)
+    lathe(20, 35, 20)
     for face in ['front', 'right', 'back', 'left']:
         cutOutCircle(face, 0, 110-55, 20, 18.3)
 
