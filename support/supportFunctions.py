@@ -95,7 +95,7 @@ def mmPos2PixelPos(pos, im, ratio=None):
         ratio = configurationMap['other']['mmPerPixelRatio']
     pxheight, pxwidth = im.shape
     posX = int(round(mm2pixel(pos[0], ratio) + pxwidth/2))
-    posY = int(round(mm2pixel(pos[1], ratio)))
+    posY = int(round(pxheight - mm2pixel(pos[1], ratio)))
     return posX, posY
 
 
@@ -104,7 +104,7 @@ def pixelPos2mmPos(pos, im, ratio=None):
         ratio = configurationMap['other']['mmPerPixelRatio']
     pxheight, pxwidth = im.shape
     posX = pixel2mm(pos[0] - pxwidth/2, ratio)
-    posY = pixel2mm(pos[1], ratio)
+    posY = pixel2mm(pxheight - pos[1], ratio)
     return posX, posY
 
 

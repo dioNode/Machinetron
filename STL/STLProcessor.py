@@ -103,46 +103,22 @@ class STLProcessor:
         # iterate through the names of contents of the folder
         sliceDepth = self.sliceDepth
 
-        # Detect top down drills
-        totalDrillPoints = []
-        for img in self.imageSlicesTopDown:
-            drillPoints = self._detectDrill(img)
-            totalDrillPoints.append(drillPoints)
-        # Detect holes
-        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesTopDown)
-        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'top')
-
-        # Detect front drills
-        totalDrillPoints = []
-        for img in self.imageSlicesFrontBack:
-            drillPoints = self._detectDrill(img)
-            totalDrillPoints.append(drillPoints)
-        # Detect holes
-        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesFrontBack)
-        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'front')
-        # Detect back drills
-        totalDrillPoints.reverse()
-        # Detect holes
-        imageSlicesBackFront = self.imageSlicesFrontBack
+        imageSlicesBackFront = self.imageSlicesFrontBack.copy()
         imageSlicesBackFront.reverse()
-        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, imageSlicesBackFront)
-        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'back')
-
-        # Detect left right drills
-        totalDrillPoints = []
-        for img in self.imageSlicesLeftRight:
-            drillPoints = self._detectDrill(img)
-            totalDrillPoints.append(drillPoints)
-        # Detect holes
-        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, self.imageSlicesLeftRight)
-        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'left')
-        # Detect right drills
-        totalDrillPoints.reverse()
-        # Detect holes
-        imageSlicesRightLeft = self.imageSlicesLeftRight
+        imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
         imageSlicesRightLeft.reverse()
-        totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, imageSlicesRightLeft)
-        self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, 'right')
+        faceOrder = ['top', 'front', 'right', 'back', 'left']
+        for facenum, imgSlices in enumerate([self.imageSlicesTopDown, self.imageSlicesFrontBack, imageSlicesRightLeft,
+                                             imageSlicesBackFront, self.imageSlicesLeftRight]):
+            # Detect top down drills
+            totalDrillPoints = []
+            for img in imgSlices:
+                drillPoints = self._detectDrill(img)
+                totalDrillPoints.append(drillPoints)
+            # Detect holes
+            totalDrillPointsWithHoles = self._getTotalDrillPointsWithHoles(totalDrillPoints, imgSlices)
+            self._parseDrillPoints(totalDrillPointsWithHoles, sliceDepth, faceOrder[facenum])
+
 
     def _getTotalDrillPointsWithHoles(self, totalDrillPoints, imageSlices):
         totalDrillPointsWithHoles = []
@@ -390,45 +366,54 @@ class STLProcessor:
 
     def generateMillCommands(self):
         # img = self.imageSlicesTopDown[9]
-        imgSlices = self.imageSlicesTopDown
-        # Reverse bw of imgSlices
-        for imNum, im in enumerate(imgSlices):
-            pim = ~im
-            imgSlices[imNum] = pim
+        imageSlicesBackFront = self.imageSlicesFrontBack.copy()
+        imageSlicesBackFront.reverse()
+        imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
+        imageSlicesRightLeft.reverse()
 
-        # Go through each image and get list of matching shapes
-        imgSlices.reverse()
-        surfaceIm = imgSlices[0]
-        pathListWithShapes = self._detectEdge(surfaceIm)
+        faceOrder = ['top', 'front', 'right', 'back', 'left']
+        for facenum, imgSlices in enumerate([self.imageSlicesTopDown, self.imageSlicesFrontBack, imageSlicesRightLeft,
+                          imageSlicesBackFront, self.imageSlicesLeftRight]):
+
+            # Reverse bw of imgSlices
+            for imNum, im in enumerate(imgSlices):
+                pim = ~im
+                imgSlices[imNum] = pim
+
+            # Go through each image and get list of matching shapes
+            imgSlices.reverse()
+            surfaceIm = imgSlices[0]
+            pathListWithShapes = self._detectEdge(surfaceIm)
 
 
-        print('length paths', len(pathListWithShapes))
-        for i,pathListPerShape in enumerate(pathListWithShapes):
-            imageNum = 1
-            # Loop through each shape
-            print('looping through shape', i)
-            currentDepth = 0
-            while imageNum < len(self.imageSlicesTopDown) and self._shapeExistsInImg(
-                    imgSlices[imageNum], pathListPerShape):
-                currentDepth += self.sliceDepth
-                imageNum += 1
+            print('length paths', len(pathListWithShapes))
+            for i,pathListPerShape in enumerate(pathListWithShapes):
+                imageNum = 1
+                # Loop through each shape
+                print('looping through shape', i)
+                currentDepth = 0
+                while imageNum < len(self.imageSlicesTopDown) and self._shapeExistsInImg(
+                        imgSlices[imageNum], pathListPerShape):
+                    currentDepth += self.sliceDepth
+                    imageNum += 1
 
-            # Generate toolpaths
-            depth = currentDepth
-            borderPath = pathListPerShape
-            # Shrink borderPath by mill radius
+                # Generate toolpaths
+                depth = currentDepth
+                borderPath = pathListPerShape
+                # Shrink borderPath by mill radius
 
-            # Mill over path
 
-            # Keep shrinking and milling until area border path is too small
+                # Mill over path
 
-            if depth > 0:
-                # Convert to mm
-                borderPathMM = []
-                for pts in borderPath:
-                    borderPathMM.append(pixelPos2mmPos(pts, imgSlices[imageNum]))
+                # Keep shrinking and milling until area border path is too small
 
-                self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, 'top')
+                if depth > 0:
+                    # Convert to mm
+                    borderPathMM = []
+                    for pts in borderPath:
+                        borderPathMM.append(pixelPos2mmPos(pts, imgSlices[imageNum]))
+
+                    self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, faceOrder[facenum])
 
 
         # # Convert to mm
