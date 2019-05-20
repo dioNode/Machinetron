@@ -212,17 +212,17 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
-	#if defined MILL || defined DRILL
-  MX_TIM4_Init();
-	#endif
+	//#if defined MILL || defined DRILL
+  //MX_TIM4_Init();
+	//#endif
   MX_TIM1_Init();
 	
 	// Clear the update interrupt flag on timer 1
 	__HAL_TIM_CLEAR_FLAG(&htim1, TIM_FLAG_UPDATE);
 	// Clear the update interrupt flag on timer 4
-	#if defined MILL || defined DRILL
-	__HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
-	#endif
+	//#if defined MILL || defined DRILL
+	//__HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
+	//#endif
 	// Set timer 1 to stop at a breakpoint
 	__HAL_DBGMCU_FREEZE_TIM1(); 
   /* Initialize interrupts */
@@ -275,14 +275,22 @@ int main(void)
 				//Reset and initialise timer and its interrupts
 				stepperTimerResetAndSetUp(&htim1, &subMachine);
 				
-				#if defined MILL || defined DRILL
-				DCTimerResetAndSetUp(&htim4, &subMachine);
-				#endif
+				//#if defined MILL || defined DRILL
+				//DCTimerResetAndSetUp(&htim4, &subMachine);
+				//#endif
 				// Enable the timers 
 				HAL_TIM_Base_Start_IT(&htim1);
-				#if defined MILL || defined DRILL
-				startOrStopTimer(&htim4, 1);
-				#endif
+				//#if defined MILL || defined DRILL
+				//startOrStopTimer(&htim4, 1);
+				//#endif
+				
+				// Check if motor two is DC and is to be run
+				if((strcmp(getMotorById(&subMachine, 2)->type, "DC") == 0) && ((getMotorById(&subMachine, 2)->motorRun) == 1)) {
+					HAL_GPIO_WritePin(ST2EN_GPIO_Port, ST2EN_Pin, GPIO_PIN_SET);
+				} else if((strcmp(getMotorById(&subMachine, 2)->type, "DC") == 0) && ((getMotorById(&subMachine, 2)->motorRun) == 0)) {
+					HAL_GPIO_WritePin(ST2EN_GPIO_Port, ST2EN_Pin, GPIO_PIN_RESET);
+				}
+				
 				while(isComplete(subMachine) != 1) {
 					// Waiting for instruction to finish
 				}
@@ -309,9 +317,14 @@ int main(void)
 				enableStepperDriver(3, 0);
 				#endif
 				
-				#if defined MILL || defined DRILL
-				HAL_TIM_PWM_Stop_IT(&htim4, TIM_CHANNEL_2);
-				#endif
+				// Check if motor two is DC and switch off Enable pin
+				if(strcmp(getMotorById(&subMachine, 2)->type, "DC") == 0) {
+					HAL_GPIO_WritePin(ST2EN_GPIO_Port, ST2EN_Pin, GPIO_PIN_RESET);
+				} 
+				
+				//#if defined MILL || defined DRILL
+				//HAL_TIM_PWM_Stop_IT(&htim4, TIM_CHANNEL_2);
+				//#endif
 			} else if(getInstArrayFirstIndex() == getInstArrayFirstEmptyIndex()) {
 				setMachineState(MACHINE_READY);
 			}
@@ -468,9 +481,9 @@ void setMachineState(int newState) {
 		machineState = newState;
 	} else if(newState == MACHINE_PAUSED) {
 		// Disable the timers (both stepper timer and PWM Timer)
-		#if defined MILL || defined DRILL
-		startOrStopTimer(&htim4,/* Start or Stop*/ 0);
-		#endif
+		//#if defined MILL || defined DRILL
+		//startOrStopTimer(&htim4,/* Start or Stop*/ 0);
+		//#endif
 		HAL_TIM_Base_Stop_IT(&htim1);
 		// Set the LED to Orange
 		setLEDColour("ORANGE");
@@ -478,9 +491,9 @@ void setMachineState(int newState) {
 	} else if(newState == MACHINE_RUNNING) {
 		if(getMachineState() == MACHINE_PAUSED) {
 			//Re-Enable timers once again
-			#if defined MILL || defined DRILL
-			startOrStopTimer(&htim4,/* Start or Stop*/ 1);
-			#endif
+			//#if defined MILL || defined DRILL
+			//startOrStopTimer(&htim4,/* Start or Stop*/ 1);
+			//#endif
 			HAL_TIM_Base_Start_IT(&htim1);
 		}
 		setLEDColour("RED");

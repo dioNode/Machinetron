@@ -549,7 +549,7 @@ void setSpeedStepsAnduSDelay(struct Motor *motor) {
  * @param[in] desiredSpeed The required speed of the motor as percentage of max speed
  * @return  PWM Duty Cycle as a value from 0 to 100
  */
-int calculatePWMDutyCycle(struct Motor *motor_ptr, double desiredSpeed) {
+/*int calculatePWMDutyCycle(struct Motor *motor_ptr, double desiredSpeed) {
 	// Make sure that the motor is a DC Motor
 	double PWMDutyCycle;
 	double percentOfMaxSpeed;
@@ -567,7 +567,7 @@ int calculatePWMDutyCycle(struct Motor *motor_ptr, double desiredSpeed) {
 		PWMDutyCycle = 0;
 	}
 	return (int)round(PWMDutyCycle);
-}
+}*/
 
 /**
  * Function to determine if the limit switch specified by the motor ID is closed or open
@@ -589,3 +589,4 @@ int isLimitSwitchClosed(int motorID) {
 	}
 	return limSwitchState;
 }
+

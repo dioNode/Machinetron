@@ -32,9 +32,9 @@
 
 TIM_HandleTypeDef htim1;
 
-#if defined MILL || defined DRILL
-TIM_HandleTypeDef htim4;
-#endif
+//#if defined MILL || defined DRILL
+//TIM_HandleTypeDef htim4;
+//#endif
 
 /* TIM1 init function */
 void MX_TIM1_Init(void)
@@ -102,8 +102,9 @@ void MX_TIM1_Init(void)
   }
 
 }
-#if defined MILL || defined DRILL
-/* TIM4 init function */
+
+/*#if defined MILL || defined DRILL
+// TIM4 init function 
 void MX_TIM4_Init(void)
 {
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
@@ -146,7 +147,7 @@ void MX_TIM4_Init(void)
   HAL_TIM_MspPostInit(&htim4);
 
 }
-#endif
+#endif*/
 
 void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
 {
@@ -358,7 +359,7 @@ void stepperTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *subma
   * @param  submachine_ptr Pointer to the submachine struct 
   * @retval None
   */
-void DCTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine_ptr) {
+/*void DCTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine_ptr) {
 	// Stop the timer
 	HAL_TIM_PWM_Stop(htim, 2);
 	// Reset the timer to zero
@@ -370,22 +371,22 @@ void DCTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine
 		if(motor_ptr -> motorRun == 1) {
 			if(strcmp(motor_ptr -> type, "DC") == 0) {
 				// Run the DC Motor
-				setDutyCycleofPWM(htim, /*Channel*/ 2, calculatePWMDutyCycle(motor_ptr, motor_ptr -> currentSpeed));
-				//setDutyCycleofPWM(htim, /*Channel*/ 2, calculatePWMDutyCycle(motor_ptr, 50));
+				setDutyCycleofPWM(htim, 2, calculatePWMDutyCycle(motor_ptr, motor_ptr -> currentSpeed));
+				//setDutyCycleofPWM(htim, 2, calculatePWMDutyCycle(motor_ptr, 50));
 				// Enable the Capture compare channel
-				//TIM_CCxChannelCmd(htim->Instance, /*Channel*/ TIM_CHANNEL_2, TIM_CCx_ENABLE);
+				//TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_ENABLE);
 				HAL_TIM_PWM_Start(htim, TIM_CHANNEL_2);
 			}
 		} else {
 			if(strcmp(motor_ptr -> type, "DC") == 0) {
 				// Disable the DC motor Timer
 				// Disable the Capture compare channel
-				//TIM_CCxChannelCmd(htim->Instance, /*Channel*/ TIM_CHANNEL_2, TIM_CCx_DISABLE);
-				setDutyCycleofPWM(htim, /*Channel*/ 2, 0);
+				//TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
+				setDutyCycleofPWM(htim, 2, 0);
 			}
 		}
 	}		
-}
+}*/
 
 /**
   * @brief  This function is used to start or stop the specified timer counting 
@@ -578,7 +579,7 @@ void updateCompareRegister(TIM_HandleTypeDef *htim, struct Motor *motor_ptr) {
 	* @param	dutyCycle the dutyCycle of the PWM (percentage from 0 to 100)
   * @retval None
   */
-void setDutyCycleofPWM(TIM_HandleTypeDef *htim, int channel, int dutyCycle) {
+/*void setDutyCycleofPWM(TIM_HandleTypeDef *htim, int channel, int dutyCycle) {
 	// Calculate the required compare value
 	uint16_t newCompareValue = (uint16_t)(200*dutyCycle/100);
 	// Determine which channel is being set
@@ -596,7 +597,7 @@ void setDutyCycleofPWM(TIM_HandleTypeDef *htim, int channel, int dutyCycle) {
 			__HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_4, newCompareValue); 
 			break;
 	}
-}
+}*/
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

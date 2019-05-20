@@ -134,11 +134,11 @@ void processInstruction(uint8_t *instData, struct SubMachine *submachine_ptr) {
 		// Based on whether the motor is Homing or In Infinite Spin mode or normal mode 
 		// set the parameters accordingly
 		// As a test only set the motor parameters if the motor is running
-		if(motorRun == 1) {
-			struct Motor *motor_ptr = getMotorById(submachine_ptr, motorID);
+		//if(motorRun == 1) {
+		struct Motor *motor_ptr = getMotorById(submachine_ptr, motorID);
 			
-			setMotorParams(motor_ptr, motorRun, motorHome, motorInfSpin, direction, newPos, startSpeed, endSpeed);
-		}
+		setMotorParams(motor_ptr, motorRun, motorHome, motorInfSpin, direction, newPos, startSpeed, endSpeed);
+		//}
 	}
 }
 

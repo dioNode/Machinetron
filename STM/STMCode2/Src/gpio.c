@@ -60,11 +60,11 @@ void MX_GPIO_Init(void)
                           |LEDGREEN_Pin|LEDRED_Pin|ST2STEP_Pin|ST2MS3_Pin 
                           |ST2MS2_Pin|ST2MS1_Pin, GPIO_PIN_RESET);
 
-	#if defined HANDLER || defined LATHE
+	//#if defined HANDLER || defined LATHE
 	/*Configure GPIO pin Output Level */
 	// Used to initialise the enable pin for Motor 2 as a stepper motor
   HAL_GPIO_WritePin(GPIOB, ST2EN_Pin, GPIO_PIN_RESET);
-  #endif
+  //#endif
 	
   /*Configure GPIO pin : PC13LED_Pin */
   GPIO_InitStruct.Pin = PC13LED_Pin;
@@ -112,7 +112,7 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
   HAL_GPIO_Init(ST3EN_GPIO_Port, &GPIO_InitStruct);
 
-	#if defined HANDLER || defined LATHE
+	//#if defined HANDLER || defined LATHE
 	/*Configure GPIO pin : ST2EN_Pin */
 	
   GPIO_InitStruct.Pin = ST2EN_Pin;
@@ -120,7 +120,7 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(ST3EN_GPIO_Port, &GPIO_InitStruct);
-	#endif
+	//#endif
 	
   /*Configure GPIO pins : LIMSW1_Pin LIMSW4_Pin LIMSW5_Pin */
   GPIO_InitStruct.Pin = LIMSW1_Pin|LIMSW4_Pin|LIMSW5_Pin;
