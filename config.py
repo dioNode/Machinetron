@@ -28,7 +28,7 @@ configurationMap = {
         'diameter': 6,
         'depth': 80,
         'id': 0x1F,
-        'detectionTolerance': 5,
+        'detectionTolerance': 10,
     }, 'lathe': {
         'homeX': 160,
         'raiseSpeed': 25,
@@ -85,7 +85,7 @@ configurationMap = {
         'homeVal': -10,
         'mmPerPixelRatio': 0.1, # Using the y direction
         'mmError': 2.0,
-        'speedMultiplier': 3,
+        'speedMultiplier': 10,
         'numRotationSteps': 200,
     }
 }

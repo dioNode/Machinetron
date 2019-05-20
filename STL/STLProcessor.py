@@ -5,7 +5,7 @@ import math
 import os
 import cv2
 from support.supportFunctions import clearFolder, unique, pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel, \
-    inRange, tupleArrayInRange
+    inRange, tupleArrayInRange, getCenterPoint
 from config import configurationMap
 import matplotlib.pyplot as plt
 
@@ -46,8 +46,8 @@ class STLProcessor:
         self._clearFaces()
         self.generateDrillCommands()
         self.generateLatheCommands()
-        self.generateMillCommands()
         self._dumpImageSlices()
+        self.generateMillCommands()
 
     def generateLatheCommands(self):
         """Generates the commands to use the lathe."""
@@ -101,8 +101,6 @@ class STLProcessor:
     def generateDrillCommands(self):
         """Generates the command to use the drill."""
         # iterate through the names of contents of the folder
-        sliceDepth = self.sliceDepth
-
         imageSlicesBackFront = self.imageSlicesFrontBack.copy()
         imageSlicesBackFront.reverse()
         imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
@@ -113,6 +111,7 @@ class STLProcessor:
                                              imageSlicesBackFront, self.imageSlicesLeftRight]):
 
             surfaceDrillHoles = self._detectDrill(imgSlices[0]) # This returns in pixels
+            print(surfaceDrillHoles, 'surface holes', faceOrder[facenum])
 
             for surfaceHole in surfaceDrillHoles:
                 imgnum = 1
@@ -270,8 +269,6 @@ class STLProcessor:
         return drillPointsMM
 
     def _detectLathe(self, img):
-        cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-
         height, width = img.shape
 
         pxRadiusMax = round(mm2pixel(configurationMap['lathe']['maxDetectionRadius']))
@@ -349,19 +346,44 @@ class STLProcessor:
                 depth = currentDepth
                 borderPath = pathListPerShape
                 # Shrink borderPath by mill radius
+                centerPoint = getCenterPoint(borderPath)
 
 
-                # Mill over path
-
-                # Keep shrinking and milling until area border path is too small
 
                 if depth > 0:
-                    # Convert to mm
-                    borderPathMM = []
-                    for pts in borderPath:
-                        borderPathMM.append(pixelPos2mmPos(pts, imgSlices[imageNum]))
+                    # Initial shrink half a mill diameter
+                    shrunkIm = self._shrink(surfaceIm, mm2pixel(configurationMap['mill']['diameter'] / 2), 1)
+                    shrunkShapePts = self._detectEdge(shrunkIm)
+                    shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
+                    self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
 
-                    self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, faceOrder[facenum])
+
+                    while True:
+                        shrunkIm = self._shrink(shrunkIm, mm2pixel(configurationMap['mill']['diameter'] / 2))
+                        shrunkShapePts = self._detectEdge(shrunkIm)
+                        if shrunkShapePts == []:
+                            break
+                        shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
+                        self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
+
+
+
+
+                    # Mill over path
+
+                    # Keep shrinking and milling until area border path is too small
+
+
+
+
+
+
+                    # # Convert to mm
+                    # borderPathMM = []
+                    # for pts in shrunkPath:
+                    #     borderPathMM.append(pixelPos2mmPos(pts, imgSlices[imageNum]))
+                    #
+                    # self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, faceOrder[facenum])
 
 
         # # Convert to mm
@@ -375,6 +397,14 @@ class STLProcessor:
         # print('pathwith shapes', pathListWithShapesMM)
         # for pathList in pathListWithShapesMM:
         #     self.controller.commandGenerator.millPointsSequence(pathList, 40, 'top')
+
+    def millPixelPath(self, millPath, im, depth, face):
+        # Convert to mm
+        borderPathMM = []
+        for pts in millPath:
+            borderPathMM.append(pixelPos2mmPos(pts, im))
+
+        self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, face)
 
     def _shapeExistsInImg(self, img, pathList, mmAccuracy=1):
         pathListWithShapes = self._detectEdge(img)
@@ -409,38 +439,36 @@ class STLProcessor:
             toolpathList.append(toolPathPerShape)
         return toolpathList
 
-    def _shrink(self, contours):
-        #make the contour list more readable
-        contourList = np.array([list(pt[0]) for ctr in contours for pt in ctr])
-        #extract all x and y points from contours
-        x = contourList[:,1]
-        y = contourList[:,0]
-        #max x distance of mill cutout
-        xdifference = max(x) - min(x)
-        #max y distance of mill cutout
-        ydifference = max(y) - min(y)
-        #Scaling coefficients to shrink using 10pixels = 1mm
-        coef_x = (xdifference - 100) / xdifference
-        coef_y = (ydifference - 100) / ydifference
+    def _shrink(self, img, numPixels, iterations=2):
+        # Taking a matrix of size 5 as the kernel
+        # kernel = np.ones((5, 5), np.uint8)
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (numPixels, numPixels))
 
-        #shrink the contour
-        for contour in contours:
-            contour[:, :, 0] = contour[:, :, 0] * coef_x
-            contour[:, :, 1] = contour[:, :,  1] * coef_y
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        ret, img = cv2.threshold(img, 127, 255, 0)
 
-        #make the contour list more readable
-        contourList = np.array([list(pt[0]) for ctr in contours for pt in ctr])
-        #extract all x and y points from contours
-        x = contourList[:,1]
-        y = contourList[:,0]
-        #create a list of tuples (x, y) which is ordered, sequencing through them will give the toolpath
-        toolpathList = list(zip(x, y))
-        plt.scatter(x[:1000], y[:1000])
-        plt.show()
-        return contours, toolpathList
+        # The first parameter is the original image,
+        # kernel is the matrix with which image is
+        # convolved and third parameter is the number
+        # of iterations, which will determine how much
+        # you want to erode/dilate a given image.
+        img_erosion = cv2.erode(img, kernel, iterations=iterations)
 
+        # cv2.imshow('Erosion', img_erosion)
+        # cv2.waitKey(0)
 
+        return img_erosion
 
+    def _getShrunkenPath(self, shrunkShapePts, centerPoint):
+        for shapePts in shrunkShapePts:
+            shrunkCenterPoint = getCenterPoint(shapePts)
+            # Check if distance is within acceptable range
+            dx = centerPoint[0] - shrunkCenterPoint[0]
+            dy = centerPoint[1] - shrunkCenterPoint[1]
+            distance = math.sqrt(dx**2 + dy**2)
+            if distance < mm2pixel(5):
+                return shapePts
+        return []
 
 
 

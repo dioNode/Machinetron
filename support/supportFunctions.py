@@ -137,4 +137,15 @@ def splitNumberHex(val):
     return mshalf, lshalf
 
 
+def getCenterPoint(pointsList):
+    # Sum up points
+    centerPoint = (0, 0)
+    for (x, y) in pointsList:
+        cx,cy = centerPoint
+        centerPoint = (x + cx, y + cy)
+    # Average out points
+    numpoints = len(pointsList)
+    cx, cy = centerPoint
+    return cx/numpoints, cy/numpoints
+
 
