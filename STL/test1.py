@@ -65,22 +65,30 @@ def _fillHole(img, pos, radius, state):#state=1(fill inside circle white for dri
 
 
 def _detectEdge(img):
+    img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    ret, img = cv2.threshold(img,127,255,0)
     #detect the edges of the mill using canny edge detector
     edges = cv2.Canny(img, 100, 255)
     #use contours to have the coordinates in an ordered fashion to use a straight line between consecutive points
-    contours, hierarchy = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    #only extract the first contour
+    print(len(contours))
+    cnt = contours[-1]
+    print(cnt)
     #make the contour list more readable
-    contourList = np.array([list(pt[0]) for ctr in contours for pt in ctr])
+    contourList = np.array([list(pt) for ctr in cnt for pt in ctr])
     #extract all x and y points from contours
     x = contourList[:,1]
     y = contourList[:,0]
     #create a list of tuples (x, y) which is ordered, sequencing through them will give the toolpath
     toolpathList = list(zip(x, y))
+    #cnt = contours[-1]
+    #cv2.drawContours(edges, [cnt], 0, (0,255,0), 3)
     #cv2.namedWindow('test1', cv2.WINDOW_NORMAL)
     #cv2.imshow('test1', edges)
     #cv2.waitKey(0)
     #cv2.destroyAllWindows()
-    plt.scatter(x[:1000], y[:1000])
+    plt.scatter(x[:10000], y[:10000])
     plt.show()
     return contours, toolpathList
 
@@ -167,8 +175,8 @@ a = detectDrill(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY))
 print(a)
 
 #_containsHole(im, (x1, y1), 40)
-_fillHole(im, (383, 400), 348, 0)
-#contours, toolpathList = _detectEdge(im)
+#_fillHole(im, (383, 400), 348, 0)
+contours, toolpathList = _detectEdge(im)
 #contours, toolpathList = _shrink(contours)
 #_expand(contours)
 
