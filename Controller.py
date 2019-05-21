@@ -77,7 +77,6 @@ class Controller:
                 self.goButtonClicked()
                 # Reset buffer
                 self.commandQueue = self.commandQueueHistory.copy()
-
         time.sleep(self.timeStep)
         self.currentTime += self.timeStep
         self.updateDirectionFaced()
@@ -196,7 +195,6 @@ class Controller:
             cutmachine.spinMotor.currentDisplacement = results[name]['spin']
             cutmachine.vertMotor.currentDisplacement = results[name]['vert']
             cutmachine.penMotor.currentDisplacement = results[name]['pen']
-
         name = self.handler.name.lower()
         self.handler.spinMotor.currentDisplacement = results[name]['spin']
         self.handler.railMotor.currentDisplacement = results[name]['rail']

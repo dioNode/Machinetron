@@ -50,10 +50,11 @@ class ShiftCommand(Command):
             endSpeed = handler.railMotor.displacementToSteps(endSpeed)
 
         targets['handler'] = {'rail': {
-            'targetValue': globalTargetX if not self.home else configurationMap['other']['homeVal'],
+            'targetValue': globalTargetX,
             'startSpeed': startSpeed,
             'endSpeed': endSpeed,
-            'status': statusMap['started']
+            'status': statusMap['started'],
+            'home': self.home,
             }
         }
 

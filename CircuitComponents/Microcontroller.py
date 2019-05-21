@@ -137,10 +137,11 @@ class Microcontroller:
                                     infSpin = 1
                                 startSpeed = targetVals['startSpeed']
                                 endSpeed = targetVals['endSpeed']
+                                home = targetValue['home']
                                 direction = 1 if targetValue >= 0 else 0
                                 # Set motorByte configurations
                                 homeBit = 0
-                                if targetValue == configurationMap['other']['homeVal']:
+                                if home:
                                     # Home command
                                     homeBit = 1
                                     targetValue = 0

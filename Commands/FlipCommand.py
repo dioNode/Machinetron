@@ -47,10 +47,11 @@ class FlipCommand(Command):
             endSpeed = handler.flipMotor.displacementToSteps(endSpeed)
         name = handler.name.lower()
         targets[name] = {'flip': {
-            'targetValue': targetValue if not self.home else configurationMap['other']['homeVal'],
+            'targetValue': targetValue,
             'startSpeed': startSpeed,
             'endSpeed': endSpeed,
-            'status': statusMap['started']
+            'status': statusMap['started'],
+            'home': self.home,
             }
         }
 

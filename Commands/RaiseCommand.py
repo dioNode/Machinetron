@@ -54,10 +54,11 @@ class RaiseCommand(Command):
 
         name = cutMachine.name.lower()
         targets[name] = {'vert': {
-            'targetValue': heightDisplacement if not self.home else configurationMap['other']['homeVal'],
+            'targetValue': heightDisplacement,
             'startSpeed': startSpeed,
             'endSpeed': endSpeed,
-            'status': statusMap['started']
+            'status': statusMap['started'],
+            'home': self.home
             }
         }
 

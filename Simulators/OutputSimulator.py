@@ -80,7 +80,6 @@ class OutputSimulator:
                 self.updateMotorDisplay(cutMachines, i, motorDisplayTop, x)
 
             self.updateHandlerDisplay(cutMachines)
-            print(self.controller.handler.flipMotor.currentDisplacement)
             self.updateCommandsDisplay()
             self.updateGoButton()
             pygame.display.update()
