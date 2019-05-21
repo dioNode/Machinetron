@@ -106,7 +106,7 @@ class STLProcessor:
         imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
         imageSlicesRightLeft.reverse()
         faceOrder = [('top', None), ('front', 'back'), ('left', 'right')]
-        pxRadius = mm2pixel(configurationMap['drill']['diameter']/2 - 1)
+        pxRadius = mm2pixel(configurationMap['drill']['diameter']/2)
 
         for facenum, imgSlices in enumerate([self.imageSlicesTopDown,
                                              self.imageSlicesFrontBack, self.imageSlicesLeftRight]):
@@ -130,13 +130,12 @@ class STLProcessor:
                 while imgnum < len(imgSlices) and self._containsHole(
                         imgSlices[imgnum],
                         mmPos2PixelPos(surfaceHole, imgSlices[imgnum]),
-                        pxRadius - mm2pixel(1)):
+                        pxRadius - mm2pixel(configurationMap['other']['mmError'] / 2)):
 
                     if surfaceHole in totalDrillHoles[imgnum]:
                         # There is a drill hole shape here, clear it out from images
                         pim = self._fillHole(imgSlices[imgnum], mmPos2PixelPos(surfaceHole, imgSlices[imgnum]),
-                                             mm2pixel(configurationMap['drill']['diameter']/2 +
-                                                      configurationMap['other']['mmError']/2),1)
+                                             pxRadius + mm2pixel(configurationMap['other']['mmError'] / 2), 1)
                         imgSlices[imgnum] = pim
 
                     depth += self.sliceDepth
@@ -146,6 +145,7 @@ class STLProcessor:
                 if depth > 0:
                     (x, z) = surfaceHole
                     self.controller.commandGenerator.drill(face, x, z, depth)
+
 
     def _clearFolders(self):
         clearFolder('STL/output/frontback')

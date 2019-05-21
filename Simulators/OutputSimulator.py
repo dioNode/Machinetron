@@ -80,13 +80,9 @@ class OutputSimulator:
                 self.updateMotorDisplay(cutMachines, i, motorDisplayTop, x)
 
             self.updateHandlerDisplay(cutMachines)
-
+            print(self.controller.handler.flipMotor.currentDisplacement)
             self.updateCommandsDisplay()
-
             self.updateGoButton()
-
-
-
             pygame.display.update()
         else:
             pygame.quit()
@@ -255,6 +251,7 @@ class OutputSimulator:
         pygame.draw.rect(win, (0, 0, 0), (x, displayTop, width, height), 1)
         faceWidth = int(self.controller.currentFaceWidth)
         faceHeight = int(self.controller.currentFaceHeight)
+        # print(faceWidth, faceHeight)
         faceX = int(x + width / 2 - faceWidth / 2)
         faceY = int(displayTop + height / 2 - faceHeight / 2)
         pygame.draw.rect(win, (31, 142, 33), (faceX, faceY, faceWidth, faceHeight))
