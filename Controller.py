@@ -39,6 +39,7 @@ class Controller:
         self.lathe = Lathe(self)
         self.mill = Mill(self)
         self.commandGenerator = CommandGenerator(self)
+        self.clearHistory()
 
         self.commandQueue = []
         self.commandQueueHistory = []
@@ -319,3 +320,13 @@ class Controller:
 
     def sendResumeCommand(self):
         self.microcontroller.resume()
+
+    def writeToHistory(self, lineString):
+        myFile = open("history.txt", "a")
+
+        # \n is placed to indicate EOL (End of Line)
+        myFile.write(lineString + '\n')
+        myFile.close()  # to change file access modes
+
+    def clearHistory(self):
+        open("history.txt", "w").close()

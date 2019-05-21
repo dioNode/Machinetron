@@ -86,7 +86,8 @@ class CommandGenerator:
             depth (double): Depth of the drill into the foam.
 
         """
-        print('drill', x, z, depth, face)
+        commandString = ', '.join(['drill(' + '"'+str(face)+'"', str(x), str(z), str(depth)+')'])
+        self.controller.writeToHistory(commandString)
         # Align to face
         controller = self.controller
         # z = controller.currentFaceHeight - z
@@ -111,7 +112,8 @@ class CommandGenerator:
             radius (double): Radius of the circle being cut out.
 
         """
-        print('lathe', z0, z1, radius)
+        commandString = ', '.join(['lathe(' + str(z0), str(z1), str(radius)+')'])
+        self.controller.writeToHistory(commandString)
         controller = self.controller
         if z0 > z1:
             zBot = z1
@@ -180,7 +182,6 @@ class CommandGenerator:
         #     RaiseCommand(controller.mill, 0),
         #     RaiseCommand(controller.lathe, 0),
         # ], 'Move to Home Location'))
-
         self.homeMill()
         self.homeLathe()
         self.homeDrill()
@@ -603,6 +604,8 @@ class CommandGenerator:
         self.calibrateHandler()
 
     def millPointsSequence(self, ptsList, depth, face):
+        commandString = ', '.join(['millPointsSequence(' + str(ptsList), str(depth), '"' + face + '")'])
+        self.controller.writeToHistory(commandString)
         self.selectFace(face)
         # Go to starting point
         (x0, z0) = ptsList[0] if len(ptsList) > 0 else (0,0)

@@ -62,7 +62,7 @@ def main():
     # calibrationRoutine()
 
     if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part4.STL', controller)
+        stlProcessor.generateCommands('part1.STL', controller)
 
 
     # runDemoPart1()
@@ -229,8 +229,8 @@ def calibrationRoutine():
 
 
 def runDemoPart0():
-    drill('front', -20, 85, 50)
-    drill('front', 20, 85, 50)
+    drill('front', -20, 25, 50)
+    drill('front', 20, 25, 50)
     lathe(50, 80, 25)
     cutInCircle('top', 0, 40, 25, 40)
     fillet('top', 38.3, 80, 10, 1, 30)
