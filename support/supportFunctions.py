@@ -105,7 +105,7 @@ def pixelPos2mmPos(pos, im, ratio=None):
     pxheight, pxwidth = im.shape
     posX = pixel2mm(pos[0] - pxwidth/2, ratio)
     posY = pixel2mm(pxheight - pos[1], ratio)
-    return posX, posY
+    return round(posX), round(posY)
 
 
 def inRange(currentPos, desiredPos, errorRange):
