@@ -105,28 +105,47 @@ class STLProcessor:
         imageSlicesBackFront.reverse()
         imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
         imageSlicesRightLeft.reverse()
-        faceOrder = ['top', 'front', 'right', 'back', 'left']
+        faceOrder = [('top', None), ('front', 'back'), ('left', 'right')]
         pxRadius = mm2pixel(configurationMap['drill']['diameter']/2 - 1)
-        for facenum, imgSlices in enumerate([self.imageSlicesTopDown, self.imageSlicesFrontBack, imageSlicesRightLeft,
-                                             imageSlicesBackFront, self.imageSlicesLeftRight]):
 
-            surfaceDrillHoles = self._detectDrill(imgSlices[0]) # This returns in pixels
-            print(surfaceDrillHoles, 'surface holes', faceOrder[facenum])
+        for facenum, imgSlices in enumerate([self.imageSlicesTopDown,
+                                             self.imageSlicesFrontBack, self.imageSlicesLeftRight]):
 
-            for surfaceHole in surfaceDrillHoles:
-                imgnum = 1
+            face = faceOrder[facenum][0]
+            # Detect throughDrillHoles as all the drill holes throughout the image slices
+            throughDrillHoles = []
+            totalDrillHoles = []
+            for img in imgSlices:
+                drillHoles = self._detectDrill(img)
+                totalDrillHoles.append(drillHoles)
+                for drillHole in drillHoles:
+                    if drillHole not in throughDrillHoles:
+                        throughDrillHoles.append(drillHole)
+            # Go through and check if drill can penetrate from surface
+            startingImgNum = 0
+            imgNumDir = 1
+            for surfaceHole in throughDrillHoles:
+                imgnum = startingImgNum
                 depth = 0
                 while imgnum < len(imgSlices) and self._containsHole(
                         imgSlices[imgnum],
                         mmPos2PixelPos(surfaceHole, imgSlices[imgnum]),
-                        pxRadius):
+                        pxRadius - mm2pixel(1)):
+
+                    if surfaceHole in totalDrillHoles[imgnum]:
+                        # There is a drill hole shape here, clear it out from images
+                        pim = self._fillHole(imgSlices[imgnum], mmPos2PixelPos(surfaceHole, imgSlices[imgnum]),
+                                             mm2pixel(configurationMap['drill']['diameter']/2 +
+                                                      configurationMap['other']['mmError']/2),1)
+                        imgSlices[imgnum] = pim
+
                     depth += self.sliceDepth
-                    imgnum += 1
+                    imgnum += imgNumDir
+
                 # Do drill
                 if depth > 0:
-                    print(depth)
                     (x, z) = surfaceHole
-                    self.controller.commandGenerator.drill(faceOrder[facenum], x, z, depth)
+                    self.controller.commandGenerator.drill(face, x, z, depth)
 
     def _clearFolders(self):
         clearFolder('STL/output/frontback')

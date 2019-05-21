@@ -62,7 +62,7 @@ def main():
     # calibrationRoutine()
 
     if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part0.STL', controller)
+        stlProcessor.generateCommands('part1.STL', controller)
 
 
     # runDemoPart1()

@@ -603,7 +603,6 @@ class CommandGenerator:
         self.calibrateHandler()
 
     def millPointsSequence(self, ptsList, depth, face):
-        print(face)
         self.selectFace(face)
         # Go to starting point
         (x0, z0) = ptsList[0] if len(ptsList) > 0 else (0,0)
