@@ -7,12 +7,13 @@ class Microcontroller:
 
     def __init__(self):
         self.submachinesUsed = []
-        self.i2cSleep = 0.1
+        self.i2cSleep = 0.01
 
     def setupBus(self):
         import smbus
         time.sleep(self.i2cSleep)
         self.bus = smbus.SMBus(1)
+        time.sleep(self.i2cSleep)
 
     def processSequentialCommands(self, commandList):
         for command in commandList:
@@ -100,6 +101,7 @@ class Microcontroller:
         # Start instruction
         time.sleep(self.i2cSleep)
         motorInstructions = [0]*21
+        time.sleep(self.i2cSleep)
         self.bus.write_i2c_block_data(0, 1, motorInstructions)
         time.sleep(self.i2cSleep)
 
@@ -137,7 +139,7 @@ class Microcontroller:
                                     infSpin = 1
                                 startSpeed = targetVals['startSpeed']
                                 endSpeed = targetVals['endSpeed']
-                                home = targetValue['home']
+                                home = targetVals['home']
                                 direction = 1 if targetValue >= 0 else 0
                                 # Set motorByte configurations
                                 homeBit = 0

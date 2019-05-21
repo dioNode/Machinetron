@@ -171,7 +171,7 @@ class Controller:
 
         """
         self.statusLed.turnRed()
-        print(self.currentCommand.generateTargets())
+        print(self.currentCommand.generateTargets(True))
         # print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
         if isinstance(self.currentCommand, SequentialCommand):
             self.microcontroller.processSequentialCommands(self.currentCommand.commandList)
@@ -330,3 +330,14 @@ class Controller:
 
     def clearHistory(self):
         open("history.txt", "w").close()
+
+    def resetCurrentCommand(self):
+        # Shift all the commands into temporary place
+        tempCommand = self.commandQueue.copy()
+        tempCommand.insert(0, self.currentCommand)
+        self.commandQueue.clear()
+        # Add reset homing commands to front of queue
+        self.commandGenerator.resetAll()
+        # Shift commands back
+        self.commandQueue = self.commandQueue + tempCommand.copy()
+

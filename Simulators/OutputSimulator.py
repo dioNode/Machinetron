@@ -42,6 +42,7 @@ class OutputSimulator:
         self.screenWidth = 2 * self.padding + 3 * (self.padding + self.width) + self.commandsDisplayWidth
 
         self.screenClicked = False
+        self.screenRightClicked = False
         self.status = 0
 
         if isinstance(controller, Controller):
@@ -340,4 +341,13 @@ class OutputSimulator:
             if self.screenClicked:
                 self.controller.goButtonClicked()
             self.screenClicked = False
+
+        rightClick = pygame.mouse.get_pressed()[2]
+        if rightClick == 1:
+            self.screenRightClicked = True
+        else:
+            if self.screenRightClicked:
+                self.controller.resetCurrentCommand()
+            self.screenRightClicked = False
+
 

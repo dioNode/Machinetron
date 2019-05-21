@@ -30,7 +30,7 @@ configurationMap = {
         'id': 0x1F,
         'detectionTolerance': 10,
     }, 'lathe': {
-        'homeX': 160,
+        'homeX': 70,
         'raiseSpeed': 25,
         'pushSpeed': 50,
         'spinSpeed': 0,
@@ -49,7 +49,7 @@ configurationMap = {
         'minDetectionRadius': 10,
         'maxDetectionRadius': 100,
     }, 'mill': {
-        'homeX': 200, #220
+        'homeX': 40,
         'raiseSpeed': 25,
         'pushSpeed': 50,
         'spinSpeed': 500,
@@ -87,5 +87,6 @@ configurationMap = {
         'mmError': 1.0,
         'speedMultiplier': 3,
         'numRotationSteps': 200,
+        'syncSpeed': 15,
     }
 }

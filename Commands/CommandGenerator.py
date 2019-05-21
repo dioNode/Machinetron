@@ -247,10 +247,11 @@ class CommandGenerator:
         #     ShiftCommand(self.controller.mill, self.controller.handler, currentX),
         #     RaiseCommand(self.controller.mill, currentZ),
         # ]))
+        syncSpeed = configurationMap['other']['syncSpeed']
         sequentialCommand.addCommand(CombinedCommand([
             SpinCommand(self.controller.mill),
-            ShiftCommand(self.controller.mill, self.controller.handler, currentX),
-            RaiseCommand(self.controller.mill, currentZ),
+            ShiftCommand(self.controller.mill, self.controller.handler, currentX, startSpeed=syncSpeed),
+            RaiseCommand(self.controller.mill, currentZ, startSpeed=syncSpeed),
         ]))
         self.controller.addCommand(sequentialCommand)
 
@@ -443,7 +444,7 @@ class CommandGenerator:
         self.controller.addCommand(CombinedCommand([
             ShiftCommand(self.controller.drill, self.controller.handler, configurationMap['other']['homeVal'],
                          inAbsolute=True, home=True),
-            SpinCommand(self.controller.handler, configurationMap['other']['homeVal'], home=True),
+            SpinCommand(self.controller.handler, configurationMap['other']['homeVal'], 200, home=True),
             FlipCommand(self.controller.handler, 'down', home=True)
         ]))
 
@@ -604,7 +605,7 @@ class CommandGenerator:
         self.calibrateHandler()
 
     def millPointsSequence(self, ptsList, depth, face):
-        commandString = ', '.join(['millPointsSequence(' + str(ptsList), str(depth), '"' + face + '")'])
+        commandString = ', '.join(['millPointSequence(' + str(ptsList), str(depth), '"' + face + '")'])
         self.controller.writeToHistory(commandString)
         self.selectFace(face)
         # Go to starting point
@@ -631,6 +632,5 @@ class CommandGenerator:
 
         # Retract mill
         self.retractMill()
-
 
 

@@ -24,11 +24,13 @@ class STLProcessor:
     def __init__(self):
         self.controller = None
         self.path = None
-        self.sliceDepth = 10
+        self.sliceDepth = 1
         self.filename = ''
         self.imageSlicesLeftRight = []
+        self.imageSlicesRightLeft = []
         self.imageSlicesTopDown = []
         self.imageSlicesFrontBack = []
+        self.imageSlicesBackFront = []
 
     def generateCommands(self, filename, controller):
         """Generates the commands into the controller using the file.
@@ -44,6 +46,7 @@ class STLProcessor:
         self.path = 'STL/output'
         self._storeImageSlices()
         self._clearFaces()
+        self.controller.writeToHistory(filename)
         self.generateDrillCommands()
         self.generateLatheCommands()
         self._dumpImageSlices()
@@ -86,7 +89,8 @@ class STLProcessor:
                         z0 = startIdx * self.sliceDepth
                         z1 = endIdx * self.sliceDepth
                         radius = pixel2mm(lathePoint)
-                        self.controller.commandGenerator.lathe(z0, z1, radius)
+                        self.controller.commandGenerator.lathe(self.controller.zLength - z1,
+                                                               self.controller.zLength - z0, radius)
                         startIdx = None
                         endIdx = None
 
@@ -94,17 +98,14 @@ class STLProcessor:
         if startIdx is not None and endIdx is not None:
             z0 = startIdx * self.sliceDepth
             z1 = endIdx * self.sliceDepth
+            # Flip because lathe goes from top down
             radius = pixel2mm(lathePoint)
             # Trigger command
-            self.controller.commandGenerator.lathe(z0, z1, radius)
+            self.controller.commandGenerator.lathe(self.controller.zLength - z1, self.controller.zLength - z0, radius)
 
     def generateDrillCommands(self):
         """Generates the command to use the drill."""
         # iterate through the names of contents of the folder
-        imageSlicesBackFront = self.imageSlicesFrontBack.copy()
-        imageSlicesBackFront.reverse()
-        imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
-        imageSlicesRightLeft.reverse()
         faceOrder = [('top', None), ('front', 'back'), ('left', 'right')]
         pxRadius = mm2pixel(configurationMap['drill']['diameter']/2)
 
@@ -154,7 +155,6 @@ class STLProcessor:
                             (x, z) = surfaceHole
                             self.controller.commandGenerator.drill(face, x, z, depth)
 
-
     def _clearFolders(self):
         clearFolder('STL/output/frontback')
         clearFolder('STL/output/leftright')
@@ -184,11 +184,15 @@ class STLProcessor:
         sliceNum = math.ceil(int(76.6/self.sliceDepth))
         generateSlices('face3.stl', 'leftright', sliceNum)
         self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright', 55, 1145, 75, 1575, 80, 110)
+        self.imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
+        self.imageSlicesRightLeft.reverse()
 
         # Generate slices for front back
         sliceNum = math.ceil(80/self.sliceDepth)
         generateSlices('face2.stl', 'frontback', sliceNum+1)
         self.imageSlicesFrontBack = self._getImageSlices('STL/output/frontback', 55, 1145, 78, 1645, 76.6, 110)
+        self.imageSlicesBackFront = self.imageSlicesFrontBack.copy()
+        self.imageSlicesBackFront.reverse()
 
     def _getImageSlices(self, facePath, x0, x1, y0, y1, width, height):
         imageSlices = []
@@ -341,20 +345,13 @@ class STLProcessor:
 
         return lathePointsMM
 
-
-
-
-
     def generateMillCommands(self):
         # img = self.imageSlicesTopDown[9]
-        imageSlicesBackFront = self.imageSlicesFrontBack.copy()
-        imageSlicesBackFront.reverse()
-        imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
-        imageSlicesRightLeft.reverse()
 
         faceOrder = ['top', 'front', 'right', 'back', 'left']
-        for facenum, imgSlices in enumerate([self.imageSlicesTopDown, self.imageSlicesFrontBack, imageSlicesRightLeft,
-                          imageSlicesBackFront, self.imageSlicesLeftRight]):
+        for facenum, imgSlices in enumerate([self.imageSlicesTopDown, self.imageSlicesFrontBack,
+                                             self.imageSlicesRightLeft, self.imageSlicesBackFront,
+                                             self.imageSlicesLeftRight]):
 
             # Reverse bw of imgSlices
             for imNum, im in enumerate(imgSlices):
@@ -362,7 +359,6 @@ class STLProcessor:
                 imgSlices[imNum] = pim
 
             # Go through each image and get list of matching shapes
-            imgSlices.reverse()
             surfaceIm = imgSlices[0]
             pathListWithShapes = self._detectEdge(surfaceIm)
             for i,pathListPerShape in enumerate(pathListWithShapes):
@@ -381,13 +377,14 @@ class STLProcessor:
                 centerPoint = getCenterPoint(borderPath)
 
 
-
                 if depth > 0:
+                    self.controller.commandGenerator.retractMill()
                     # Initial shrink half a mill diameter
                     shrunkIm = self._shrink(surfaceIm, mm2pixel(configurationMap['mill']['diameter'] / 2), 1)
                     shrunkShapePts = self._detectEdge(shrunkIm)
                     shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
                     self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
+                    # print(centerPoint)
                     # cv2.imshow('Initial', shrunkIm)
                     # cv2.waitKey(0)
 
@@ -399,18 +396,19 @@ class STLProcessor:
                             break
                         shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
                         self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
+                        # print(centerPoint)
                         # cv2.imshow('Initial', shrunkIm)
                         # cv2.waitKey(0)
 
-
+            self.controller.commandGenerator.retractMill()
 
     def millPixelPath(self, millPath, im, depth, face):
         # Convert to mm
-        borderPathMM = []
-        for pts in millPath:
-            borderPathMM.append(pixelPos2mmPos(pts, im))
-
-        self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, face)
+        if len(millPath) > 0:
+            borderPathMM = []
+            for pts in millPath:
+                borderPathMM.append(pixelPos2mmPos(pts, im))
+            self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, face)
 
     def _shapeExistsInImg(self, img, pathList, mmAccuracy=1):
         pathListWithShapes = self._detectEdge(img)
