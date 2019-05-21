@@ -568,9 +568,16 @@ class CommandGenerator:
         ])
 
     def pauseCommand(self):
+        """Sends a command to the submachines to pause all motion. This does not pause the Raspberry Pi."""
         self.controller.addCommand(PauseCommand())
 
     def calibrateCutmachine(self, cutmachine):
+        """Checks the endpoints of each cutmachine by looking at where it touches the edge of the foam.
+
+        Args:
+            cutmachine (CutMachine): The cutmachine you want to test.
+
+        """
         # Move to bottom left corner
         self.controller.addCommand(CombinedCommand([
             ShiftCommand(cutmachine, self.controller.handler, -38.8),
@@ -599,12 +606,27 @@ class CommandGenerator:
 
 
     def calibrationRoutine(self):
+        """A routine used to check if the coordinate system is calibrated correctly in real life.
+
+        This goes around for each cutmachine and uses its cutting tool to poke the top left and bottom right corner of
+        the foam. It then checks the flip mechanism for the Handler. The routine pauses after every step to give the
+        user time to take measurements.
+
+        """
         cutmachines = [self.controller.mill, self.controller.drill, self.controller.lathe]
         for cutmachine in cutmachines:
             self.calibrateCutmachine(cutmachine)
         self.calibrateHandler()
 
     def millPointsSequence(self, ptsList, depth, face):
+        """Uses the mill to cut through a sequence of points in order.
+
+        Args:
+            ptsList (List(tuples)): A list of x, z coordinate tuples for the path you want the mill to follow.
+            depth (double): The depth of the path in the foam.
+            face (String): The face you want to work on.
+
+        """
         commandString = ', '.join(['millPointSequence(' + str(ptsList), str(depth), '"' + face + '")'])
         self.controller.writeToHistory(commandString)
         self.selectFace(face)

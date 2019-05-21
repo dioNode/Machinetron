@@ -41,22 +41,24 @@ class TestSTLProcessor(TestCase):
 
     def test__detectDrill(self):
         from STL.STLProcessor import STLProcessor
+        from support.supportFunctions import posListMatches
         import cv2
-        import numpy as np
         stlProcessor = STLProcessor()
-        img0 = cv2.imread('data/part0-frontback2.png', 0)
-        img1 = cv2.imread('data/part1-frontback2.png', 0)
-        # img2 = cv2.imread('data/part2-topdown10.png', 0)
-        # img2 = cv2.imread('data/part2-frontback3.png', 0)
-        img2 = cv2.imread('data/part2-face2_0004.png', 0)
-        img3 = cv2.imread('data/part3-frontback3.png', 0)
-        img3 = cv2.imread('data/part3-face2_0003.png', 0)
-        img = img3
-        drillsDetected = stlProcessor._detectDrill(img)
-        print(drillsDetected)
-        cv2.imshow('Erosion', img)
 
-        cv2.waitKey(0)
+        detectionSols = {
+            'part0-frontback0': [(20, 25), (-20, 25)],
+            'part1-frontback2': [(0, 100)],
+            'part2-face2_0004': [],
+            'part2-face3_0003': [],
+            'part2-frontback3': [],
+            'part3-frontback25': [(0, 40), (0, 100), (27.5, 40), (27.5, 100), (-27.5, 40), (-27.5, 100)],
+        }
+
+        for imname, coordList in detectionSols.items():
+            img = cv2.imread('data/' + imname + '.png', 0)
+            drillsDetected = stlProcessor._detectDrill(img, showFig=False)
+            self.assertTrue(posListMatches(drillsDetected, coordList, 1))
+
 
 
     # def test__detectLathe(self):

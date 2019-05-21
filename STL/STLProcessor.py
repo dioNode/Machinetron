@@ -47,9 +47,9 @@ class STLProcessor:
         self._storeImageSlices()
         self._clearFaces()
         self.controller.writeToHistory(filename)
+        self._dumpImageSlices()
         self.generateDrillCommands()
         self.generateLatheCommands()
-        self._dumpImageSlices()
         self.generateMillCommands()
 
     def generateLatheCommands(self):
@@ -274,7 +274,7 @@ class STLProcessor:
             cv2.circle(img, pos, radius+400, (255, 255, 255), 800)
         return img
 
-    def _detectDrill(self, img):
+    def _detectDrill(self, img, showFig=False):
 
         cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
@@ -293,9 +293,11 @@ class STLProcessor:
                 cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
 
                 drillPoints.append((i[0], i[1]))
-                height, width = img.shape
-                # cv2.imshow('inside drill', cimg)
-                # cv2.waitKey(0)
+        if showFig:
+            cv2.namedWindow('image', cv2.WINDOW_NORMAL)
+            cv2.resizeWindow('image', 80*2, 110*2)
+            cv2.imshow('image', cimg)
+            cv2.waitKey(0)
 
         # Convert from pixel to mm
         drillPointsMM = []

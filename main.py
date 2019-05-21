@@ -1,7 +1,7 @@
 USE_GUI = True
 USE_SIM = True
 AUTO_START = False
-AUTO_TOOLPATH = False
+AUTO_TOOLPATH = True
 
 from Controller import Controller
 
@@ -18,6 +18,11 @@ controller = Controller(USE_SIM)
 def main():
     setMountFace(76.6, 80, 110)
     controller.tick()
+
+    if AUTO_TOOLPATH:
+        stlProcessor.generateCommands('part3.STL', controller)
+
+    # runDemoPart1()
 
     ################ Commands go here ################
     from Commands.RaiseCommand import RaiseCommand
@@ -72,11 +77,7 @@ def main():
 
     # calibrationRoutine()
 
-    if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part4.STL', controller)
 
-
-    runDemoPart1()
 
 
     ################ End of Commands ################

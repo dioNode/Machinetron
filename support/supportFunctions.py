@@ -110,7 +110,7 @@ def pixelPos2mmPos(pos, im, ratio=None):
 
 def inRange(currentPos, desiredPos, errorRange):
     differenceX, differenceY = tuple(np.subtract(desiredPos, currentPos))
-    return abs(differenceX) < errorRange and abs(differenceY) < errorRange
+    return abs(differenceX) <= errorRange and abs(differenceY) <= errorRange
 
 def tupleArrayInRange(currentTupleArray, desiredTupleArray, errorRange):
     if len(currentTupleArray) != len(desiredTupleArray):
@@ -147,5 +147,21 @@ def getCenterPoint(pointsList):
     numpoints = len(pointsList)
     cx, cy = centerPoint
     return cx/numpoints, cy/numpoints
+
+
+def posListMatches(ptsListOrg, ptsListCmp, errorThresh=0):
+    # Check size equals
+    if len(ptsListOrg) != len(ptsListCmp):
+        return False
+    # Go through original list
+    for ptsOrg in ptsListOrg:
+        # Go through compare list
+        for ptsCmp in ptsListCmp:
+            # Remove points when they match
+            if inRange(ptsOrg, ptsCmp, errorThresh):
+                ptsListCmp.remove(ptsCmp)
+                break
+    return len(ptsListCmp) == 0
+
 
 
