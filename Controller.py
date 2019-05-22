@@ -9,6 +9,7 @@ from Simulators.MicrocontrollerSimulator import MicrocontrollerSimulator
 from Commands.CommandGenerator import CommandGenerator
 from Commands.SequentialCommand import SequentialCommand
 from Commands.PauseCommand import PauseCommand
+from Commands.StopCommand import StopCommand
 from CircuitComponents.GoButton import GoButton
 from CircuitComponents.StatusLed import StatusLed
 
@@ -179,6 +180,8 @@ class Controller:
         elif isinstance(self.currentCommand, PauseCommand):
             self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
             self.pause()
+        elif isinstance(self.currentCommand, StopCommand):
+            self.microcontroller.sendStopCommand()
         else:
             self.microcontroller.processCommand(self.currentCommand)
             self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())

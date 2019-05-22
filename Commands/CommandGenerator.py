@@ -1,6 +1,8 @@
 import numpy as np
 import math
 
+from Commands import StopCommand
+from Commands.EmptyCommand import EmptyCommand
 from Commands.PushCommand import PushCommand
 from Commands.SpinCommand import SpinCommand
 from Commands.RaiseCommand import RaiseCommand
@@ -127,7 +129,7 @@ class CommandGenerator:
         zTop -= latheLength
 
         pushIncrement = configurationMap['lathe']['pushIncrement']
-        handlerSpinCommand = SpinCommand(controller.handler)
+        handlerSpinCommand = SpinCommand(controller.handler) if self.controller.useSimulator else EmptyCommand()
         # Set starting positions
         controller.addCommand(CombinedCommand([
             SpinCommand(controller.handler, 0),
@@ -138,22 +140,26 @@ class CommandGenerator:
 
         # Start lathing
         maxRadius = max(controller.currentFaceDepth, controller.currentFaceWidth) / 2
+        controller.addCommand(handlerSpinCommand)
         for currentRadius in np.arange(maxRadius, radius, -pushIncrement):
             # Push in
             controller.addCommand(CombinedCommand([
                 PushCommand(controller.lathe, currentRadius, controller.currentFaceDepth, fromCenter=True),
-                handlerSpinCommand
+                # handlerSpinCommand
             ], 'Push Lathe in'))
             # Go up
             controller.addCommand(CombinedCommand([
                 RaiseCommand(controller.lathe, zTop),
-                handlerSpinCommand
+                # handlerSpinCommand
             ], 'Lathe Up'))
             # Back down
             controller.addCommand(CombinedCommand([
                 RaiseCommand(controller.lathe, zBot),
-                handlerSpinCommand
+                # handlerSpinCommand
             ], 'Lathe Down'))
+
+        if not controller.useSimulator:
+            controller.addCommand(StopCommand())
 
         self.retractLathe()
 

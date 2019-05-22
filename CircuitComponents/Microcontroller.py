@@ -96,13 +96,18 @@ class Microcontroller:
             self.bus.write_i2c_block_data(address, configurationMap['instructions']['START_INST'], motorInstructions)
             time.sleep(self.i2cSleep)
 
+    def sendStopCommand(self):
+        # Stop handler from spinning
+        motorInstructions = [0] * 21
+        time.sleep(self.i2cSleep)
+        self.bus.write_block_data(0, configurationMap['instructions']['STOP_INST'], motorInstructions)
+        time.sleep(self.i2cSleep)
 
     def sendStartCommand(self):
         # Start instruction
-        time.sleep(self.i2cSleep)
         motorInstructions = [0]*21
         time.sleep(self.i2cSleep)
-        self.bus.write_i2c_block_data(0, 1, motorInstructions)
+        self.bus.write_i2c_block_data(0, configurationMap['instructions']['START_INST'], motorInstructions)
         time.sleep(self.i2cSleep)
 
     def _targetsDictToInstruction(self, targets):

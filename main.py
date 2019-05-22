@@ -1,6 +1,6 @@
-USE_GUI = False
-USE_SIM = False
-AUTO_START = True
+USE_GUI = True
+USE_SIM = True
+AUTO_START = False
 AUTO_TOOLPATH = False
 
 from Controller import Controller
@@ -31,6 +31,7 @@ def main():
     from Commands.FlipCommand import FlipCommand
     from Commands.ShiftCommand import ShiftCommand
     from Commands.SpinCommand import SpinCommand
+    from Commands.StopCommand import StopCommand
     from Commands.SequentialCommand import SequentialCommand
 
 
@@ -58,12 +59,15 @@ def main():
     # ]))
     #
 
-    controller.commandGenerator.homeHandler()
+    # controller.commandGenerator.homeHandler()
 
     # controller.addCommand(ShiftCommand(controller.lathe, controller.handler, 0))
     # controller.addCommand(SpinCommand(controller.handler))
+    # controller.addCommand(StopCommand())
 
-    controller.commandGenerator.homeMill()
+    lathe(30, 50, 50) # lathe nothing
+
+    # controller.commandGenerator.homeMill()
 
     # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
 
