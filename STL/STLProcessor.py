@@ -350,7 +350,7 @@ class STLProcessor:
 
         return lathePointsMM
 
-    def generateMillCommands(self, showFig=True):
+    def generateMillCommands(self, showFig=False):
         # img = self.imageSlicesTopDown[9]
 
         faceOrder = ['top', 'front', 'right', 'back', 'left']

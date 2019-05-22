@@ -12,7 +12,7 @@ class SpinCommand(Command):
         endSpeed (double): Final speed of push (mm/s).
 
     """
-    def __init__(self, subMachine, targetValue=None, startSpeed=None, endSpeed=None, home=False):
+    def __init__(self, subMachine, targetValue=None, startSpeed=None, endSpeed=None, home=False, rapid=False):
         super().__init__()
         self.name = "Spinning "+subMachine.name
         self.targetValue = targetValue
@@ -23,19 +23,15 @@ class SpinCommand(Command):
             self.subMachine = subMachine
 
         # Set speeds
-        self.startSpeed = startSpeed if startSpeed is not None else configurationMap[subMachine.name.lower()]['spinSpeed']
+        slowSpeed = configurationMap[subMachine.name.lower()]['spinSpeed']
+        rapidSpeed = configurationMap[subMachine.name.lower()]['rapidSpinSpeed']
+        defaultSpeed = rapidSpeed if rapid else slowSpeed
+        self.startSpeed = startSpeed if startSpeed is not None else defaultSpeed
         self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
 
     def generateTargets(self, inSteps=False):
         targets = {}
         subMachine = self.subMachine
-
-        # if self.targetValue != None:
-        #     # Set target value relative to where the current angle is
-        #     currentValue = subMachine.spinMotor.currentDisplacement
-        #     offsetFromZero = currentValue % 360
-        #     zeroValue = currentValue - offsetFromZero
-        #     self.targetValue += zeroValue
 
         targetValue = self.targetValue
         startSpeed = self.startSpeed
