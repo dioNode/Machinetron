@@ -335,8 +335,8 @@ class STLProcessor:
                 if self._containsHole(img, (x,y), r, 1):
                     lathePoints.append((x, y, r))
 
-        if showFig:
-            cv2.imshow('img', cimg)
+        # if showFig:
+        #     cv2.imshow('img', cimg)
 
         # Convert from pixel to mm
         lathePointsMM = []

@@ -59,8 +59,6 @@ class TestSTLProcessor(TestCase):
             drillsDetected = stlProcessor._detectDrill(img, showFig=False)
             self.assertTrue(posListMatches(drillsDetected, coordList, 1))
 
-
-
     def test__detectLathe(self):
         from STL.STLProcessor import STLProcessor
         from support.supportFunctions import posListMatches
@@ -74,6 +72,7 @@ class TestSTLProcessor(TestCase):
         for imname, coordList in detectionSols.items():
             img = cv2.imread('data/' + imname + '.png', 0)
             lathesDetected = stlProcessor._detectLathe(img, showFig=False)
+            print(lathesDetected)
             # self.assertTrue(posListMatches(drillsDetected, coordList, 1))
 
     # def test_generateMillCommands(self):
