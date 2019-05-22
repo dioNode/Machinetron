@@ -1,7 +1,7 @@
 USE_GUI = True
 USE_SIM = True
 AUTO_START = False
-AUTO_TOOLPATH = False
+AUTO_TOOLPATH = True
 
 from Controller import Controller
 
@@ -20,7 +20,7 @@ def main():
     controller.tick()
 
     if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part3.STL', controller)
+        stlProcessor.generateCommands('part2.STL', controller)
 
     # runDemoPart1()
 
@@ -37,37 +37,8 @@ def main():
 
 
 
-    # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
-    # controller.commandGenerator.millCircleDiscrete('front', -20, 50, 50, 60)
+    # lathe(30, 50, 50) # lathe nothing
 
-    # controller.addCommand(ShiftCommand(controller.lathe, controller.handler, 0))
-    # controller.commandGenerator.homeMill()
-    # controller.commandGenerator.homeHandler()
-
-
-    # controller.addCommand(CombinedCommand([
-    #     ShiftCommand(controller.mill, controller.handler, 0),
-    #     RaiseCommand(controller.mill, 50)
-    # ]))
-    #
-    # controller.addCommand(PushCommand(controller.mill, 50, controller.currentFaceDepth))
-    # controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
-    #
-    # controller.addCommand(CombinedCommand([
-    #     ShiftCommand(controller.lathe, controller.handler, 0),
-    #     RaiseCommand(controller.mill, 0)
-    # ]))
-    #
-
-    # controller.commandGenerator.homeHandler()
-
-    # controller.addCommand(ShiftCommand(controller.lathe, controller.handler, 0))
-    # controller.addCommand(SpinCommand(controller.handler))
-    # controller.addCommand(StopCommand())
-
-    lathe(30, 50, 50) # lathe nothing
-
-    # controller.commandGenerator.homeMill()
 
     # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
 
@@ -77,8 +48,6 @@ def main():
     #     (0, 10), (-20, 50), (20, 50), (0, 10)
     # ], 30)
 
-    # controller.addCommand(RaiseCommand(controller.mill, 50))
-    # controller.addCommand(RaiseCommand(controller.mill, 0))
 
     # calibrationRoutine()
 
