@@ -306,7 +306,7 @@ class STLProcessor:
 
         return drillPointsMM
 
-    def _detectLathe(self, img):
+    def _detectLathe(self, img, showFig=False):
         height, width = img.shape
 
         pxRadiusMax = round(mm2pixel(configurationMap['lathe']['maxDetectionRadius']))
@@ -334,6 +334,9 @@ class STLProcessor:
 
                 if self._containsHole(img, (x,y), r, 1):
                     lathePoints.append((x, y, r))
+
+        if showFig:
+            cv2.imshow('img', cimg)
 
         # Convert from pixel to mm
         lathePointsMM = []
