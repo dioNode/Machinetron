@@ -76,7 +76,7 @@ extern "C" {
 #define DEBUGBUFFERSIZE                 16
 
 /* Total number of instructions that can be stored */
-#define INST_ARRAY_LENGTH               200
+#define INST_ARRAY_LENGTH               500
 
 /* Length of One Instruction */
 #define INST_LENGTH               			28
@@ -277,9 +277,9 @@ void stopCurrentInstruction(void);
 #define I2CSDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 /*___________________Definition of current submachine____________________*/
-//#define HANDLER
+#define HANDLER
 //#define LATHE
-#define MILL
+//#define MILL
 //#define DRILL
 
 // Define the submachine variable as global across files
