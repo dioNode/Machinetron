@@ -27,21 +27,25 @@ class SelectFaceCommand(Command):
                 SpinCommand(self.handler, 0),
                 FlipCommand(self.handler, 'down')
             ])
+
         def back():
             return CombinedCommand([
                 SpinCommand(self.handler, 180),
                 FlipCommand(self.handler, 'down')
             ])
+
         def left():
             return CombinedCommand([
                 SpinCommand(self.handler, -90),
                 FlipCommand(self.handler, 'down')
             ])
+
         def right():
             return CombinedCommand([
                 SpinCommand(self.handler, 90),
                 FlipCommand(self.handler, 'down')
             ])
+
         def top():
             return CombinedCommand([
                 SpinCommand(self.handler, 0),

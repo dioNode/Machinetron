@@ -42,6 +42,7 @@ class OutputSimulator:
         self.screenWidth = 2 * self.padding + 3 * (self.padding + self.width) + self.commandsDisplayWidth
 
         self.screenClicked = False
+        self.screenRightClicked = False
         self.status = 0
 
         if isinstance(controller, Controller):
@@ -80,13 +81,8 @@ class OutputSimulator:
                 self.updateMotorDisplay(cutMachines, i, motorDisplayTop, x)
 
             self.updateHandlerDisplay(cutMachines)
-
             self.updateCommandsDisplay()
-
             self.updateGoButton()
-
-
-
             pygame.display.update()
         else:
             pygame.quit()
@@ -255,6 +251,7 @@ class OutputSimulator:
         pygame.draw.rect(win, (0, 0, 0), (x, displayTop, width, height), 1)
         faceWidth = int(self.controller.currentFaceWidth)
         faceHeight = int(self.controller.currentFaceHeight)
+        # print(faceWidth, faceHeight)
         faceX = int(x + width / 2 - faceWidth / 2)
         faceY = int(displayTop + height / 2 - faceHeight / 2)
         pygame.draw.rect(win, (31, 142, 33), (faceX, faceY, faceWidth, faceHeight))
@@ -344,4 +341,13 @@ class OutputSimulator:
             if self.screenClicked:
                 self.controller.goButtonClicked()
             self.screenClicked = False
+
+        rightClick = pygame.mouse.get_pressed()[2]
+        if rightClick == 1:
+            self.screenRightClicked = True
+        else:
+            if self.screenRightClicked:
+                self.controller.resetCurrentCommand()
+            self.screenRightClicked = False
+
 

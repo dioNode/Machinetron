@@ -5,7 +5,7 @@ import math
 import os
 import cv2
 from support.supportFunctions import clearFolder, unique, pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel, \
-    inRange, tupleArrayInRange
+    inRange, tupleArrayInRange, getCenterPoint
 from config import configurationMap
 import matplotlib.pyplot as plt
 
@@ -27,8 +27,10 @@ class STLProcessor:
         self.sliceDepth = 10
         self.filename = ''
         self.imageSlicesLeftRight = []
+        self.imageSlicesRightLeft = []
         self.imageSlicesTopDown = []
         self.imageSlicesFrontBack = []
+        self.imageSlicesBackFront = []
 
     def generateCommands(self, filename, controller):
         """Generates the commands into the controller using the file.
@@ -44,10 +46,11 @@ class STLProcessor:
         self.path = 'STL/output'
         self._storeImageSlices()
         self._clearFaces()
+        self.controller.writeToHistory(filename)
+        self._dumpImageSlices()
         self.generateDrillCommands()
         self.generateLatheCommands()
         self.generateMillCommands()
-        self._dumpImageSlices()
 
     def generateLatheCommands(self):
         """Generates the commands to use the lathe."""
@@ -86,7 +89,8 @@ class STLProcessor:
                         z0 = startIdx * self.sliceDepth
                         z1 = endIdx * self.sliceDepth
                         radius = pixel2mm(lathePoint)
-                        self.controller.commandGenerator.lathe(z0, z1, radius)
+                        self.controller.commandGenerator.lathe(self.controller.zLength - z1,
+                                                               self.controller.zLength - z0, radius)
                         startIdx = None
                         endIdx = None
 
@@ -94,40 +98,62 @@ class STLProcessor:
         if startIdx is not None and endIdx is not None:
             z0 = startIdx * self.sliceDepth
             z1 = endIdx * self.sliceDepth
+            # Flip because lathe goes from top down
             radius = pixel2mm(lathePoint)
             # Trigger command
-            self.controller.commandGenerator.lathe(z0, z1, radius)
+            self.controller.commandGenerator.lathe(self.controller.zLength - z1, self.controller.zLength - z0, radius)
 
     def generateDrillCommands(self):
         """Generates the command to use the drill."""
         # iterate through the names of contents of the folder
-        sliceDepth = self.sliceDepth
+        faceOrder = [('top', None), ('front', 'back'), ('left', 'right')]
+        pxRadius = mm2pixel(configurationMap['drill']['diameter']/2)
 
-        imageSlicesBackFront = self.imageSlicesFrontBack.copy()
-        imageSlicesBackFront.reverse()
-        imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
-        imageSlicesRightLeft.reverse()
-        faceOrder = ['top', 'front', 'right', 'back', 'left']
-        pxRadius = mm2pixel(configurationMap['drill']['diameter']/2 - 1)
-        for facenum, imgSlices in enumerate([self.imageSlicesTopDown, self.imageSlicesFrontBack, imageSlicesRightLeft,
-                                             imageSlicesBackFront, self.imageSlicesLeftRight]):
+        for facenum, imgSlices in enumerate([self.imageSlicesTopDown,
+                                             self.imageSlicesFrontBack, self.imageSlicesLeftRight]):
 
-            surfaceDrillHoles = self._detectDrill(imgSlices[0]) # This returns in pixels
 
-            for surfaceHole in surfaceDrillHoles:
-                imgnum = 1
-                depth = 0
-                while imgnum < len(imgSlices) and self._containsHole(
-                        imgSlices[imgnum],
-                        mmPos2PixelPos(surfaceHole, imgSlices[imgnum]),
-                        pxRadius):
-                    depth += self.sliceDepth
-                    imgnum += 1
-                # Do drill
-                if depth > 0:
-                    print(depth)
-                    (x, z) = surfaceHole
-                    self.controller.commandGenerator.drill(faceOrder[facenum], x, z, depth)
+            # Go through and check if drill can penetrate from surface
+            for startingImgNum, imgNumDir in [(0, 1), (len(imgSlices)-1, -1)]:
+
+                faceSide = 0 if imgNumDir == 1 else 1
+                face = faceOrder[facenum][faceSide]
+
+                # Detect throughDrillHoles as all the drill holes throughout the image slices
+                throughDrillHoles = []
+                totalDrillHoles = []
+                for img in imgSlices:
+                    drillHoles = self._detectDrill(img)
+                    # print('all', drillHoles)
+                    # cv2.imshow('sdf', img)
+                    # cv2.waitKey(0)
+                    totalDrillHoles.append(drillHoles)
+                    for drillHole in drillHoles:
+                        if drillHole not in throughDrillHoles:
+                            throughDrillHoles.append(drillHole)
+
+                if face is not None:
+                    for surfaceHole in throughDrillHoles:
+                        imgnum = startingImgNum
+                        depth = 0
+                        containsHoleWithin = False # This has crossed the actual drill hole and not just empty space
+                        while imgnum < len(imgSlices) and depth < configurationMap['drill']['depth'] and \
+                                self._containsHole(imgSlices[imgnum],
+                                mmPos2PixelPos(surfaceHole, imgSlices[imgnum]),
+                                pxRadius - mm2pixel(configurationMap['other']['mmError'] / 2), 0):
+                            if surfaceHole in totalDrillHoles[imgnum]:
+                                # There is a drill hole shape here, clear it out from images
+                                pim = self._fillHole(imgSlices[imgnum], mmPos2PixelPos(surfaceHole, imgSlices[imgnum]),
+                                                     pxRadius + mm2pixel(configurationMap['other']['mmError'] / 2), 1)
+                                imgSlices[imgnum] = pim
+                                containsHoleWithin = True
+
+                            depth += self.sliceDepth
+                            imgnum += imgNumDir
+                        # Do drill
+                        if depth > 0 and containsHoleWithin:
+                            (x, z) = surfaceHole
+                            self.controller.commandGenerator.drill(face, x, z, depth)
 
     def _clearFolders(self):
         clearFolder('STL/output/frontback')
@@ -152,16 +178,21 @@ class STLProcessor:
         generateSlices(self.filename, throughFace, sliceNum)
         facePath = self.path + '/' + throughFace
         self.imageSlicesTopDown = self._getImageSlices(facePath, 55, 1145, 57, 1196, 76.6, 80)
+        self.imageSlicesTopDown.reverse()
 
         # Generate slices for left right
         sliceNum = math.ceil(int(76.6/self.sliceDepth))
         generateSlices('face3.stl', 'leftright', sliceNum)
         self.imageSlicesLeftRight = self._getImageSlices('STL/output/leftright', 55, 1145, 75, 1575, 80, 110)
+        self.imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
+        self.imageSlicesRightLeft.reverse()
 
         # Generate slices for front back
         sliceNum = math.ceil(80/self.sliceDepth)
         generateSlices('face2.stl', 'frontback', sliceNum+1)
         self.imageSlicesFrontBack = self._getImageSlices('STL/output/frontback', 55, 1145, 78, 1645, 76.6, 110)
+        self.imageSlicesBackFront = self.imageSlicesFrontBack.copy()
+        self.imageSlicesBackFront.reverse()
 
     def _getImageSlices(self, facePath, x0, x1, y0, y1, width, height):
         imageSlices = []
@@ -172,7 +203,8 @@ class STLProcessor:
             ratio = configurationMap['other']['mmPerPixelRatio']
             croppedIm = img[y0:y1, x0:x1]
             resizedIm = cv2.resize(croppedIm, (int(width/ratio), int(height/ratio)))
-            imageSlices.append(resizedIm)
+            ret,pim = cv2.threshold(resizedIm, 127, 255, cv2.THRESH_BINARY)
+            imageSlices.append(pim)
         return imageSlices
 
     def _dumpImageSlices(self):
@@ -242,7 +274,7 @@ class STLProcessor:
             cv2.circle(img, pos, radius+400, (255, 255, 255), 800)
         return img
 
-    def _detectDrill(self, img):
+    def _detectDrill(self, img, showFig=False):
 
         cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
@@ -261,6 +293,11 @@ class STLProcessor:
                 cv2.circle(cimg, (i[0], i[1]), 2, (0, 0, 255), 3)
 
                 drillPoints.append((i[0], i[1]))
+        if showFig:
+            cv2.namedWindow('image', cv2.WINDOW_NORMAL)
+            cv2.resizeWindow('image', 80*2, 110*2)
+            cv2.imshow('image', cimg)
+            cv2.waitKey(0)
 
         # Convert from pixel to mm
         drillPointsMM = []
@@ -269,9 +306,7 @@ class STLProcessor:
 
         return drillPointsMM
 
-    def _detectLathe(self, img):
-        cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-
+    def _detectLathe(self, img, showFig=False):
         height, width = img.shape
 
         pxRadiusMax = round(mm2pixel(configurationMap['lathe']['maxDetectionRadius']))
@@ -300,6 +335,9 @@ class STLProcessor:
                 if self._containsHole(img, (x,y), r, 1):
                     lathePoints.append((x, y, r))
 
+        # if showFig:
+        #     cv2.imshow('img', cimg)
+
         # Convert from pixel to mm
         lathePointsMM = []
         for lathePoint in lathePoints:
@@ -312,20 +350,13 @@ class STLProcessor:
 
         return lathePointsMM
 
-
-
-
-
     def generateMillCommands(self):
         # img = self.imageSlicesTopDown[9]
-        imageSlicesBackFront = self.imageSlicesFrontBack.copy()
-        imageSlicesBackFront.reverse()
-        imageSlicesRightLeft = self.imageSlicesLeftRight.copy()
-        imageSlicesRightLeft.reverse()
 
         faceOrder = ['top', 'front', 'right', 'back', 'left']
-        for facenum, imgSlices in enumerate([self.imageSlicesTopDown, self.imageSlicesFrontBack, imageSlicesRightLeft,
-                          imageSlicesBackFront, self.imageSlicesLeftRight]):
+        for facenum, imgSlices in enumerate([self.imageSlicesTopDown, self.imageSlicesFrontBack,
+                                             self.imageSlicesRightLeft, self.imageSlicesBackFront,
+                                             self.imageSlicesLeftRight]):
 
             # Reverse bw of imgSlices
             for imNum, im in enumerate(imgSlices):
@@ -333,14 +364,13 @@ class STLProcessor:
                 imgSlices[imNum] = pim
 
             # Go through each image and get list of matching shapes
-            imgSlices.reverse()
             surfaceIm = imgSlices[0]
             pathListWithShapes = self._detectEdge(surfaceIm)
             for i,pathListPerShape in enumerate(pathListWithShapes):
                 imageNum = 1
                 # Loop through each shape
                 currentDepth = 0
-                while imageNum < len(self.imageSlicesTopDown) and self._shapeExistsInImg(
+                while imageNum < len(imgSlices)-1 and self._shapeExistsInImg(
                         imgSlices[imageNum], pathListPerShape):
                     currentDepth += self.sliceDepth
                     imageNum += 1
@@ -349,32 +379,41 @@ class STLProcessor:
                 depth = currentDepth
                 borderPath = pathListPerShape
                 # Shrink borderPath by mill radius
+                centerPoint = getCenterPoint(borderPath)
 
-
-                # Mill over path
-
-                # Keep shrinking and milling until area border path is too small
 
                 if depth > 0:
-                    # Convert to mm
-                    borderPathMM = []
-                    for pts in borderPath:
-                        borderPathMM.append(pixelPos2mmPos(pts, imgSlices[imageNum]))
+                    self.controller.commandGenerator.retractMill()
+                    # Initial shrink half a mill diameter
+                    shrunkIm = self._shrink(surfaceIm, mm2pixel(configurationMap['mill']['diameter'] / 2), 1)
+                    shrunkShapePts = self._detectEdge(shrunkIm)
+                    shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
+                    self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
+                    # print(centerPoint)
+                    # cv2.imshow('Initial', shrunkIm)
+                    # cv2.waitKey(0)
 
-                    self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, faceOrder[facenum])
 
+                    while True:
+                        shrunkIm = self._shrink(shrunkIm, mm2pixel(configurationMap['mill']['diameter'] / 2))
+                        shrunkShapePts = self._detectEdge(shrunkIm)
+                        if shrunkShapePts == []:
+                            break
+                        shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
+                        self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
+                        # print(centerPoint)
+                        # cv2.imshow('Initial', shrunkIm)
+                        # cv2.waitKey(0)
 
-        # # Convert to mm
-        # pathListWithShapesMM = []
-        # for pathListPerShape in pathListWithShapes:
-        #     pathList = []
-        #     for pts in pathListPerShape:
-        #         pathList.append(pixelPos2mmPos(pts, img))
-        #     pathListWithShapesMM.append(pathList)
-        #
-        # print('pathwith shapes', pathListWithShapesMM)
-        # for pathList in pathListWithShapesMM:
-        #     self.controller.commandGenerator.millPointsSequence(pathList, 40, 'top')
+            self.controller.commandGenerator.retractMill()
+
+    def millPixelPath(self, millPath, im, depth, face):
+        # Convert to mm
+        if len(millPath) > 0:
+            borderPathMM = []
+            for pts in millPath:
+                borderPathMM.append(pixelPos2mmPos(pts, im))
+            self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, face)
 
     def _shapeExistsInImg(self, img, pathList, mmAccuracy=1):
         pathListWithShapes = self._detectEdge(img)
@@ -409,38 +448,36 @@ class STLProcessor:
             toolpathList.append(toolPathPerShape)
         return toolpathList
 
-    def _shrink(self, contours):
-        #make the contour list more readable
-        contourList = np.array([list(pt[0]) for ctr in contours for pt in ctr])
-        #extract all x and y points from contours
-        x = contourList[:,1]
-        y = contourList[:,0]
-        #max x distance of mill cutout
-        xdifference = max(x) - min(x)
-        #max y distance of mill cutout
-        ydifference = max(y) - min(y)
-        #Scaling coefficients to shrink using 10pixels = 1mm
-        coef_x = (xdifference - 100) / xdifference
-        coef_y = (ydifference - 100) / ydifference
+    def _shrink(self, img, numPixels, iterations=2):
+        # Taking a matrix of size 5 as the kernel
+        # kernel = np.ones((5, 5), np.uint8)
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (numPixels, numPixels))
 
-        #shrink the contour
-        for contour in contours:
-            contour[:, :, 0] = contour[:, :, 0] * coef_x
-            contour[:, :, 1] = contour[:, :,  1] * coef_y
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        ret, img = cv2.threshold(img, 127, 255, 0)
 
-        #make the contour list more readable
-        contourList = np.array([list(pt[0]) for ctr in contours for pt in ctr])
-        #extract all x and y points from contours
-        x = contourList[:,1]
-        y = contourList[:,0]
-        #create a list of tuples (x, y) which is ordered, sequencing through them will give the toolpath
-        toolpathList = list(zip(x, y))
-        plt.scatter(x[:1000], y[:1000])
-        plt.show()
-        return contours, toolpathList
+        # The first parameter is the original image,
+        # kernel is the matrix with which image is
+        # convolved and third parameter is the number
+        # of iterations, which will determine how much
+        # you want to erode/dilate a given image.
+        img_erosion = cv2.erode(img, kernel, iterations=iterations)
 
+        # cv2.imshow('Erosion', img_erosion)
+        # cv2.waitKey(0)
 
+        return img_erosion
 
+    def _getShrunkenPath(self, shrunkShapePts, centerPoint):
+        for shapePts in shrunkShapePts:
+            shrunkCenterPoint = getCenterPoint(shapePts)
+            # Check if distance is within acceptable range
+            dx = centerPoint[0] - shrunkCenterPoint[0]
+            dy = centerPoint[1] - shrunkCenterPoint[1]
+            distance = math.sqrt(dx**2 + dy**2)
+            if distance < mm2pixel(5):
+                return shapePts
+        return []
 
 
 

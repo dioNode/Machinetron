@@ -105,12 +105,12 @@ def pixelPos2mmPos(pos, im, ratio=None):
     pxheight, pxwidth = im.shape
     posX = pixel2mm(pos[0] - pxwidth/2, ratio)
     posY = pixel2mm(pxheight - pos[1], ratio)
-    return posX, posY
+    return round(posX,1), round(posY,1)
 
 
 def inRange(currentPos, desiredPos, errorRange):
     differenceX, differenceY = tuple(np.subtract(desiredPos, currentPos))
-    return abs(differenceX) < errorRange and abs(differenceY) < errorRange
+    return abs(differenceX) <= errorRange and abs(differenceY) <= errorRange
 
 def tupleArrayInRange(currentTupleArray, desiredTupleArray, errorRange):
     if len(currentTupleArray) != len(desiredTupleArray):
@@ -135,6 +135,33 @@ def splitNumberHex(val):
     mshalf = (hexval & 0xFF00) >> 8
     lshalf = hexval & 0xFF
     return mshalf, lshalf
+
+
+def getCenterPoint(pointsList):
+    # Sum up points
+    centerPoint = (0, 0)
+    for (x, y) in pointsList:
+        cx,cy = centerPoint
+        centerPoint = (x + cx, y + cy)
+    # Average out points
+    numpoints = len(pointsList)
+    cx, cy = centerPoint
+    return cx/numpoints, cy/numpoints
+
+
+def posListMatches(ptsListOrg, ptsListCmp, errorThresh=0):
+    # Check size equals
+    if len(ptsListOrg) != len(ptsListCmp):
+        return False
+    # Go through original list
+    for ptsOrg in ptsListOrg:
+        # Go through compare list
+        for ptsCmp in ptsListCmp:
+            # Remove points when they match
+            if inRange(ptsOrg, ptsCmp, errorThresh):
+                ptsListCmp.remove(ptsCmp)
+                break
+    return len(ptsListCmp) == 0
 
 
 

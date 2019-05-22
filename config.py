@@ -28,9 +28,9 @@ configurationMap = {
         'diameter': 6,
         'depth': 80,
         'id': 0x1F,
-        'detectionTolerance': 5,
+        'detectionTolerance': 10,
     }, 'lathe': {
-        'homeX': 160,
+        'homeX': 70,
         'raiseSpeed': 25,
         'pushSpeed': 50,
         'spinSpeed': 0,
@@ -49,7 +49,7 @@ configurationMap = {
         'minDetectionRadius': 10,
         'maxDetectionRadius': 100,
     }, 'mill': {
-        'homeX': 200, #220
+        'homeX': 40,
         'raiseSpeed': 25,
         'pushSpeed': 50,
         'spinSpeed': 500,
@@ -84,8 +84,9 @@ configurationMap = {
         'infVal': 9999,
         'homeVal': -10,
         'mmPerPixelRatio': 0.1, # Using the y direction
-        'mmError': 2.0,
+        'mmError': 1.0,
         'speedMultiplier': 3,
         'numRotationSteps': 200,
+        'syncSpeed': 15,
     }
 }

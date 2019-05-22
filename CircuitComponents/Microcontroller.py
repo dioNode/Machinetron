@@ -7,12 +7,13 @@ class Microcontroller:
 
     def __init__(self):
         self.submachinesUsed = []
-        self.i2cSleep = 0.1
+        self.i2cSleep = 0.01
 
     def setupBus(self):
         import smbus
         time.sleep(self.i2cSleep)
         self.bus = smbus.SMBus(1)
+        time.sleep(self.i2cSleep)
 
     def processSequentialCommands(self, commandList):
         for command in commandList:
@@ -95,12 +96,18 @@ class Microcontroller:
             self.bus.write_i2c_block_data(address, configurationMap['instructions']['START_INST'], motorInstructions)
             time.sleep(self.i2cSleep)
 
+    def sendStopCommand(self):
+        # Stop handler from spinning
+        motorInstructions = [0] * 21
+        time.sleep(self.i2cSleep)
+        self.bus.write_block_data(0, configurationMap['instructions']['STOP_INST'], motorInstructions)
+        time.sleep(self.i2cSleep)
 
     def sendStartCommand(self):
         # Start instruction
-        time.sleep(self.i2cSleep)
         motorInstructions = [0]*21
-        self.bus.write_i2c_block_data(0, 1, motorInstructions)
+        time.sleep(self.i2cSleep)
+        self.bus.write_i2c_block_data(0, configurationMap['instructions']['START_INST'], motorInstructions)
         time.sleep(self.i2cSleep)
 
     def _targetsDictToInstruction(self, targets):
@@ -137,10 +144,11 @@ class Microcontroller:
                                     infSpin = 1
                                 startSpeed = targetVals['startSpeed']
                                 endSpeed = targetVals['endSpeed']
+                                home = targetVals['home']
                                 direction = 1 if targetValue >= 0 else 0
                                 # Set motorByte configurations
                                 homeBit = 0
-                                if targetValue == configurationMap['other']['homeVal']:
+                                if home:
                                     # Home command
                                     homeBit = 1
                                     targetValue = 0

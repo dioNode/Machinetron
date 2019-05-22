@@ -1,7 +1,7 @@
 USE_GUI = True
 USE_SIM = True
 AUTO_START = False
-AUTO_TOOLPATH = True
+AUTO_TOOLPATH = False
 
 from Controller import Controller
 
@@ -19,6 +19,11 @@ def main():
     setMountFace(76.6, 80, 110)
     controller.tick()
 
+    if AUTO_TOOLPATH:
+        stlProcessor.generateCommands('part3.STL', controller)
+
+    # runDemoPart1()
+
     ################ Commands go here ################
     from Commands.RaiseCommand import RaiseCommand
     from Commands.CombinedCommand import CombinedCommand
@@ -26,7 +31,9 @@ def main():
     from Commands.FlipCommand import FlipCommand
     from Commands.ShiftCommand import ShiftCommand
     from Commands.SpinCommand import SpinCommand
+    from Commands.StopCommand import StopCommand
     from Commands.SequentialCommand import SequentialCommand
+
 
 
 
@@ -52,6 +59,20 @@ def main():
     # ]))
     #
 
+    # controller.commandGenerator.homeHandler()
+
+    # controller.addCommand(ShiftCommand(controller.lathe, controller.handler, 0))
+    # controller.addCommand(SpinCommand(controller.handler))
+    # controller.addCommand(StopCommand())
+
+    lathe(30, 50, 50) # lathe nothing
+
+    # controller.commandGenerator.homeMill()
+
+    # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
+
+
+
     # controller.commandGenerator.millPointsSequence([
     #     (0, 10), (-20, 50), (20, 50), (0, 10)
     # ], 30)
@@ -61,11 +82,7 @@ def main():
 
     # calibrationRoutine()
 
-    if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part0.STL', controller)
 
-
-    # runDemoPart1()
 
 
     ################ End of Commands ################
@@ -88,9 +105,6 @@ def main():
         controller.updateEndeffactorValues()
         if USE_GUI:
             outputSimulator.update()
-
-
-
 
 
 def setMountFace(xLength, yLength, zLength):
@@ -223,15 +237,18 @@ def drill(face, x, z, depth):
     """
     controller.commandGenerator.drill(face, x, z, depth)
 
+def millPointsSequence(ptsList, depth, face):
+    controller.commandGenerator.millPointsSequence(ptsList, depth, face)
+
 
 def calibrationRoutine():
     controller.commandGenerator.calibrationRoutine()
 
 
 def runDemoPart0():
-    drill('front', -20, 85, 50)
-    drill('front', 20, 85, 50)
-    lathe(50, 80, 25)
+    drill('front', -20, 25, 50)
+    drill('front', 20, 25, 50)
+    lathe(30, 60, 25)
     cutInCircle('top', 0, 40, 25, 40)
     fillet('top', 38.3, 80, 10, 1, 30)
     fillet('top', -38.3, 80, 10, 2, 30)

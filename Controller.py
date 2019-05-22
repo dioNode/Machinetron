@@ -9,6 +9,7 @@ from Simulators.MicrocontrollerSimulator import MicrocontrollerSimulator
 from Commands.CommandGenerator import CommandGenerator
 from Commands.SequentialCommand import SequentialCommand
 from Commands.PauseCommand import PauseCommand
+from Commands.StopCommand import StopCommand
 from CircuitComponents.GoButton import GoButton
 from CircuitComponents.StatusLed import StatusLed
 
@@ -39,6 +40,7 @@ class Controller:
         self.lathe = Lathe(self)
         self.mill = Mill(self)
         self.commandGenerator = CommandGenerator(self)
+        self.clearHistory()
 
         self.commandQueue = []
         self.commandQueueHistory = []
@@ -77,7 +79,6 @@ class Controller:
                 self.goButtonClicked()
                 # Reset buffer
                 self.commandQueue = self.commandQueueHistory.copy()
-
         time.sleep(self.timeStep)
         self.currentTime += self.timeStep
         self.updateDirectionFaced()
@@ -171,7 +172,7 @@ class Controller:
 
         """
         self.statusLed.turnRed()
-        print(self.currentCommand.generateTargets())
+        print(self.currentCommand.generateTargets(True))
         # print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
         if isinstance(self.currentCommand, SequentialCommand):
             self.microcontroller.processSequentialCommands(self.currentCommand.commandList)
@@ -179,6 +180,8 @@ class Controller:
         elif isinstance(self.currentCommand, PauseCommand):
             self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
             self.pause()
+        elif isinstance(self.currentCommand, StopCommand):
+            self.microcontroller.sendStopCommand()
         else:
             self.microcontroller.processCommand(self.currentCommand)
             self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
@@ -196,7 +199,6 @@ class Controller:
             cutmachine.spinMotor.currentDisplacement = results[name]['spin']
             cutmachine.vertMotor.currentDisplacement = results[name]['vert']
             cutmachine.penMotor.currentDisplacement = results[name]['pen']
-
         name = self.handler.name.lower()
         self.handler.spinMotor.currentDisplacement = results[name]['spin']
         self.handler.railMotor.currentDisplacement = results[name]['rail']
@@ -321,3 +323,24 @@ class Controller:
 
     def sendResumeCommand(self):
         self.microcontroller.resume()
+
+    def writeToHistory(self, lineString):
+        myFile = open("history.txt", "a")
+
+        # \n is placed to indicate EOL (End of Line)
+        myFile.write(lineString + '\n')
+        myFile.close()  # to change file access modes
+
+    def clearHistory(self):
+        open("history.txt", "w").close()
+
+    def resetCurrentCommand(self):
+        # Shift all the commands into temporary place
+        tempCommand = self.commandQueue.copy()
+        tempCommand.insert(0, self.currentCommand)
+        self.commandQueue.clear()
+        # Add reset homing commands to front of queue
+        self.commandGenerator.resetAll()
+        # Shift commands back
+        self.commandQueue = self.commandQueue + tempCommand.copy()
+

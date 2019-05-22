@@ -51,10 +51,11 @@ class SpinCommand(Command):
 
         name = subMachine.name.lower()
         targets[name] = {'spin': {
-            'targetValue': targetValue if not self.home else configurationMap['other']['homeVal'],
+            'targetValue': targetValue,
             'startSpeed': startSpeed,
             'endSpeed': endSpeed,
-            'status': statusMap['started']
+            'status': statusMap['started'],
+            'home': self.home,
             }
         }
 
