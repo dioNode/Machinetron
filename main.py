@@ -1,7 +1,7 @@
-USE_GUI = True
-USE_SIM = True
-AUTO_START = False
-AUTO_TOOLPATH = True
+USE_GUI = False
+USE_SIM = False
+AUTO_START = True
+AUTO_TOOLPATH = False
 
 from Controller import Controller
 
@@ -58,12 +58,13 @@ def main():
     # ]))
     #
 
-    # controller.commandGenerator.homeHandler()
+    controller.commandGenerator.homeHandler()
 
     # controller.addCommand(ShiftCommand(controller.lathe, controller.handler, 0))
     # controller.addCommand(SpinCommand(controller.handler))
 
-    # controller.commandGenerator.homeMill()
+    controller.commandGenerator.homeMill()
+
     # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
 
 
