@@ -77,7 +77,7 @@ configurationMap = {
         'id': 0x2F,
     }, 'offsets': {
         'cuttingBit2HandlerCenter': 40,
-        'cuttingBit2HandlerFlipBase': 90,
+        'cuttingBit2HandlerFlipBase': 110,
     }, 'coordination': {
         'speed': 20,
     }, 'motorMap': {

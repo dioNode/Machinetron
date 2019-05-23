@@ -20,7 +20,7 @@ def main():
     controller.tick()
 
     if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part2.STL', controller)
+        stlProcessor.generateCommands('part0.STL', controller)
 
     # runDemoPart1()
 

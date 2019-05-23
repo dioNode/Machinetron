@@ -245,18 +245,28 @@ class OutputSimulator:
 
         """
         endeffactorLocations = self.getEndeffactorLocations(cutMachines)
+        # Draw the outer boundary box
         win = self.win
         height = self.height
         width = self.width
         pygame.draw.rect(win, (0, 0, 0), (x, displayTop, width, height), 1)
         faceWidth = int(self.controller.currentFaceWidth)
         faceHeight = int(self.controller.currentFaceHeight)
-        # print(faceWidth, faceHeight)
+        # Draw the green foam box
         faceX = int(x + width / 2 - faceWidth / 2)
         faceY = int(displayTop + height / 2 - faceHeight / 2)
         pygame.draw.rect(win, (31, 142, 33), (faceX, faceY, faceWidth, faceHeight))
-        handlerX = self.controller.handler.railMotor.currentDisplacement
+        # Draw the depth indicator
+        currentDepth = int(cutMachines[i].penMotor.currentDisplacement)
+        faceThickness = self.controller.currentFaceDepth
+        if self.controller.facename == 'top':
+            distance2face = configurationMap['offsets']['cuttingBit2HandlerFlipBase'] - faceThickness
+        else:
+            distance2face = configurationMap['offsets']['cuttingBit2HandlerCenter'] - faceThickness/2
+        textsurface = self.generalFont.render(str(currentDepth) + ' | ' + str(distance2face), False, (0, 0, 0))
+        win.blit(textsurface, (faceX + faceWidth/2, faceY + faceHeight/2))
 
+        handlerX = self.controller.handler.railMotor.currentDisplacement
         endeffactorLocationX = int(handlerX - cutMachines[i].homeX + self.controller.currentFaceWidth/2)
 
         shade = 250 - cutMachines[i].penMotor.currentDisplacement
@@ -278,6 +288,7 @@ class OutputSimulator:
 
         endeffactorLocationY = -endeffactorLocations[i][1] + self.controller.currentFaceHeight + int(faceY)
         machineName = cutMachines[i].name.lower()
+        # Draw the little end effactor location
         if machineName != 'lathe':
             pointRadius = round(configurationMap[machineName]['diameter'] / 2)
             angle = math.radians(cutMachines[i].spinMotor.currentDisplacement)
