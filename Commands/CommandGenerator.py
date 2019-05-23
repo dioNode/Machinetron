@@ -48,7 +48,7 @@ class CommandGenerator:
 
         # Push into depth
         controller.addCommand(CombinedCommand([
-            PushCommand(controller.mill, controller.currentFaceDepth, controller.currentFaceDepth),
+            PushCommand(controller.mill, controller.currentFaceDepth, controller),
             millSpinCommand
         ]))
 
@@ -76,7 +76,7 @@ class CommandGenerator:
 
         # Go back down to bottom
         controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, 0), millSpinCommand]))
-        controller.addCommand(PushCommand(controller.mill, 0, controller.currentFaceDepth))
+        controller.addCommand(PushCommand(controller.mill, 0, controller))
 
     def drill(self, face, x, z, depth):
         """Uses the drill to drill a hole.
@@ -99,11 +99,11 @@ class CommandGenerator:
             RaiseCommand(controller.drill, z, rapid=True)], 'Align Drill'))
         # Drill in
         controller.addCommand(CombinedCommand([
-            PushCommand(controller.drill, depth, controller.currentFaceDepth),
+            PushCommand(controller.drill, depth, controller),
             SpinCommand(controller.drill)
         ], 'Drill In'))
         # Pull drill out
-        controller.addCommand(PushCommand(controller.drill, 0, controller.currentFaceDepth))
+        self.retractDrill()
 
     def lathe(self, z0, z1, radius):
         """Uses the lathe to create a radial cut from z0 to z1.
@@ -152,7 +152,7 @@ class CommandGenerator:
         for currentRadius in np.arange(maxRadius, radius, -pushIncrement):
             # Push in
             controller.addCommand(CombinedCommand([
-                PushCommand(controller.lathe, currentRadius, controller.currentFaceDepth, fromCenter=True),
+                PushCommand(controller.lathe, currentRadius, controller, fromCenter=True),
                 handlerSpinCommand
             ], 'Push Lathe in'))
             # Go up
@@ -215,7 +215,7 @@ class CommandGenerator:
         ]))
         # Insert mill into foam
         self.controller.addCommand(CombinedCommand([
-            PushCommand(self.controller.mill, depth, self.controller.currentFaceDepth),
+            PushCommand(self.controller.mill, depth, self.controller),
             SpinCommand(self.controller.mill),
         ]))
 
@@ -313,7 +313,7 @@ class CommandGenerator:
             RaiseCommand(self.controller.mill, currentZ, rapid=True),
         ]))
         self.controller.addCommand(CombinedCommand([
-            PushCommand(self.controller.mill, depth, self.controller.currentFaceDepth),
+            PushCommand(self.controller.mill, depth, self.controller),
             SpinCommand(self.controller.mill),
         ]))
 
@@ -390,22 +390,22 @@ class CommandGenerator:
 
     def retractMill(self):
         """Stops the mill spin and pulls the mill back to base position."""
-        self.controller.addCommand(PushCommand(self.controller.mill, 0, self.controller.currentFaceDepth))
+        self.controller.addCommand(PushCommand(self.controller.mill, 0, self.controller, home=True))
 
     def retractDrill(self):
         """Stops the drill spin and pulls the drill back to base position."""
-        self.controller.addCommand(PushCommand(self.controller.drill, 0, self.controller.currentFaceDepth))
+        self.controller.addCommand(PushCommand(self.controller.drill, 0, self.controller, home=True))
 
     def retractLathe(self):
         """Stops the handler spin and pulls the lathe back to base position."""
         self.controller.addCommand(CombinedCommand([
-            PushCommand(self.controller.lathe, 0, self.controller.currentFaceDepth, rapid=True),
+            PushCommand(self.controller.lathe, 0, self.controller, rapid=True, home=True),
             SpinCommand(self.controller.handler, 0, rapid=True)
         ]))
 
     def homeCutmachine(self, cutmachine):
         self.controller.addCommand(CombinedCommand([
-            PushCommand(cutmachine, 0, self.controller.currentFaceDepth, home=True, rapid=True),
+            PushCommand(cutmachine, 0, self.controller, home=True, rapid=True),
             RaiseCommand(cutmachine, 0, home=True, rapid=True),
         ]))
 
@@ -450,7 +450,7 @@ class CommandGenerator:
         moveCommand = CombinedCommand([
             ShiftCommand(cutMachine, self.controller.handler, x, rapid=True),
             RaiseCommand(cutMachine, z, rapid=True),
-            PushCommand(cutMachine, d, self.controller.currentFaceDepth, rapid=True)
+            PushCommand(cutMachine, d, self.controller, rapid=True)
         ])
         if face is not None:
             self.selectFace(face)
@@ -518,7 +518,7 @@ class CommandGenerator:
                 SpinCommand(controller.mill),
                 RaiseCommand(controller.mill, zLow + r*np.sin(tiltAngle), startSpeed=zSpeed),
                 ShiftCommand(controller.mill, controller.handler, xLow + r*np.cos(tiltAngle), startSpeed=xSpeed),
-                PushCommand(controller.mill, dLow, controller.currentFaceDepth, startSpeed=dSpeed)
+                PushCommand(controller.mill, dLow, controller, startSpeed=dSpeed)
             ]))
             # Half circle around to left hand side
             self.millArcDiscrete(face, xLow, zLow, r,
@@ -528,7 +528,7 @@ class CommandGenerator:
                 SpinCommand(controller.mill),
                 RaiseCommand(controller.mill, zHigh - r*np.sin(tiltAngle), startSpeed=zSpeed),
                 ShiftCommand(controller.mill, controller.handler, xHigh - r*np.cos(tiltAngle), startSpeed=xSpeed),
-                PushCommand(controller.mill, dHigh, controller.currentFaceDepth, startSpeed=dSpeed)
+                PushCommand(controller.mill, dHigh, controller, startSpeed=dSpeed)
             ]))
         self.retractMill()
 
@@ -541,7 +541,7 @@ class CommandGenerator:
 
         """
         return CombinedCommand([
-            PushCommand(cutMachine, d, self.controller.currentFaceDepth),
+            PushCommand(cutMachine, d, self.controller),
             SpinCommand(cutMachine)
         ])
 
@@ -562,9 +562,9 @@ class CommandGenerator:
             RaiseCommand(cutmachine, 0, rapid=True)
         ]))
         # Poke foam
-        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller.currentFaceDepth, rapid=True))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller, rapid=True))
         self.pauseCommand()
-        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller.currentFaceDepth, home=True, rapid=True))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller, home=True, rapid=True))
 
         # Move to top right corner
         self.controller.addCommand(CombinedCommand([
@@ -572,9 +572,9 @@ class CommandGenerator:
             RaiseCommand(cutmachine, 110, rapid=True)
         ]))
         # Poke foam
-        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller.currentFaceDepth, rapid=True))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller, rapid=True))
         self.pauseCommand()
-        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller.currentFaceDepth, home=True, rapid=True))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller, home=True, rapid=True))
 
 
     def calibrateHandler(self):
@@ -613,7 +613,7 @@ class CommandGenerator:
         self.moveTo(self.controller.mill, x0, z0, 0)
         # Push in with mill to depth
         self.controller.addCommand(CombinedCommand([
-            PushCommand(self.controller.mill, depth, self.controller.currentFaceDepth),
+            PushCommand(self.controller.mill, depth, self.controller),
             SpinCommand(self.controller.mill)
         ]))
 

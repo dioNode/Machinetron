@@ -20,7 +20,7 @@ def main():
     controller.tick()
 
     if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part0.STL', controller)
+        stlProcessor.generateCommands('part3.STL', controller)
 
     # runDemoPart1()
 
@@ -53,6 +53,7 @@ def main():
 
     runDemoPart0()
 
+    # drill('top', 0, 50, 40)
 
     ################ End of Commands ################
 

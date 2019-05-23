@@ -18,7 +18,7 @@ class PushCommand(Command):
         endSpeed (double): Final speed of push (mm/s).
 
     """
-    def __init__(self, cutMachine, depth, faceDepth, fromCenter=False, flipped=False, startSpeed=None, endSpeed=None,
+    def __init__(self, cutMachine, depth, controller, fromCenter=False, startSpeed=None, endSpeed=None,
                  home=False, rapid=False):
         super().__init__()
         self.name = "Pushing "+cutMachine.name
@@ -31,11 +31,18 @@ class PushCommand(Command):
 
         self.home = home
 
+        faceDepth = controller.currentFaceDepth
+        flipped = False
+        if controller.facename == 'top':
+            flipped = True
+
+
         if flipped:
             offset2Face = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerFlipBase'] - faceDepth
+            print(offset2Face, faceDepth, 'faceoffset')
             self.depth = depth + offset2Face
         else:
-            offset2Face = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerCenter'] * 2 - faceDepth
+            offset2Face = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerCenter'] - faceDepth/2
             if not fromCenter:
                 self.depth = depth + offset2Face
             else:

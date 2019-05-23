@@ -295,6 +295,7 @@ class Controller:
         elif flipAngle == 90:
             # Handler is up
             self.currentFaceDepth = zLength
+            self.setFace('top')
             if spinAngle == 0:
                 # Facing front
                 self.currentFaceWidth = xLength

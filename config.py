@@ -36,7 +36,7 @@ configurationMap = {
         'detectionTolerance': 10,
         'offsets': {
             'cuttingBit2HandlerCenter': 45,
-            'cuttingBit2HandlerFlipBase': 110,
+            'cuttingBit2HandlerFlipBase': 112,
         },
     }, 'lathe': {
         'homeX': 70,
@@ -62,7 +62,7 @@ configurationMap = {
         'maxDetectionRadius': 100,
         'offsets': {
             'cuttingBit2HandlerCenter': 50,
-            'cuttingBit2HandlerFlipBase': 110,
+            'cuttingBit2HandlerFlipBase': 120,
         },
     }, 'mill': {
         'homeX': 40,
@@ -85,7 +85,7 @@ configurationMap = {
         'id': 0x2F,
         'offsets': {
             'cuttingBit2HandlerCenter': 40,
-            'cuttingBit2HandlerFlipBase': 110,
+            'cuttingBit2HandlerFlipBase': 115,
         },
     }, 'coordination': {
         'speed': 20,
