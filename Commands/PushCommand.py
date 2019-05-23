@@ -46,7 +46,7 @@ class PushCommand(Command):
             if not fromCenter:
                 self.depth = depth + offset2Face
             else:
-                self.depth = offset2Face + configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerCenter'] - depth
+                self.depth = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerCenter'] - depth
 
         if not isinstance(cutMachine, CutMachine):
             print("PushCommand: Not a cut machine")

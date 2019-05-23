@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-from Commands import StopCommand
+from Commands.StopCommand import StopCommand
 from Commands.EmptyCommand import EmptyCommand
 from Commands.PushCommand import PushCommand
 from Commands.SpinCommand import SpinCommand
@@ -141,8 +141,8 @@ class CommandGenerator:
         if self.controller.useSimulator:
             handlerSpinCommand = SpinCommand(controller.handler, rapid=True)
         else:
-            handlerSpinCommand = EmptyCommand()
-            controller.addCommand(SpinCommand(controller.handler, rapid=True))
+            handlerSpinCommand = SpinCommand(controller.handler, rapid=True)
+            # controller.addCommand(SpinCommand(controller.handler, rapid=True))
 
         # Set starting positions
         controller.addCommand(CombinedCommand([
@@ -154,23 +154,26 @@ class CommandGenerator:
 
         # Start lathing
         maxRadius = max(controller.currentFaceDepth, controller.currentFaceWidth) / 2
-        controller.addCommand(handlerSpinCommand)
+        sequenceCommand = SequentialCommand([])
+        sequenceCommand.addCommand(handlerSpinCommand)
         for currentRadius in np.arange(maxRadius, radius, -pushIncrement):
             # Push in
-            controller.addCommand(CombinedCommand([
+            sequenceCommand.addCommand(CombinedCommand([
                 PushCommand(controller.lathe, currentRadius, controller, fromCenter=True),
                 handlerSpinCommand
             ], 'Push Lathe in'))
             # Go up
-            controller.addCommand(CombinedCommand([
+            sequenceCommand.addCommand(CombinedCommand([
                 RaiseCommand(controller.lathe, zTop, controller),
                 handlerSpinCommand
             ], 'Lathe Up'))
             # Back down
-            controller.addCommand(CombinedCommand([
+            sequenceCommand.addCommand(CombinedCommand([
                 RaiseCommand(controller.lathe, zBot, controller),
                 handlerSpinCommand
             ], 'Lathe Down'))
+
+        controller.addCommand(sequenceCommand)
 
         if not controller.useSimulator:
             controller.addCommand(StopCommand())

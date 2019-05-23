@@ -29,6 +29,7 @@ def main():
     from Commands.CombinedCommand import CombinedCommand
     from Commands.PushCommand import PushCommand
     from Commands.FlipCommand import FlipCommand
+    from Commands.PauseCommand import PauseCommand
     from Commands.ShiftCommand import ShiftCommand
     from Commands.SpinCommand import SpinCommand
     from Commands.StopCommand import StopCommand
@@ -39,37 +40,28 @@ def main():
 
     # controller.commandGenerator.selectFace('left')
 
-    # lathe(30, 50, 50) # lathe nothing
+    lathe(30, 50, 30)
 
 
     # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
-
 
 
     # controller.commandGenerator.millPointsSequence([
     #     (0, 10), (-20, 50), (20, 50), (0, 10)
     # ], 30)
 
-    # drill('left', 0, 40, 40)
-    # controller.commandGenerator.getSpinningPushCommand(controller.mill, 30)
-
     # controller.commandGenerator.resetAll()
-    # controller.addCommand(SpinCommand(controller.handler, 0, home=True))
-
-
-    # calibrationRoutine()
-
-    controller.commandGenerator.resetAll()
     # drill('left', 0, 70, 20)
 
-    controller.commandGenerator.millPointsSequence([(-5, 70), (5, 70)], 10, 'front')
+    # controller.commandGenerator.millPointsSequence([(-5, 70), (5, 70)], 10, 'front')
 
-    # drill('left', 0, 40, 20)
     # controller.commandGenerator.resetAll()
+    # controller.addCommand(RaiseCommand(controller.lathe, 90, controller))
+    # controller.addCommand(PushCommand(controller.lathe, 10, controller))
+    # lathe(30,50, 30)
+
 
     # runDemoPart0()
-
-    # drill('top', 0, 50, 40)
 
     ################ End of Commands ################
 
