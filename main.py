@@ -1,7 +1,7 @@
 USE_GUI = True
 USE_SIM = True
 AUTO_START = False
-AUTO_TOOLPATH = True
+AUTO_TOOLPATH = False
 
 from Controller import Controller
 
@@ -51,7 +51,7 @@ def main():
 
     # calibrationRoutine()
 
-
+    runDemoPart0()
 
 
     ################ End of Commands ################

@@ -34,6 +34,10 @@ configurationMap = {
         'depth': 80,
         'id': 0x1F,
         'detectionTolerance': 10,
+        'offsets': {
+            'cuttingBit2HandlerCenter': 45,
+            'cuttingBit2HandlerFlipBase': 110,
+        },
     }, 'lathe': {
         'homeX': 70,
         'raiseSpeed': 25,
@@ -56,6 +60,10 @@ configurationMap = {
         'id': 0x2A,
         'minDetectionRadius': 10,
         'maxDetectionRadius': 100,
+        'offsets': {
+            'cuttingBit2HandlerCenter': 50,
+            'cuttingBit2HandlerFlipBase': 110,
+        },
     }, 'mill': {
         'homeX': 40,
         'raiseSpeed': 25,
@@ -75,9 +83,10 @@ configurationMap = {
         'diameter': 10,
         'depth': 60,
         'id': 0x2F,
-    }, 'offsets': {
-        'cuttingBit2HandlerCenter': 40,
-        'cuttingBit2HandlerFlipBase': 110,
+        'offsets': {
+            'cuttingBit2HandlerCenter': 40,
+            'cuttingBit2HandlerFlipBase': 110,
+        },
     }, 'coordination': {
         'speed': 20,
     }, 'motorMap': {

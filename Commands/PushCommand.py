@@ -32,14 +32,14 @@ class PushCommand(Command):
         self.home = home
 
         if flipped:
-            offset2Face = configurationMap['offsets']['cuttingBit2HandlerFlipBase'] - faceDepth
+            offset2Face = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerFlipBase'] - faceDepth
             self.depth = depth + offset2Face
         else:
-            offset2Face = configurationMap['offsets']['cuttingBit2HandlerCenter'] * 2 - faceDepth
+            offset2Face = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerCenter'] * 2 - faceDepth
             if not fromCenter:
                 self.depth = depth + offset2Face
             else:
-                self.depth = offset2Face + configurationMap['offsets']['cuttingBit2HandlerCenter'] - depth
+                self.depth = offset2Face + configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerCenter'] - depth
 
         if not isinstance(cutMachine, CutMachine):
             print("PushCommand: Not a cut machine")

@@ -257,12 +257,12 @@ class OutputSimulator:
         faceY = int(displayTop + height / 2 - faceHeight / 2)
         pygame.draw.rect(win, (31, 142, 33), (faceX, faceY, faceWidth, faceHeight))
         # Draw the depth indicator
-        currentDepth = int(cutMachines[i].penMotor.currentDisplacement)
+        currentDepth = round(cutMachines[i].penMotor.currentDisplacement, 1)
         faceThickness = self.controller.currentFaceDepth
         if self.controller.facename == 'top':
-            distance2face = configurationMap['offsets']['cuttingBit2HandlerFlipBase'] - faceThickness
+            distance2face = configurationMap[cutMachines[i].name.lower()]['offsets']['cuttingBit2HandlerFlipBase'] - faceThickness
         else:
-            distance2face = configurationMap['offsets']['cuttingBit2HandlerCenter'] - faceThickness/2
+            distance2face = configurationMap[cutMachines[i].name.lower()]['offsets']['cuttingBit2HandlerCenter'] - faceThickness/2
         textsurface = self.generalFont.render(str(currentDepth) + ' | ' + str(distance2face), False, (0, 0, 0))
         win.blit(textsurface, (faceX + faceWidth/2, faceY + faceHeight/2))
 
