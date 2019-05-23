@@ -53,7 +53,16 @@ def main():
     # drill('left', 0, 40, 40)
     # controller.commandGenerator.getSpinningPushCommand(controller.mill, 30)
 
-    calibrationRoutine()
+    # controller.commandGenerator.resetAll()
+    # controller.addCommand(SpinCommand(controller.handler, 0, home=True))
+
+
+    # calibrationRoutine()
+
+    controller.commandGenerator.resetAll()
+    # drill('left', 0, 70, 20)
+
+    controller.commandGenerator.millPointsSequence([(-5, 70), (5, 70)], 10, 'front')
 
     # drill('left', 0, 40, 20)
     # controller.commandGenerator.resetAll()

@@ -15,10 +15,16 @@ class RaiseCommand(Command):
         endSpeed (double): Final speed of push (mm/s).
 
     """
-    def __init__(self, cutMachine, heightDisplacement, startSpeed=None, endSpeed=None, home=False, rapid=False):
+    def __init__(self, cutMachine, heightDisplacement, controller, startSpeed=None, endSpeed=None, home=False, rapid=False):
         super().__init__()
+        machineName = cutMachine.name.lower()
         self.name = "Raising "+cutMachine.name
-        self.heightDisplacement = heightDisplacement
+        heightOffset = configurationMap[machineName]['offsets']['cuttingBitHeightOffset']
+        heightOffsetFlipped = configurationMap[machineName]['offsets']['cuttingBitHeightOffsetFlipped']
+        isFlipped = True if controller.facename == "top" else False
+        offset = heightOffsetFlipped if isFlipped else heightOffset
+        self.heightDisplacement = heightDisplacement + offset
+
         self.home = home
         if not isinstance(cutMachine, CutMachine):
             print("RaiseCommand: Not a cut machine")

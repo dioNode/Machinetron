@@ -1,6 +1,6 @@
 configurationMap = {
     'handler': {
-        'railSpeed': 25,
+        'railSpeed': 2,
         'flipSpeed': 12,
         'spinSpeed': 100,
         'rapidRailSpeed': 25,
@@ -17,7 +17,7 @@ configurationMap = {
     }, 'drill': { # Location of lathe is measured relative to bottom
         'homeX': 210,
         'raiseSpeed': 20,
-        'pushSpeed': 20,
+        'pushSpeed': 5,
         'spinSpeed': 500,
         'rapidRaiseSpeed': 25,
         'rapidPushSpeed': 50,
@@ -28,8 +28,8 @@ configurationMap = {
         'raiseDPR': 8.06,
         'pushDPR': 32.25,
         'spinDPR': 1,
-        'maxRaise': 110,
-        'maxPush': 70,
+        'maxRaise': 140,
+        'maxPush': 190,
         'diameter': 6,
         'depth': 80,
         'id': 0x1F,
@@ -54,8 +54,8 @@ configurationMap = {
         'raiseDPR': 8.06,
         'pushDPR': 32.25,
         'spinDPR': 1,
-        'maxRaise': 110,
-        'maxPush': 70,
+        'maxRaise': 145,
+        'maxPush': 189,
         'length': 3,
         'depth': 60,
         'pushIncrement': 5,
@@ -71,7 +71,7 @@ configurationMap = {
     }, 'mill': {
         'homeX': 53,
         'raiseSpeed': 25,
-        'pushSpeed': 10,
+        'pushSpeed': 5,
         'spinSpeed': 500,
         'rapidRaiseSpeed': 25,
         'rapidPushSpeed': 50,
@@ -82,8 +82,8 @@ configurationMap = {
         'raiseDPR': 8.06,
         'pushDPR': 32.25,
         'spinDPR': 1,
-        'maxRaise': 110,
-        'maxPush': 70,
+        'maxRaise': 131,
+        'maxPush': 185,
         'diameter': 10,
         'depth': 60,
         'id': 0x2F,
@@ -111,7 +111,7 @@ configurationMap = {
         'homeVal': -10,
         'mmPerPixelRatio': 0.1, # Using the y direction
         'mmError': 1.0,
-        'speedMultiplier': 3,
+        'speedMultiplier': 1,
         'numRotationSteps': 200,
         'syncSpeed': 15,
     }
