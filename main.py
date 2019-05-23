@@ -1,5 +1,5 @@
-USE_GUI = True
-USE_SIM = True
+USE_GUI = False
+USE_SIM = False
 AUTO_START = False
 AUTO_TOOLPATH = False
 
@@ -40,8 +40,9 @@ def main():
 
     # controller.commandGenerator.selectFace('left')
 
-    lathe(30, 50, 30)
+    # lathe(30, 50, 30)
 
+    controller.commandGenerator.resetAll()
 
     # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
 
