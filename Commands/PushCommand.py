@@ -19,11 +19,14 @@ class PushCommand(Command):
 
     """
     def __init__(self, cutMachine, depth, faceDepth, fromCenter=False, flipped=False, startSpeed=None, endSpeed=None,
-                 home=False):
+                 home=False, rapid=False):
         super().__init__()
         self.name = "Pushing "+cutMachine.name
 
-        self.startSpeed = startSpeed if startSpeed is not None else configurationMap[cutMachine.name.lower()]['pushSpeed']
+        slowSpeed = configurationMap[cutMachine.name.lower()]['pushSpeed']
+        rapidSpeed = configurationMap[cutMachine.name.lower()]['rapidPushSpeed']
+        defaultSpeed = rapidSpeed if rapid else slowSpeed
+        self.startSpeed = startSpeed if startSpeed is not None else defaultSpeed
         self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
 
         self.home = home

@@ -231,6 +231,10 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
 	// If the first byte written is requesting a read then put the respective data in the transmit buffer
 	switch(getI2CReceiveBuffer()[0]) {
+		case READ_MACHINE_STATE:
+			setI2CTransmitBufferAtIndex(0, 0);
+			setI2CTransmitBufferAtIndex(getMachineState(), 1);
+			break;
 		case READ_INST_SPEED_M1:
 			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMotorCurrentSpeed(getMotorById(&subMachine, 1))) >> 8) & 0xFF), 0);
 			setI2CTransmitBufferAtIndex((uint8_t)((int)(getMotorCurrentSpeed(getMotorById(&subMachine, 1))) & 0xFF), 1);
@@ -254,10 +258,6 @@ void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 		case READ_INST_POS_M3:
 			setI2CTransmitBufferAtIndex((uint8_t)(((int)(getMotorCurrentStep(getMotorById(&subMachine, 3))) >> 8) & 0xFF), 0);
 			setI2CTransmitBufferAtIndex((uint8_t)((int)(getMotorCurrentStep(getMotorById(&subMachine, 3))) & 0xFF), 1);
-			break;
-		case READ_MACHINE_STATE:
-			setI2CTransmitBufferAtIndex(0, 0);
-			setI2CTransmitBufferAtIndex(getMachineState(), 1);
 			break;
 	}
 	
