@@ -15,7 +15,7 @@ class SpinCommand(Command):
     def __init__(self, subMachine, targetValue=None, startSpeed=None, endSpeed=None, home=False, rapid=False):
         super().__init__()
         self.name = "Spinning "+subMachine.name
-        self.targetValue = targetValue
+        self.targetValue = targetValue % 360
         self.home = home
         if not isinstance(subMachine, SubMachine):
             print("SpinCommand: Not a cut machine")

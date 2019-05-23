@@ -2,7 +2,7 @@ configurationMap = {
     'handler': {
         'railSpeed': 25,
         'flipSpeed': 12,
-        'spinSpeed': 400,
+        'spinSpeed': 100,
         'rapidRailSpeed': 25,
         'rapidSpinSpeed': 200,
         'maxRailSpeed': 80,
@@ -37,6 +37,8 @@ configurationMap = {
         'offsets': {
             'cuttingBit2HandlerCenter': 45,
             'cuttingBit2HandlerFlipBase': 112,
+            'cuttingBitHeightOffset': 10,
+            'cuttingBitHeightOffsetFlipped': 4,
         },
     }, 'lathe': {
         'homeX': 70,
@@ -63,6 +65,8 @@ configurationMap = {
         'offsets': {
             'cuttingBit2HandlerCenter': 50,
             'cuttingBit2HandlerFlipBase': 120,
+            'cuttingBitHeightOffset': 10,
+            'cuttingBitHeightOffsetFlipped': 4,
         },
     }, 'mill': {
         'homeX': 40,
@@ -86,6 +90,8 @@ configurationMap = {
         'offsets': {
             'cuttingBit2HandlerCenter': 40,
             'cuttingBit2HandlerFlipBase': 115,
+            'cuttingBitHeightOffset': 4,
+            'cuttingBitHeightOffsetFlipped': 4,
         },
     }, 'coordination': {
         'speed': 20,

@@ -35,7 +35,9 @@ def main():
     from Commands.SequentialCommand import SequentialCommand
 
 
+    # controller.commandGenerator.resetAll()
 
+    controller.commandGenerator.selectFace('left')
 
     # lathe(30, 50, 50) # lathe nothing
 
@@ -48,10 +50,15 @@ def main():
     #     (0, 10), (-20, 50), (20, 50), (0, 10)
     # ], 30)
 
+    # drill('left', 0, 40, 40)
+    # controller.commandGenerator.getSpinningPushCommand(controller.mill, 30)
 
     # calibrationRoutine()
 
-    runDemoPart0()
+    # drill('left', 0, 40, 20)
+    # controller.commandGenerator.resetAll()
+
+    # runDemoPart0()
 
     # drill('top', 0, 50, 40)
 

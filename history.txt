@@ -1,3 +1,0 @@
-drill("front", -20, 25, 50)
-drill("front", 20, 25, 50)
-lathe(30, 60, 25)

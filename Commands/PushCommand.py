@@ -76,7 +76,7 @@ class PushCommand(Command):
 
         name = cutMachine.name.lower()
         targets[name] = {'pen': {
-            'targetValue': depth,
+            'targetValue': 0 if self.home else depth,
             'startSpeed': startSpeed,
             'endSpeed': endSpeed,
             'status': statusMap['started'],
