@@ -15,7 +15,7 @@ class RaiseCommand(Command):
         endSpeed (double): Final speed of push (mm/s).
 
     """
-    def __init__(self, cutMachine, heightDisplacement, startSpeed=None, endSpeed=None, home=False):
+    def __init__(self, cutMachine, heightDisplacement, startSpeed=None, endSpeed=None, home=False, rapid=False):
         super().__init__()
         self.name = "Raising "+cutMachine.name
         self.heightDisplacement = heightDisplacement
@@ -26,7 +26,10 @@ class RaiseCommand(Command):
             self.cutMachine = cutMachine
 
         # Set speeds
-        self.startSpeed = startSpeed if startSpeed is not None else configurationMap[cutMachine.name.lower()]['raiseSpeed']
+        slowSpeed = configurationMap[cutMachine.name.lower()]['raiseSpeed']
+        rapidSpeed = configurationMap[cutMachine.name.lower()]['rapidRaiseSpeed']
+        defaultSpeed = rapidSpeed if rapid else slowSpeed
+        self.startSpeed = startSpeed if startSpeed is not None else defaultSpeed
         self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
 
     def generateTargets(self, inSteps=False):

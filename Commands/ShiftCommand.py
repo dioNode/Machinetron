@@ -15,7 +15,7 @@ class ShiftCommand(Command):
 
     """
     def __init__(self, cutMachine, handler, horizontalDisplacement, startSpeed=None, endSpeed=None, inAbsolute=False,
-                 home=False):
+                 home=False, rapid=False):
         super().__init__()
         self.name = "Shifting "+cutMachine.name
         self.inAbsolute = inAbsolute
@@ -28,7 +28,10 @@ class ShiftCommand(Command):
             self.handler = handler
 
         # Set speeds
-        self.startSpeed = startSpeed if startSpeed is not None else configurationMap['handler']['railSpeed']
+        slowSpeed = configurationMap['handler']['railSpeed']
+        rapidSpeed = configurationMap['handler']['rapidRailSpeed']
+        defaultSpeed = rapidSpeed if rapid else slowSpeed
+        self.startSpeed = startSpeed if startSpeed is not None else defaultSpeed
         self.endSpeed = endSpeed if endSpeed is not None else self.startSpeed
 
     def generateTargets(self, inSteps=False):

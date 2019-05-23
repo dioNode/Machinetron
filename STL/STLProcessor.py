@@ -47,9 +47,9 @@ class STLProcessor:
         self._storeImageSlices()
         self._clearFaces()
         self.controller.writeToHistory(filename)
-        self._dumpImageSlices()
         self.generateDrillCommands()
         self.generateLatheCommands()
+        self._dumpImageSlices()
         self.generateMillCommands()
 
     def generateLatheCommands(self):
@@ -295,7 +295,7 @@ class STLProcessor:
                 drillPoints.append((i[0], i[1]))
         if showFig:
             cv2.namedWindow('image', cv2.WINDOW_NORMAL)
-            cv2.resizeWindow('image', 80*2, 110*2)
+            # cv2.resizeWindow('image', 80*2, 110*2)
             cv2.imshow('image', cimg)
             cv2.waitKey(0)
 
@@ -335,8 +335,8 @@ class STLProcessor:
                 if self._containsHole(img, (x,y), r, 1):
                     lathePoints.append((x, y, r))
 
-        # if showFig:
-        #     cv2.imshow('img', cimg)
+        if showFig:
+            cv2.imshow('img', output)
 
         # Convert from pixel to mm
         lathePointsMM = []
@@ -350,7 +350,7 @@ class STLProcessor:
 
         return lathePointsMM
 
-    def generateMillCommands(self):
+    def generateMillCommands(self, showFig=False):
         # img = self.imageSlicesTopDown[9]
 
         faceOrder = ['top', 'front', 'right', 'back', 'left']
@@ -382,28 +382,40 @@ class STLProcessor:
                 centerPoint = getCenterPoint(borderPath)
 
 
-                if depth > 0:
+                if depth > 0: # This means we will be milling inside the shapes
+                    cimg = cv2.cvtColor(surfaceIm, cv2.COLOR_GRAY2BGR)
+                    cv2.circle(cimg, (int(centerPoint[0]), int(centerPoint[1])), 10, (0, 0, 255), 4)
                     self.controller.commandGenerator.retractMill()
                     # Initial shrink half a mill diameter
                     shrunkIm = self._shrink(surfaceIm, mm2pixel(configurationMap['mill']['diameter'] / 2), 1)
                     shrunkShapePts = self._detectEdge(shrunkIm)
                     shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
-                    self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
-                    # print(centerPoint)
-                    # cv2.imshow('Initial', shrunkIm)
-                    # cv2.waitKey(0)
-
-
-                    while True:
-                        shrunkIm = self._shrink(shrunkIm, mm2pixel(configurationMap['mill']['diameter'] / 2))
-                        shrunkShapePts = self._detectEdge(shrunkIm)
-                        if shrunkShapePts == []:
-                            break
-                        shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
+                    if shrunkPath != []:
+                        # Show path being milled
                         self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
-                        # print(centerPoint)
-                        # cv2.imshow('Initial', shrunkIm)
-                        # cv2.waitKey(0)
+                        if showFig:
+                            for millPoint in shrunkPath:
+                                cv2.circle(cimg, millPoint, 3, (255, 0, 0), 1)
+
+                        while True: # Keep shrinking until your shape has disappeared
+                            shrunkIm = self._shrink(shrunkIm, mm2pixel(configurationMap['mill']['diameter'] / 2))
+                            shrunkShapePts = self._detectEdge(shrunkIm)
+                            if shrunkShapePts == []:
+                                break
+                            shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
+                            self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
+                            # Show path being milled
+                            if showFig:
+                                for millPoint in shrunkPath:
+                                    cv2.circle(cimg, millPoint, 3, (0, 255, 0), 1)
+
+                        if showFig:
+                            cv2.namedWindow('Milling paths', cv2.WINDOW_NORMAL)
+                            # cv2.resizeWindow('Milling paths', 80 * 2, 110 * 2)
+                            cv2.imshow('Milling paths', cimg)
+                            cv2.waitKey(0)
+
+
 
             self.controller.commandGenerator.retractMill()
 
