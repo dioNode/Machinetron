@@ -138,11 +138,7 @@ class CommandGenerator:
         self.selectFace('front')
 
 
-        if self.controller.useSimulator:
-            handlerSpinCommand = SpinCommand(controller.handler, rapid=True)
-        else:
-            handlerSpinCommand = SpinCommand(controller.handler, rapid=True)
-            # controller.addCommand(SpinCommand(controller.handler, rapid=True))
+        handlerSpinCommand = SpinCommand(controller.handler, rapid=True)
 
         # Set starting positions
         controller.addCommand(CombinedCommand([
@@ -155,7 +151,9 @@ class CommandGenerator:
         # Start lathing
         maxRadius = max(controller.currentFaceDepth, controller.currentFaceWidth) / 2
         sequenceCommand = SequentialCommand([])
-        sequenceCommand.addCommand(handlerSpinCommand)
+        controller.addCommand(SpinCommand(controller.handler, 360*5, 10, configurationMap['handler']['rapidSpinSpeed']))
+        controller.addCommand(handlerSpinCommand)
+
         for currentRadius in np.arange(maxRadius, radius, -pushIncrement):
             # Push in
             sequenceCommand.addCommand(CombinedCommand([

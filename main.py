@@ -42,7 +42,7 @@ def main():
 
     # lathe(30, 50, 30)
 
-    controller.commandGenerator.resetAll()
+    # controller.commandGenerator.resetAll()
 
     # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
 
@@ -56,10 +56,11 @@ def main():
 
     # controller.commandGenerator.millPointsSequence([(-5, 70), (5, 70)], 10, 'front')
 
-    # controller.commandGenerator.resetAll()
+    controller.commandGenerator.resetAll()
     # controller.addCommand(RaiseCommand(controller.lathe, 90, controller))
     # controller.addCommand(PushCommand(controller.lathe, 10, controller))
-    # lathe(30,50, 30)
+
+    lathe(30,50, 30)
 
 
     # runDemoPart0()

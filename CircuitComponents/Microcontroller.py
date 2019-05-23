@@ -141,7 +141,7 @@ class Microcontroller:
                                 targetValue = targetVals['targetValue']
                                 if targetValue is None or targetValue == configurationMap['other']['infVal']:
                                     targetValue = 0
-                                    if submachine == 'handler':
+                                    if submachine == 'handler': # Infinite spin should only be allowed for handler
                                         infSpin = 1
                                 startSpeed = targetVals['startSpeed']
                                 endSpeed = targetVals['endSpeed']
