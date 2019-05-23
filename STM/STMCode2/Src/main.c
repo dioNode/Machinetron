@@ -318,9 +318,9 @@ int main(void)
 				#endif
 				
 				// Check if motor two is DC and switch off Enable pin
-				if(strcmp(getMotorById(&subMachine, 2)->type, "DC") == 0) {
-					HAL_GPIO_WritePin(ST2EN_GPIO_Port, ST2EN_Pin, GPIO_PIN_RESET);
-				} 
+				//if(strcmp(getMotorById(&subMachine, 2)->type, "DC") == 0) {
+					//HAL_GPIO_WritePin(ST2EN_GPIO_Port, ST2EN_Pin, GPIO_PIN_RESET);
+				//} 
 				
 				//#if defined MILL || defined DRILL
 				//HAL_TIM_PWM_Stop_IT(&htim4, TIM_CHANNEL_2);
