@@ -43,7 +43,7 @@ class ShiftCommand(Command):
         endSpeed = self.endSpeed
 
         # Cap variables
-        # globalTargetX = min(globalTargetX, configurationMap['handler']['maxRail'])
+        globalTargetX = min(globalTargetX, configurationMap['handler']['maxRail'])
         startSpeed = min(startSpeed, configurationMap['handler']['maxRailSpeed'])
         endSpeed = min(endSpeed, configurationMap['handler']['maxRailSpeed'])
 

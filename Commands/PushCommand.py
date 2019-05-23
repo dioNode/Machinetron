@@ -18,7 +18,7 @@ class PushCommand(Command):
         endSpeed (double): Final speed of push (mm/s).
 
     """
-    def __init__(self, cutMachine, depth, faceDepth, fromCenter=False, flipped=False, startSpeed=None, endSpeed=None,
+    def __init__(self, cutMachine, depth, controller, fromCenter=False, startSpeed=None, endSpeed=None,
                  home=False, rapid=False):
         super().__init__()
         self.name = "Pushing "+cutMachine.name
@@ -31,15 +31,22 @@ class PushCommand(Command):
 
         self.home = home
 
+        faceDepth = controller.currentFaceDepth
+        flipped = False
+        if controller.facename == 'top':
+            flipped = True
+
+
         if flipped:
-            offset2Face = configurationMap['offsets']['cuttingBit2HandlerFlipBase'] - faceDepth
+            offset2Face = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerFlipBase'] - faceDepth
+            print(offset2Face, faceDepth, 'faceoffset')
             self.depth = depth + offset2Face
         else:
-            offset2Face = configurationMap['offsets']['cuttingBit2HandlerCenter'] * 2 - faceDepth
+            offset2Face = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerCenter'] - faceDepth/2
             if not fromCenter:
                 self.depth = depth + offset2Face
             else:
-                self.depth = offset2Face + configurationMap['offsets']['cuttingBit2HandlerCenter'] - depth
+                self.depth = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerCenter'] - depth
 
         if not isinstance(cutMachine, CutMachine):
             print("PushCommand: Not a cut machine")
@@ -69,7 +76,7 @@ class PushCommand(Command):
 
         name = cutMachine.name.lower()
         targets[name] = {'pen': {
-            'targetValue': depth,
+            'targetValue': 0 if self.home else depth,
             'startSpeed': startSpeed,
             'endSpeed': endSpeed,
             'status': statusMap['started'],

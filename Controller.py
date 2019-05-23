@@ -172,6 +172,7 @@ class Controller:
 
         """
         self.statusLed.turnRed()
+        print(self.currentCommand.generateTargets())
         print(self.currentCommand.generateTargets(True))
         # print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
         if isinstance(self.currentCommand, SequentialCommand):
@@ -295,6 +296,7 @@ class Controller:
         elif flipAngle == 90:
             # Handler is up
             self.currentFaceDepth = zLength
+            self.setFace('top')
             if spinAngle == 0:
                 # Facing front
                 self.currentFaceWidth = xLength

@@ -50,7 +50,7 @@ class STLProcessor:
         self.generateDrillCommands()
         self.generateLatheCommands()
         self._dumpImageSlices()
-        self.generateMillCommands()
+        self.generateMillCommands(showFig=False)
 
     def generateLatheCommands(self):
         """Generates the commands to use the lathe."""

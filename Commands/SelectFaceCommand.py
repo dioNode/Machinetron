@@ -36,7 +36,7 @@ class SelectFaceCommand(Command):
 
         def left():
             return CombinedCommand([
-                SpinCommand(self.handler, -90),
+                SpinCommand(self.handler, 270),
                 FlipCommand(self.handler, 'down')
             ])
 

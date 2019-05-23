@@ -1,7 +1,7 @@
-USE_GUI = True
-USE_SIM = True
+USE_GUI = False
+USE_SIM = False
 AUTO_START = False
-AUTO_TOOLPATH = True
+AUTO_TOOLPATH = False
 
 from Controller import Controller
 
@@ -20,7 +20,7 @@ def main():
     controller.tick()
 
     if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part2.STL', controller)
+        stlProcessor.generateCommands('part3.STL', controller)
 
     # runDemoPart1()
 
@@ -29,30 +29,42 @@ def main():
     from Commands.CombinedCommand import CombinedCommand
     from Commands.PushCommand import PushCommand
     from Commands.FlipCommand import FlipCommand
+    from Commands.PauseCommand import PauseCommand
     from Commands.ShiftCommand import ShiftCommand
     from Commands.SpinCommand import SpinCommand
     from Commands.StopCommand import StopCommand
     from Commands.SequentialCommand import SequentialCommand
 
 
+    # controller.commandGenerator.resetAll()
 
+    # controller.commandGenerator.selectFace('left')
 
-    # lathe(30, 50, 50) # lathe nothing
-
+    # controller.commandGenerator.resetAll()
 
     # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
-
 
 
     # controller.commandGenerator.millPointsSequence([
     #     (0, 10), (-20, 50), (20, 50), (0, 10)
     # ], 30)
 
+    # controller.commandGenerator.resetAll()
+    # drill('left', 0, 70, 20)
 
-    # calibrationRoutine()
+    # controller.commandGenerator.millPointsSequence([(-5, 70), (5, 70)], 10, 'front')
 
+    # controller.addCommand(RaiseCommand(controller.lathe, 90, controller))
+    # controller.addCommand(PushCommand(controller.lathe, 10, controller))
 
+    controller.commandGenerator.resetAll()
+    lathe(30, 50, 30)
 
+    # controller.addCommand(ShiftCommand(controller.mill, controller.handler, 0, home=True, rapid=True))
+    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, rapid=True))
+    # controller.commandGenerator.resetAll()
+
+    # runDemoPart0()
 
     ################ End of Commands ################
 
