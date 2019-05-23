@@ -78,7 +78,7 @@ struct SubMachine subMachine = {"Handler", 1,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
 			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1},
-      {/*Name*/ "Spin motor",/*Type*/ "STEP",/*Mode*/ "ROT",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
+      {/*Name*/ "Spin motor",/*Type*/ "STEP",/*Mode*/ "NORM",/*ID*/ 2,/*motorRun*/ 0,/*motorHome*/ 0,/*infSpin*/ 0,/*direction*/ 1,/*duration*/ 0,
 			/*timePassed*/ 0, /*displacement*/ 0,/*startStep*/ 0,/*currentStep*/ 0,/*targetStep*/ 0,/*startSpeed*/ 0,
 			/*currentSpeed*/ 0,/*targetSpeed*/ 0,/*acceleration*/ 0, /*dpr*/ 200,/*currentuSDelay*/ 0,
 			/*Step Size*/ 1},
@@ -268,12 +268,15 @@ int main(void)
 			// Check if there are instructions to process in the Instruction Array
 			if(getInstArrayFirstIndex() != getInstArrayFirstEmptyIndex()) {
 				
+				//Reset timer and its interrupts
+				stepperTimerReset(&htim1);
+				
 				// The instruction array contains new instructions that have not yet been processed
 				// So process the instruction at the First Instruction Index
 				processInstruction(getInstructionAtIndex(getInstArrayFirstIndex()),&subMachine);
 				
-				//Reset and initialise timer and its interrupts
-				stepperTimerResetAndSetUp(&htim1, &subMachine);
+				//Initialise timer and its interrupts
+				stepperTimerSetUp(&htim1, &subMachine);
 				
 				//#if defined MILL || defined DRILL
 				//DCTimerResetAndSetUp(&htim4, &subMachine);
@@ -299,23 +302,82 @@ int main(void)
 				incrementFirstIndex();
 				
 				// Stop all timer interrupts and the timers
-				HAL_TIM_Base_Stop_IT(&htim1);
+				/*HAL_TIM_Base_Stop_IT(&htim1);
 				HAL_TIM_OC_Stop(&htim1,1);
 				HAL_TIM_OC_Stop(&htim1,2);
-				HAL_TIM_OC_Stop(&htim1,3);
+				HAL_TIM_OC_Stop(&htim1,3);*/
 				
+				
+				#ifdef HANDLER
+				// If not in infinite spin mode disable the timer
+				if(getMotorById(&subMachine, 2)->infSpin == 0) {
+						HAL_TIM_Base_Stop_IT(&htim1);
+				}
+				
+				// Disable the Timer interrupts and Motor Drivers
+				setChannelInterrupt(&htim1,1, 0);
 				enableStepperDriver(1, 0);
-				#if defined HANDLER || defined LATHE
-				enableStepperDriver(2, 0);
-				#endif
-				#if defined HANDLER
+				
+				// If the handler is not in infinite spin mode turn off its interrupt and Motor Driver for motor 2
+				// Else do not
+				if(getMotorById(&subMachine, 2)->infSpin == 0) {
+						setChannelInterrupt(&htim1,2, 0);
+						enableStepperDriver(2, 0);
+				}
+					
+				setChannelInterrupt(&htim1,3, 0);
+				// If the flip motor is not within 50 steps of the home position, keep the motor enabled (holding torque)
 				if(((getMotorById(&subMachine, 3)->currentStep) > -50) && ((getMotorById(&subMachine, 3)->currentStep) < 50)) {
 					enableStepperDriver(3,0);
 				}
 				#endif
-				#if defined MILL || defined DRILL || defined LATHE
+				#ifdef MILL
+				// Disable the motor interrupts and drivers
+				HAL_TIM_Base_Stop_IT(&htim1);
+				setChannelInterrupt(&htim1,1, 0);
+				enableStepperDriver(1, 0);
+				
+				setChannelInterrupt(&htim1,2, 0);
+				
+				setChannelInterrupt(&htim1,3, 0);
 				enableStepperDriver(3, 0);
 				#endif
+				#ifdef DRILL
+				// Disable the motor interrupts and drivers
+				HAL_TIM_Base_Stop_IT(&htim1);
+				setChannelInterrupt(&htim1,1, 0);
+				enableStepperDriver(1, 0);
+				
+				setChannelInterrupt(&htim1,2, 0);
+				
+				setChannelInterrupt(&htim1,3, 0);
+				enableStepperDriver(3, 0);
+				#endif
+				#ifdef LATHE
+								// Disable the motor interrupts and drivers
+				HAL_TIM_Base_Stop_IT(&htim1);
+				setChannelInterrupt(&htim1,1, 0);
+				enableStepperDriver(1, 0);
+				
+				setChannelInterrupt(&htim1,2, 0);
+				enableStepperDriver(2, 0);
+				
+				setChannelInterrupt(&htim1,3, 0);
+				enableStepperDriver(3, 0);
+				#endif
+						
+				//enableStepperDriver(1, 0);
+				//#if defined HANDLER || defined LATHE
+				//enableStepperDriver(2, 0);
+				//#endif
+				//#if defined HANDLER
+				//if(((getMotorById(&subMachine, 3)->currentStep) > -50) && ((getMotorById(&subMachine, 3)->currentStep) < 50)) {
+				//	enableStepperDriver(3,0);
+				//}
+				//#endif
+				//#if defined MILL || defined DRILL || defined LATHE
+				//enableStepperDriver(3, 0);
+				//#endif
 				
 				// Check if motor two is DC and switch off Enable pin
 				//if(strcmp(getMotorById(&subMachine, 2)->type, "DC") == 0) {

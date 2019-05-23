@@ -309,21 +309,29 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim) {
 /**
   * @brief  This function is used to reset the stepper motor interrupt timer. 
 	* It disables the timer, and interrupts, sets the timer register to zero 
-	* and sets the required interrupts for the currently running motors
+  * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
+  *                the configuration information for the specified Timer.
+  * @retval None
+  */
+void stepperTimerReset(TIM_HandleTypeDef *htim) {
+	// Stop the timer
+	HAL_TIM_Base_Stop_IT(htim);
+	// Disable all channel interrupts
+	HAL_TIM_OC_Stop_IT(htim, /*Channel*/ TIM_CHANNEL_1);
+	HAL_TIM_OC_Stop_IT(htim, /*Channel*/ TIM_CHANNEL_2);
+	HAL_TIM_OC_Stop_IT(htim, /*Channel*/ TIM_CHANNEL_3);
+	// Reset the sudo 32 bit timer to zero
+	setSudoTimerCounter(htim, /*newValue*/ 0);
+}
+
+/**
+  * @brief  This function is used to set the required interrupts for the currently running motors
   * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
   *                the configuration information for the specified Timer.
   * @param  submachine_ptr Pointer to the submachine struct 
   * @retval None
   */
-void stepperTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine_ptr) {
-	// Stop the timer
-	HAL_TIM_Base_Stop_IT(htim);
-	// Disable all channel interrupts
-	HAL_TIM_OC_Stop_IT(htim, /*Channel*/ 1);
-	HAL_TIM_OC_Stop_IT(htim, /*Channe2*/ 2);
-	HAL_TIM_OC_Stop_IT(htim, /*Channe3*/ 3);
-	// Reset the sudo 32 bit timer to zero
-	setSudoTimerCounter(htim, /*newValue*/ 0);
+void stepperTimerSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine_ptr) {
 	// Based on which motors are running, set the timer interrupts and compare registers
 	for(int i = 0; i < sizeof(submachine_ptr -> motors)/sizeof(*(submachine_ptr -> motors)); i++) {
 		struct Motor *motor_ptr = getMotorById(submachine_ptr, i+1);
