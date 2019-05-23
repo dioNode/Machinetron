@@ -37,7 +37,7 @@ def main():
 
     # controller.commandGenerator.resetAll()
 
-    controller.commandGenerator.selectFace('left')
+    # controller.commandGenerator.selectFace('left')
 
     # lathe(30, 50, 50) # lathe nothing
 
@@ -53,7 +53,7 @@ def main():
     # drill('left', 0, 40, 40)
     # controller.commandGenerator.getSpinningPushCommand(controller.mill, 30)
 
-    # calibrationRoutine()
+    calibrationRoutine()
 
     # drill('left', 0, 40, 20)
     # controller.commandGenerator.resetAll()

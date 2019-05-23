@@ -591,7 +591,7 @@ class CommandGenerator:
         user time to take measurements.
 
         """
-        cutmachines = [self.controller.mill, self.controller.drill, self.controller.lathe]
+        cutmachines = [self.controller.drill, self.controller.mill, self.controller.lathe]
         for cutmachine in cutmachines:
             self.calibrateCutmachine(cutmachine)
         self.calibrateHandler()
