@@ -142,7 +142,6 @@ class CommandGenerator:
 
         # Set starting positions
         controller.addCommand(CombinedCommand([
-            # SpinCommand(controller.handler, 0),
             RaiseCommand(controller.lathe, zBot, controller, rapid=True),
             ShiftCommand(controller.lathe, controller.handler, 0, rapid=True),
         ]))
@@ -151,8 +150,9 @@ class CommandGenerator:
         # Start lathing
         maxRadius = max(controller.currentFaceDepth, controller.currentFaceWidth) / 2
         sequenceCommand = SequentialCommand([])
-        controller.addCommand(SpinCommand(controller.handler, 360*5, 10, configurationMap['handler']['rapidSpinSpeed']))
-        controller.addCommand(handlerSpinCommand)
+        sequenceCommand.addCommand(SpinCommand(controller.handler, 360*5, configurationMap['handler']['initialRampUpSpeed'],
+                                          configurationMap['handler']['rapidSpinSpeed']))
+        sequenceCommand.addCommand(handlerSpinCommand)
 
         for currentRadius in np.arange(maxRadius, radius, -pushIncrement):
             # Push in
@@ -173,8 +173,8 @@ class CommandGenerator:
 
         controller.addCommand(sequenceCommand)
 
-        if not controller.useSimulator:
-            controller.addCommand(StopCommand())
+        # if not controller.useSimulator:
+        #     controller.addCommand(StopCommand())
 
         self.retractLathe()
 
@@ -407,7 +407,7 @@ class CommandGenerator:
         """Stops the handler spin and pulls the lathe back to base position."""
         self.controller.addCommand(CombinedCommand([
             PushCommand(self.controller.lathe, 0, self.controller, rapid=True, home=True),
-            SpinCommand(self.controller.handler, 0, rapid=True)
+            SpinCommand(self.controller.handler, 0, home=True)
         ]))
 
     def homeCutmachine(self, cutmachine):
