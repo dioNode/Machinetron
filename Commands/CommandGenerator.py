@@ -40,11 +40,12 @@ class CommandGenerator:
         radius = configurationMap['mill']['diameter'] / 2
 
         # Get to initial positioning
-        self.selectFace(face)
-        controller.addCommand(CombinedCommand([
-            RaiseCommand(controller.mill, 0, rapid=True),
-            ShiftCommand(controller.mill, controller.handler, -controller.currentFaceWidth / 2 - radius, rapid=True)
-        ], 'Setup initial position and face'))
+        # self.selectFace(face)
+        # controller.addCommand(CombinedCommand([
+        #     RaiseCommand(controller.mill, 0, rapid=True),
+        #     ShiftCommand(controller.mill, controller.handler, -controller.currentFaceWidth / 2 - radius, rapid=True)
+        # ], 'Setup initial position and face'))
+        self.moveTo(controller.mill, -controller.currentFaceWidth/2 - radius, face=face)
 
         # Push into depth
         controller.addCommand(CombinedCommand([
@@ -461,7 +462,7 @@ class CommandGenerator:
         self.controller.setFace(face)
         self.controller.addCommand(SelectFaceCommand(face, self.controller))
 
-    def moveTo(self, cutMachine, x, z, d, face=None):
+    def moveTo(self, cutMachine, x, z, d=None, face=None):
         """Moves the handler towards the desired location.
 
         Args:
@@ -472,14 +473,20 @@ class CommandGenerator:
             face (string): The face that is being worked on. This can be left None to use current face.
 
         """
+        d = -configurationMap[cutMachine.name.lower()]['offsets']['motorStartDepthOffset'] if d is None else d
+        # Ensure cutmachine is retracted
+        self.controller.addCommand(PushCommand(cutMachine, d, self.controller, rapid=True, home=True))
+        # Select the right face
+        if face is not None:
+            self.selectFace(face)
+        # Move to specific position
         moveCommand = CombinedCommand([
             ShiftCommand(cutMachine, self.controller.handler, x, rapid=True),
             RaiseCommand(cutMachine, z, self.controller, rapid=True),
-            PushCommand(cutMachine, d, self.controller, rapid=True)
         ])
-        if face is not None:
-            self.selectFace(face)
+        # Move to spot and push cutmachine in
         self.controller.addCommand(moveCommand)
+        self.controller.addCommand(PushCommand(cutMachine, d, self.controller, rapid=True))
 
     def intrude(self, face, x0, x1, z0, z1, d0, d1, radius):
         """Creates an intrusion from one point to another with a set radius.
@@ -617,7 +624,7 @@ class CommandGenerator:
 
         """
         self.resetAll()
-        cutmachines = [self.controller.lathe]
+        cutmachines = [self.controller.mill, self.controller.lathe, self.controller.drill]
         # self.controller.addCommand(FlipCommand(self.controller.handler, 'up'))
         for cutmachine in cutmachines:
             self.calibrateCutmachine(cutmachine)
@@ -663,5 +670,4 @@ class CommandGenerator:
             SpinCommand(self.controller.mill)
         ]))
         self.retractMill()
-
 

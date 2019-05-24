@@ -35,15 +35,10 @@ def main():
     from Commands.StopCommand import StopCommand
     from Commands.SequentialCommand import SequentialCommand
 
+    controller.commandGenerator.calibrationRoutine()
 
     # controller.commandGenerator.resetAll()
-
-    # controller.commandGenerator.selectFace('left')
-
-    # controller.commandGenerator.resetAll()
-
-    # controller.commandGenerator.resetAll()
-    controller.commandGenerator.millCircleDiscrete('back', 0, 50, 15, 3)
+    # controller.commandGenerator.millCircleDiscrete('back', 0, 50, 15, 3)
     # controller.commandGenerator.millCircleDiscrete('left', 0, 50, 20, 5)
     # controller.commandGenerator.millCircleDiscrete('right', 0, 50, 25, 10)
     # controller.commandGenerator.millCircleDiscrete('back', 0, 50, 30, 20)

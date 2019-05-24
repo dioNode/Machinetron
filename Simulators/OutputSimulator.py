@@ -245,6 +245,7 @@ class OutputSimulator:
 
         """
         endeffactorLocations = self.getEndeffactorLocations(cutMachines)
+        cutmachineName = cutMachines[i].name.lower()
         # Draw the outer boundary box
         win = self.win
         height = self.height
@@ -260,13 +261,16 @@ class OutputSimulator:
         currentDepth = round(cutMachines[i].penMotor.currentDisplacement, 1)
         faceThickness = self.controller.currentFaceDepth
         if self.controller.facename == 'top':
-            distance2face = configurationMap[cutMachines[i].name.lower()]['offsets']['cuttingBit2HandlerFlipBase'] - faceThickness
+            distance2face = configurationMap[cutmachineName]['offsets']['cuttingBit2HandlerFlipBase'] - faceThickness
+            cuttingBitHeightOffset = configurationMap[cutmachineName]['offsets']['cuttingBitHeightOffsetFlipped']
         else:
-            distance2face = configurationMap[cutMachines[i].name.lower()]['offsets']['cuttingBit2HandlerCenter'] - faceThickness/2
+            distance2face = configurationMap[cutmachineName]['offsets']['cuttingBit2HandlerCenter'] - faceThickness/2
+            cuttingBitHeightOffset = configurationMap[cutmachineName]['offsets']['cuttingBitHeightOffset']
         textsurface = self.generalFont.render(str(currentDepth) + ' | ' + str(distance2face), False, (0, 0, 0))
         win.blit(textsurface, (faceX + faceWidth/2, faceY + faceHeight/2))
 
         handlerX = self.controller.handler.railMotor.currentDisplacement
+
         endeffactorLocationX = int(handlerX - cutMachines[i].homeX + self.controller.currentFaceWidth/2)
 
         shade = 250 - cutMachines[i].penMotor.currentDisplacement
@@ -286,7 +290,7 @@ class OutputSimulator:
 
         endeffactorLocationX += faceX
 
-        endeffactorLocationY = -endeffactorLocations[i][1] + self.controller.currentFaceHeight + int(faceY)
+        endeffactorLocationY = -endeffactorLocations[i][1] + self.controller.currentFaceHeight + int(faceY) + cuttingBitHeightOffset
         machineName = cutMachines[i].name.lower()
         # Draw the little end effactor location
         if machineName != 'lathe':

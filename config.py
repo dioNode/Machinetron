@@ -118,5 +118,6 @@ configurationMap = {
         'speedMultiplier': 10,
         'numRotationSteps': 200,
         'syncSpeed': 15,
+        'gripperHeight': 20,
     }
 }
