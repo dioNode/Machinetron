@@ -211,7 +211,7 @@ class CommandGenerator:
             endAngle(double): The ending angle of the mill in radians.
 
         """
-        cuttingBitOffset = 40
+        motorStartOffset = configurationMap['mill']['offsets']['motorStartDepthOffset']
         sequentialCommand = SequentialCommand([])
         # Set starting location
         self.selectFace(face)
@@ -225,7 +225,7 @@ class CommandGenerator:
             RaiseCommand(self.controller.mill, currentZ, self.controller, rapid=True),
         ]))
         # Move closer to foam
-        self.controller.addCommand(PushCommand(self.controller.mill, -cuttingBitOffset, self.controller, rapid=True))
+        self.controller.addCommand(PushCommand(self.controller.mill, -motorStartOffset, self.controller, rapid=True))
 
         # Insert mill into foam
         self.controller.addCommand(CombinedCommand([
@@ -431,10 +431,8 @@ class CommandGenerator:
         ]))
 
     def homeCutmachine(self, cutmachine):
-        self.controller.addCommand(CombinedCommand([
-            PushCommand(cutmachine, 0, self.controller, home=True, rapid=True),
-            RaiseCommand(cutmachine, 0, self.controller, home=True, rapid=True),
-        ]))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller, home=True, rapid=True))
+        self.controller.addCommand(RaiseCommand(cutmachine, 0, self.controller, home=True, rapid=True))
 
     def homeMill(self):
         self.homeCutmachine(self.controller.mill)
@@ -446,11 +444,11 @@ class CommandGenerator:
         self.homeCutmachine(self.controller.drill)
 
     def homeHandler(self):
+        self.controller.addCommand(FlipCommand(self.controller.handler, 'down', home=True))
         self.controller.addCommand(CombinedCommand([
             ShiftCommand(self.controller.drill, self.controller.handler, 0,
                          inAbsolute=True, home=True, rapid=True),
             SpinCommand(self.controller.handler, 0, home=True),
-            FlipCommand(self.controller.handler, 'down', home=True)
         ]))
 
     def selectFace(self, face):

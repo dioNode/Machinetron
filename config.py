@@ -40,6 +40,7 @@ configurationMap = {
             'cuttingBit2HandlerFlipBase': 152,
             'cuttingBitHeightOffset': 22,
             'cuttingBitHeightOffsetFlipped': 15,
+            'motorStartDepthOffset': 40, # The amount of distance before the drill should start spinning
         },
     }, 'lathe': {
         'homeX': 90,
@@ -68,6 +69,7 @@ configurationMap = {
             'cuttingBit2HandlerFlipBase': 157,
             'cuttingBitHeightOffset': 26,
             'cuttingBitHeightOffsetFlipped': 11,
+            'motorStartDepthOffset': 40, # The amount of distance before the handler should start spinning
         },
     }, 'mill': {
         'homeX': 53,
@@ -93,6 +95,7 @@ configurationMap = {
             'cuttingBit2HandlerFlipBase': 144,
             'cuttingBitHeightOffset': 17,
             'cuttingBitHeightOffsetFlipped': 16,
+            'motorStartDepthOffset': 40, # The amount of distance before the mill should start spinning
         },
     }, 'coordination': {
         'speed': 20,
