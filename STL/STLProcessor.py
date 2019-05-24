@@ -53,10 +53,17 @@ class STLProcessor:
         self.generateMillCommands(showFig=False)
 
     def generateLatheCommands(self):
-        """Generates the commands to use the lathe."""
+        """Generates the commands to use the lathe.
+
+        This should go through the image slices of each direction and look for circles that are
+        centered around the middle and within a certain radius range. It will then go through and
+        calculate the depths of each lathe and replace the images so the mill will not detect the
+        lathes.
+
+        """
         # iterate through the names of contents of the folder
 
-        # Detect lathes
+        # Detect lathes for each image in the image slices
         totalLatheRadiusList = []
         for imNum, img in enumerate(self.imageSlicesTopDown):
             latheRadius = self._detectLathe(img)
@@ -69,7 +76,7 @@ class STLProcessor:
                 pim = self._fillHole(img, (int(width/2), int(height/2)), radius, 0)
                 # Remask over existing image
                 self.imageSlicesTopDown[imNum] = pim
-
+        # Go through the list of lathe shapes to calculate depths and send a command if appropriate
         startIdx = None
         endIdx = None
         for lathePoint in unique(totalLatheRadiusList):
@@ -104,14 +111,19 @@ class STLProcessor:
             self.controller.commandGenerator.lathe(self.controller.zLength - z1, self.controller.zLength - z0, radius)
 
     def generateDrillCommands(self):
-        """Generates the command to use the drill."""
+        """Generates the command to use the drill.
+
+        This goes through each image slice to find drill hole circles. It then goes through the layers of
+        images slices from each surface to determine where the drill could come from and patches up the
+        holes in the image as it goes for the mill and lathe.
+
+        """
         # iterate through the names of contents of the folder
         faceOrder = [('top', None), ('front', 'back'), ('left', 'right')]
         pxRadius = mm2pixel(configurationMap['drill']['diameter']/2)
 
         for facenum, imgSlices in enumerate([self.imageSlicesTopDown,
                                              self.imageSlicesFrontBack, self.imageSlicesLeftRight]):
-
 
             # Go through and check if drill can penetrate from surface
             for startingImgNum, imgNumDir in [(0, 1), (len(imgSlices)-1, -1)]:
@@ -351,7 +363,16 @@ class STLProcessor:
         return lathePointsMM
 
     def generateMillCommands(self, showFig=False):
-        # img = self.imageSlicesTopDown[9]
+        """Generates the mill toolpath commands.
+
+        The mill autonomous commands should go through each face and find the contour of the
+        surface image. It then goes down to detect how deep each shape goes and generates the
+        inner mills by eroding the image.
+
+        Args:
+            showFig (Boolean): Whether to show a visual representation of the mill path.
+
+        """
 
         faceOrder = ['top', 'front', 'right', 'back', 'left']
         for facenum, imgSlices in enumerate([self.imageSlicesTopDown, self.imageSlicesFrontBack,
@@ -380,8 +401,6 @@ class STLProcessor:
                 borderPath = pathListPerShape
                 # Shrink borderPath by mill radius
                 centerPoint = getCenterPoint(borderPath)
-
-
                 if depth > 0: # This means we will be milling inside the shapes
                     cimg = cv2.cvtColor(surfaceIm, cv2.COLOR_GRAY2BGR)
                     cv2.circle(cimg, (int(centerPoint[0]), int(centerPoint[1])), 10, (0, 0, 255), 4)
