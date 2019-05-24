@@ -211,6 +211,7 @@ class CommandGenerator:
             endAngle(double): The ending angle of the mill in radians.
 
         """
+        cuttingBitOffset = 40
         sequentialCommand = SequentialCommand([])
         # Set starting location
         self.selectFace(face)
@@ -223,6 +224,9 @@ class CommandGenerator:
             ShiftCommand(self.controller.mill, self.controller.handler, currentX, rapid=True),
             RaiseCommand(self.controller.mill, currentZ, self.controller, rapid=True),
         ]))
+        # Move closer to foam
+        self.controller.addCommand(PushCommand(self.controller.mill, -cuttingBitOffset, self.controller, rapid=True))
+
         # Insert mill into foam
         self.controller.addCommand(CombinedCommand([
             PushCommand(self.controller.mill, depth, self.controller),
@@ -230,26 +234,39 @@ class CommandGenerator:
         ]))
 
         maxStep = 1
+        minSpeed = 1
+        # Figure out synchronizing speed
+        moveSpeed = min(configurationMap['handler']['railSpeed'], configurationMap['mill']['raiseSpeed'])
+        angleStep = 2 * math.asin(maxStep / (2 * radius))
+        distPerPoint = 2 * radius * math.sin(angleStep/2)
+        timePerPoint = distPerPoint / moveSpeed
         if radius != 0:
-            angleStep = 2 * math.asin(maxStep / (2 * radius))
             for angle in np.arange(startAngle, endAngle, angleStep):
+                prevX = currentX
+                prevZ = currentZ
                 currentX = x + radius * math.cos(angle)
                 currentZ = actualZ + radius * math.sin(angle)
+                dx = abs(currentX - prevX)
+                dz = abs(currentZ - prevZ)
+                # Time for each movement
+                tx = max(dx / timePerPoint, minSpeed)
+                tz = max(dz / timePerPoint, minSpeed)
                 sequentialCommand.addCommand(CombinedCommand([
                     SpinCommand(self.controller.mill),
-                    ShiftCommand(self.controller.mill, self.controller.handler, currentX),
-                    RaiseCommand(self.controller.mill, currentZ, self.controller),
+                    ShiftCommand(self.controller.mill, self.controller.handler, currentX, startSpeed=tx),
+                    RaiseCommand(self.controller.mill, currentZ, self.controller, startSpeed=tz),
                 ]))
-        angle = endAngle
-        currentX = x + radius * math.cos(angle)
-        currentZ = actualZ + radius * math.sin(angle)
-        syncSpeed = configurationMap['other']['syncSpeed']
-        sequentialCommand.addCommand(CombinedCommand([
-            SpinCommand(self.controller.mill),
-            ShiftCommand(self.controller.mill, self.controller.handler, currentX, startSpeed=syncSpeed),
-            RaiseCommand(self.controller.mill, currentZ, self.controller, startSpeed=syncSpeed),
-        ]))
+        # angle = endAngle
+        # currentX = x + radius * math.cos(angle)
+        # currentZ = actualZ + radius * math.sin(angle)
+        # syncSpeed = configurationMap['other']['syncSpeed']
+        # sequentialCommand.addCommand(CombinedCommand([
+        #     SpinCommand(self.controller.mill),
+        #     ShiftCommand(self.controller.mill, self.controller.handler, currentX, startSpeed=syncSpeed),
+        #     RaiseCommand(self.controller.mill, currentZ, self.controller, startSpeed=syncSpeed),
+        # ]))
         self.controller.addCommand(sequentialCommand)
+        self.retractMill()
 
     def cutInCircle(self, face, x, z, radius, depth):
         """Completely cuts out the inside of a given circle.

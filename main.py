@@ -1,5 +1,5 @@
-USE_GUI = False
-USE_SIM = False
+USE_GUI = True
+USE_SIM = True
 AUTO_START = False
 AUTO_TOOLPATH = False
 
@@ -42,14 +42,30 @@ def main():
 
     # controller.commandGenerator.resetAll()
 
-    # controller.commandGenerator.millCircleDiscrete('front', 0, 50, 10, 50)
+    # controller.commandGenerator.resetAll()
+    controller.commandGenerator.millCircleDiscrete('back', 0, 50, 15, 3)
+    # controller.commandGenerator.millCircleDiscrete('left', 0, 50, 20, 5)
+    # controller.commandGenerator.millCircleDiscrete('right', 0, 50, 25, 10)
+    # controller.commandGenerator.millCircleDiscrete('back', 0, 50, 30, 20)
 
 
     # controller.commandGenerator.millPointsSequence([
     #     (0, 10), (-20, 50), (20, 50), (0, 10)
     # ], 30)
 
-    controller.commandGenerator.resetAll()
+    # controller.addCommand(FlipCommand(controller.handler, 'up'))
+    # controller.addCommand(SpinCommand(controller.handler, 180))
+    # controller.addCommand(CombinedCommand([
+    #     SpinCommand(controller.handler, 0, rapid=True),
+    #     FlipCommand(controller.handler, 'down', rapid=True)
+    # ]))
+
+    # for i in range(10):
+    #     controller.addCommand(ShiftCommand(controller.lathe, controller.handler, 0, rapid=True))
+    #     controller.addCommand(ShiftCommand(controller.mill, controller.handler, 0, rapid=True))
+    #     controller.commandGenerator.homeHandler()
+    #
+
     # controller.commandGenerator.homeHandler()
     # drill('left', 0, 60, 20)
     # controller.commandGenerator.millPointsSequence([(-10, 80), (0, 60), (10, 80), (-10, 80)], 10, 'right')
@@ -58,7 +74,7 @@ def main():
     # controller.addCommand(PushCommand(controller.lathe, 10, controller))
 
     # controller.commandGenerator.resetAll()
-    lathe(40, 45, 35)
+    # lathe(40, 45, 35)
 
     # controller.addCommand(ShiftCommand(controller.mill, controller.handler, 0, home=True, rapid=True))
     # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, rapid=True))
