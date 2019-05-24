@@ -212,21 +212,23 @@ class CommandGenerator:
             endAngle(double): The ending angle of the mill in radians.
 
         """
-        motorStartOffset = configurationMap['mill']['offsets']['motorStartDepthOffset']
+        # motorStartOffset = configurationMap['mill']['offsets']['motorStartDepthOffset']
         sequentialCommand = SequentialCommand([])
         # Set starting location
-        self.selectFace(face)
+        # self.selectFace(face)
         # Start with top right quadrant
         actualZ = z
         angle = startAngle
         currentX = x + radius * math.cos(angle)
         currentZ = actualZ + radius * math.sin(angle)
-        self.controller.addCommand(CombinedCommand([
-            ShiftCommand(self.controller.mill, self.controller.handler, currentX, rapid=True),
-            RaiseCommand(self.controller.mill, currentZ, self.controller, rapid=True),
-        ]))
-        # Move closer to foam
-        self.controller.addCommand(PushCommand(self.controller.mill, -motorStartOffset, self.controller, rapid=True))
+        # self.controller.addCommand(CombinedCommand([
+        #     ShiftCommand(self.controller.mill, self.controller.handler, currentX, rapid=True),
+        #     RaiseCommand(self.controller.mill, currentZ, self.controller, rapid=True),
+        # ]))
+        # # Move closer to foam
+        # self.controller.addCommand(PushCommand(self.controller.mill, -motorStartOffset, self.controller, rapid=True))
+        self.moveTo(self.controller.mill, currentX, currentZ, face=face)
+
 
         # Insert mill into foam
         self.controller.addCommand(CombinedCommand([
@@ -235,7 +237,7 @@ class CommandGenerator:
         ]))
 
         maxStep = 1
-        minSpeed = 1
+        minSpeed = 0.1
         # Figure out synchronizing speed
         moveSpeed = min(configurationMap['handler']['railSpeed'], configurationMap['mill']['raiseSpeed'])
         angleStep = 2 * math.asin(maxStep / (2 * radius))

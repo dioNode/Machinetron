@@ -1,5 +1,5 @@
-USE_GUI = True
-USE_SIM = True
+USE_GUI = False
+USE_SIM = False
 AUTO_START = False
 AUTO_TOOLPATH = False
 
@@ -35,10 +35,12 @@ def main():
     from Commands.StopCommand import StopCommand
     from Commands.SequentialCommand import SequentialCommand
 
-    controller.commandGenerator.calibrationRoutine()
 
-    # controller.commandGenerator.resetAll()
-    # controller.commandGenerator.millCircleDiscrete('back', 0, 50, 15, 3)
+    # controller.commandGenerator.calibrationRoutine()
+
+    for i in range(2):
+        controller.commandGenerator.resetAll()
+        controller.commandGenerator.millCircleDiscrete('right', 0, 60, 20, 12)
     # controller.commandGenerator.millCircleDiscrete('left', 0, 50, 20, 5)
     # controller.commandGenerator.millCircleDiscrete('right', 0, 50, 25, 10)
     # controller.commandGenerator.millCircleDiscrete('back', 0, 50, 30, 20)

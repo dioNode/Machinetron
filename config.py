@@ -1,6 +1,6 @@
 configurationMap = {
     'handler': {
-        'railSpeed': 3,
+        'railSpeed': 4,
         'flipSpeed': 12,
         'spinSpeed': 100,
         'rapidRailSpeed': 50,
@@ -33,6 +33,7 @@ configurationMap = {
         'maxPush': 190,
         'diameter': 6,
         'depth': 80,
+        'pushIncrement': 5,
         'id': 0x1F,
         'detectionTolerance': 10,
         'offsets': {
@@ -73,7 +74,7 @@ configurationMap = {
         },
     }, 'mill': {
         'homeX': 53,
-        'raiseSpeed': 3,
+        'raiseSpeed': 4,
         'pushSpeed': 3,
         'spinSpeed': 500,
         'rapidRaiseSpeed': 25,
@@ -95,7 +96,7 @@ configurationMap = {
             'cuttingBit2HandlerFlipBase': 144,
             'cuttingBitHeightOffset': 17,
             'cuttingBitHeightOffsetFlipped': 16,
-            'motorStartDepthOffset': 40, # The amount of distance before the mill should start spinning
+            'motorStartDepthOffset': 30, # The amount of distance before the mill should start spinning
         },
     }, 'coordination': {
         'speed': 20,
@@ -118,6 +119,6 @@ configurationMap = {
         'speedMultiplier': 10,
         'numRotationSteps': 200,
         'syncSpeed': 15,
-        'gripperHeight': 20,
+        'gripperHeight': 30,
     }
 }

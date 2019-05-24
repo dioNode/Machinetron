@@ -32,6 +32,7 @@ class Microcontroller:
             commandByte = instruction['commandByte']
             motorInstructions = instruction['motorInstructions']
             time.sleep(self.i2cSleep/2)
+            print('sent', time.time(), hex(address), commandByte, motorInstructions)
             self.bus.write_i2c_block_data(address, commandByte, motorInstructions)
             time.sleep(self.i2cSleep/2)
 
@@ -43,6 +44,7 @@ class Microcontroller:
         for submachineName in self.submachinesUsed:
             address = configurationMap[submachineName]['id']
             time.sleep(self.i2cSleep)
+            print('isComplete', time.time(), hex(address), READ_MACHINE_STATE, 2)
             retreivedata = self.bus.read_i2c_block_data(address, READ_MACHINE_STATE, 2)
             time.sleep(self.i2cSleep)
             ready &= retreivedata[1] == 1
