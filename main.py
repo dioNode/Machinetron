@@ -49,16 +49,16 @@ def main():
     #     (0, 10), (-20, 50), (20, 50), (0, 10)
     # ], 30)
 
-    # controller.commandGenerator.resetAll()
-    # drill('left', 0, 70, 20)
-
-    # controller.commandGenerator.millPointsSequence([(-5, 70), (5, 70)], 10, 'front')
+    controller.commandGenerator.resetAll()
+    # controller.commandGenerator.homeHandler()
+    # drill('left', 0, 60, 20)
+    # controller.commandGenerator.millPointsSequence([(-10, 80), (0, 60), (10, 80), (-10, 80)], 10, 'right')
 
     # controller.addCommand(RaiseCommand(controller.lathe, 90, controller))
     # controller.addCommand(PushCommand(controller.lathe, 10, controller))
 
-    controller.commandGenerator.resetAll()
-    lathe(30, 50, 30)
+    # controller.commandGenerator.resetAll()
+    lathe(40, 45, 35)
 
     # controller.addCommand(ShiftCommand(controller.mill, controller.handler, 0, home=True, rapid=True))
     # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, rapid=True))

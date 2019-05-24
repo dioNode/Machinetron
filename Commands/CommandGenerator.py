@@ -97,7 +97,7 @@ class CommandGenerator:
         self.selectFace(face)
         controller.addCommand(CombinedCommand([
             ShiftCommand(controller.drill, controller.handler, x, rapid=True),
-            RaiseCommand(controller.drill, z, rapid=True)], 'Align Drill'))
+            RaiseCommand(controller.drill, z, controller, rapid=True)], 'Align Drill'))
         # Drill in
         controller.addCommand(PushCommand(controller.drill, -startSpinOffset, controller, rapid=True))
         controller.addCommand(CombinedCommand([
@@ -120,6 +120,7 @@ class CommandGenerator:
             radius (double): Radius of the circle being cut out.
 
         """
+        cuttingDepthOffset = 40
         commandString = ', '.join(['lathe(' + str(z0), str(z1), str(radius)+')'])
         self.controller.writeToHistory(commandString)
         controller = self.controller
@@ -146,6 +147,8 @@ class CommandGenerator:
             ShiftCommand(controller.lathe, controller.handler, 0, rapid=True),
         ]))
         controller.addCommand(RaiseCommand(controller.lathe, zTop, controller, rapid=True))
+        # Push it close first
+        controller.addCommand(PushCommand(controller.lathe, -cuttingDepthOffset, controller, rapid=True))
 
         # Start lathing
         maxRadius = max(controller.currentFaceDepth, controller.currentFaceWidth) / 2
@@ -614,7 +617,7 @@ class CommandGenerator:
             face (String): The face you want to work on.
 
         """
-        startDepthOffset = 60
+        startDepthOffset = 40
 
         commandString = ', '.join(['millPointSequence(' + str(ptsList), str(depth), '"' + face + '")'])
         self.controller.writeToHistory(commandString)
