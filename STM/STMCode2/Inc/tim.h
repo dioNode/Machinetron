@@ -64,13 +64,20 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim);
 /**
   * @brief  This function is used to reset the stepper motor interrupt timer. 
 	* It disables the timer, and interrupts, sets the timer register to zero 
-	* and sets the required interrupts for the currently running motors
+  * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
+  *                the configuration information for the specified Timer.
+  * @retval None
+  */
+void stepperTimerReset(TIM_HandleTypeDef *htim);
+
+/**
+  * @brief  This function is used to set the required interrupts for the currently running motors
   * @param  htim Pointer to a TIM_HandleTypeDef structure that contains
   *                the configuration information for the specified Timer.
   * @param  submachine_ptr Pointer to the submachine struct 
   * @retval None
   */
-void stepperTimerResetAndSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine_ptr);
+void stepperTimerSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine_ptr);
 	
 /**
   * @brief  This function is used to reset the DC motor interrupt timer. 
