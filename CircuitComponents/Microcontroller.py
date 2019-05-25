@@ -38,14 +38,17 @@ class Microcontroller:
 
 
     def isComplete(self):
-        # TODO Work for all submachines
         READ_MACHINE_STATE = 0x0A
         ready = True
         for submachineName in self.submachinesUsed:
             address = configurationMap[submachineName]['id']
             time.sleep(self.i2cSleep)
-            print('isComplete', time.time(), hex(address), READ_MACHINE_STATE, 2)
-            retreivedata = self.bus.read_i2c_block_data(address, READ_MACHINE_STATE, 2)
+            retreivedata = [0,0]
+            try:
+                print('isComplete', time.time(), hex(address), READ_MACHINE_STATE, 2)
+                retreivedata = self.bus.read_i2c_block_data(address, READ_MACHINE_STATE, 2)
+            except:
+                print("Couldn't poll")
             time.sleep(self.i2cSleep)
             ready &= retreivedata[1] == 1
         return ready
@@ -84,6 +87,7 @@ class Microcontroller:
             for i in range(21):
                 motorInstructions.append(0)
             time.sleep(self.i2cSleep)
+            print('Paused', time.time(), hex(address), configurationMap['instructions']['PAUSE_INST'], motorInstructions)
             self.bus.write_i2c_block_data(address, configurationMap['instructions']['PAUSE_INST'], motorInstructions)
             time.sleep(self.i2cSleep)
 

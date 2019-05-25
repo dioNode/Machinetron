@@ -264,7 +264,13 @@ int main(void)
   {
 		// Is the machine in a running state (should be processing instructions
 		if(getMachineState() == MACHINE_RUNNING) {
-
+			/*
+			if(HAL_I2C_DisableListen_IT(&hi2c1) != HAL_OK)
+				{
+					// Transfer error in reception process
+					Error_Handler();        
+				}
+			*/
 			// Check if there are instructions to process in the Instruction Array
 			if(getInstArrayFirstIndex() != getInstArrayFirstEmptyIndex()) {
 				
@@ -389,6 +395,13 @@ int main(void)
 				//#endif
 			} else if(getInstArrayFirstIndex() == getInstArrayFirstEmptyIndex()) {
 				setMachineState(MACHINE_READY);
+				/*
+				if(HAL_I2C_EnableListen_IT(&hi2c1) != HAL_OK)
+				{
+					// Transfer error in reception process
+					Error_Handler();        
+				}
+				*/
 			}
 		}
     /* USER CODE END WHILE */

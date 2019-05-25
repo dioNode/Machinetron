@@ -207,7 +207,7 @@ class CommandGenerator:
         self.homeDrill()
         self.homeHandler()
 
-    def millArcDiscrete(self, face, x, z, radius, depth, startAngle, endAngle):
+    def millArcDiscrete(self, face, x, z, radius, depth, startAngle, endAngle, moveTo=False):
         """Uses the mill to cut out in an arc shape.
 
         All variables are relative to the center of the mill cutting tool so functions that use this command will need
@@ -224,17 +224,24 @@ class CommandGenerator:
             endAngle(double): The ending angle of the mill in radians.
 
         """
-        # motorStartOffset = configurationMap['mill']['offsets']['motorStartDepthOffset']
         sequentialCommand = SequentialCommand([])
         # Set starting location
-        # self.selectFace(face)
+        self.selectFace(face)
         # Start with top right quadrant
         actualZ = z
         angle = startAngle
         currentX = x + radius * math.cos(angle)
         currentZ = actualZ + radius * math.sin(angle)
-        self.moveTo(self.controller.mill, currentX, currentZ, face=face)
 
+        if moveTo:
+            self.moveTo(self.controller.mill, currentX, currentZ)
+
+        # Shift to correct position
+        self.controller.addCommand(CombinedCommand([
+            ShiftCommand(self.controller.mill, self.controller.handler, currentX),
+            RaiseCommand(self.controller.mill, currentZ, self.controller),
+            SpinCommand(self.controller.mill),
+        ]))
 
         # Insert mill into foam
         self.controller.addCommand(CombinedCommand([
@@ -243,7 +250,7 @@ class CommandGenerator:
         ]))
 
         maxStep = 1
-        minSpeed = 0.1
+        minSpeed = 0.5
         # Figure out synchronizing speed
         moveSpeed = min(configurationMap['handler']['railSpeed'], configurationMap['mill']['raiseSpeed'])
         angleStep = 2 * math.asin(maxStep / (2 * radius))
@@ -265,17 +272,7 @@ class CommandGenerator:
                     ShiftCommand(self.controller.mill, self.controller.handler, currentX, startSpeed=tx),
                     RaiseCommand(self.controller.mill, currentZ, self.controller, startSpeed=tz),
                 ]))
-        # angle = endAngle
-        # currentX = x + radius * math.cos(angle)
-        # currentZ = actualZ + radius * math.sin(angle)
-        # syncSpeed = configurationMap['other']['syncSpeed']
-        # sequentialCommand.addCommand(CombinedCommand([
-        #     SpinCommand(self.controller.mill),
-        #     ShiftCommand(self.controller.mill, self.controller.handler, currentX, startSpeed=syncSpeed),
-        #     RaiseCommand(self.controller.mill, currentZ, self.controller, startSpeed=syncSpeed),
-        # ]))
         self.controller.addCommand(sequentialCommand)
-        # self.retractMill()
 
     def cutInCircle(self, face, x, z, radius, depth):
         """Completely cuts out the inside of a given circle.
@@ -291,14 +288,17 @@ class CommandGenerator:
         self.selectFace(face)
         millRadius = configurationMap['mill']['diameter'] / 2
         # Go through and cut out from inner to out for each depth
-
         depthStep = configurationMap['mill']['pushIncrement']
-        for d in np.arange(0, depth, depthStep):
+
+        for d in np.concatenate((np.arange(0, depth, depthStep), np.array([depth]))):
+            self.moveTo(self.controller.mill, x, z)
             # Go through and cut out from inner to out
             for r in np.arange(millRadius, radius - millRadius, millRadius * 2):
                 self.millCircleDiscrete(face, x, z, r, d)
             self.millCircleDiscrete(face, x, z, radius - millRadius, d)
         self.millCircleDiscrete(face, x, z, radius, depth)
+
+
 
     def cutOutCircle(self, face, x, z, radius, depth):
         """Cuts once around the outside of the circle.
@@ -315,7 +315,10 @@ class CommandGenerator:
         """
         self.selectFace(face)
         millRadius = configurationMap['mill']['diameter'] / 2
-        self.millCircleDiscrete(face, x, z, radius + millRadius, depth)
+
+        millDepth = configurationMap['mill']['pushIncrement']
+        for d in np.concatenate((np.arange(millDepth, depth, millDepth), np.array([depth]))):
+            self.millCircleDiscrete(face, x, z, radius + millRadius, d)
         # Retract mill
         self.retractMill()
 
@@ -426,8 +429,13 @@ class CommandGenerator:
             startAngle = 0
             endAngle = 0
         radius += configurationMap['mill']['diameter']/2
-        self.millArcDiscrete(face, x, z, radius, depth, startAngle, endAngle)
-        self.retractMill()
+
+        frontFace = face
+
+        millDepth = configurationMap['mill']['pushIncrement']
+        for d in np.concatenate((np.arange(millDepth, depth, millDepth), np.array([depth]))):
+            self.millArcDiscrete(frontFace, x, z, radius, d, startAngle, endAngle, moveTo=True)
+            self.retractMill()
 
     def retractCutMachine(self, subMachine, spinning=False):
         subMachineName = subMachine.name.lower()
@@ -544,7 +552,6 @@ class CommandGenerator:
             radius (double): Radius of the circle being cut out.
 
         """
-        self.selectFace(face)
         controller = self.controller
         if z0 > z1:
             zLow = z1
@@ -576,9 +583,12 @@ class CommandGenerator:
         if r < 0:
             print('WARNING intrude radius too small')
         # Start at top left
-        self.moveTo(controller.mill, xHigh - r*np.cos(tiltAngle), zHigh - r*np.sin(tiltAngle), 0)
+        self.moveTo(controller.mill, xHigh - r*np.cos(tiltAngle), zHigh - r*np.sin(tiltAngle), 0, face=face)
         # Push in
-        self.controller.addCommand(self.getSpinningPushCommand(controller.mill, dHigh))
+        self.controller.addCommand(CombinedCommand([
+            SpinCommand(controller.mill),
+            PushCommand(controller.mill, dHigh, controller)
+        ]))
 
         radiusRange = np.arange(radius-millRadius, 0, -millRadius*2)
         if float(radius) == float(millRadius):
@@ -606,19 +616,6 @@ class CommandGenerator:
             ]))
         self.retractMill()
 
-    def getSpinningPushCommand(self, cutMachine, d):
-        """Generates a command of a cut machine pushing while spinning.
-
-        Args:
-            cutMachine (CutMachine): The cut machine in focus.
-            d (depth): The depth of the cutting tool into the foam face.
-
-        """
-        return CombinedCommand([
-            PushCommand(cutMachine, d, self.controller),
-            SpinCommand(cutMachine)
-        ])
-
     def pauseCommand(self):
         """Sends a command to the submachines to pause all motion. This does not pause the Raspberry Pi."""
         self.controller.addCommand(PauseCommand())
@@ -631,22 +628,31 @@ class CommandGenerator:
 
         """
         # Move to bottom left corner
-        self.controller.addCommand(CombinedCommand([
-            ShiftCommand(cutmachine, self.controller.handler, -38.8, rapid=True),
-            RaiseCommand(cutmachine, 0, self.controller, rapid=True)
-        ]))
+        self.moveTo(cutmachine, -38.9, 0, face='front')
         # Poke foam
-        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller, rapid=True))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller))
+        self.pauseCommand()
+        self.retractCutMachine(cutmachine)
+
+        # Move to top right corner
+        self.moveTo(cutmachine, 38.9, 110, face='front')
+        # Poke foam
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller))
         self.pauseCommand()
         self.controller.addCommand(PushCommand(cutmachine, 0, self.controller, home=True, rapid=True))
 
-        # Move to top right corner
-        self.controller.addCommand(CombinedCommand([
-            ShiftCommand(cutmachine, self.controller.handler, 38.8, rapid=True),
-            RaiseCommand(cutmachine, 110, self.controller, rapid=True)
-        ]))
+        # Flip and do a top poke
+        # Move to bottom left corner
+        self.moveTo(cutmachine, -38.9, 0, face='top')
         # Poke foam
-        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller, rapid=True))
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller))
+        self.pauseCommand()
+        self.retractCutMachine(cutmachine)
+
+        # Move to top right corner
+        self.moveTo(cutmachine, 38.9, 80, face='top')
+        # Poke foam
+        self.controller.addCommand(PushCommand(cutmachine, 0, self.controller))
         self.pauseCommand()
         self.controller.addCommand(PushCommand(cutmachine, 0, self.controller, home=True, rapid=True))
 
@@ -665,12 +671,13 @@ class CommandGenerator:
         """
         self.homeAll()
         cutmachines = [self.controller.mill, self.controller.lathe, self.controller.drill]
+        cutmachines = [self.controller.lathe, self.controller.drill]
         # self.controller.addCommand(FlipCommand(self.controller.handler, 'up'))
         for cutmachine in cutmachines:
             self.calibrateCutmachine(cutmachine)
         # self.calibrateHandler()
 
-    def millPointsSequence(self, ptsList, depth, face):
+    def millPointsSequence(self, ptsList, depth, face, closedLoop=True):
         """Uses the mill to cut through a sequence of points in order.
 
         Args:
@@ -679,35 +686,41 @@ class CommandGenerator:
             face (String): The face you want to work on.
 
         """
-        startDepthOffset = 40
-
         commandString = ', '.join(['millPointSequence(' + str(ptsList), str(depth), '"' + face + '")'])
         self.controller.writeToHistory(commandString)
         self.selectFace(face)
-        # Go to starting point
-        (x0, z0) = ptsList[0] if len(ptsList) > 0 else (0,0)
-        self.moveTo(self.controller.mill, x0, z0, -startDepthOffset)
 
-        # Push in with mill to depth
-        self.controller.addCommand(CombinedCommand([
-            PushCommand(self.controller.mill, depth, self.controller),
-            SpinCommand(self.controller.mill)
-        ]))
+        millDepth = configurationMap['mill']['pushIncrement']
+        for d in np.concatenate((np.arange(millDepth, depth, millDepth), np.array([millDepth]))):
 
-        # Make mill go through all the points in sequence
-        sequenceCommand = SequentialCommand([])
-        for (x, z) in ptsList:
-            sequenceCommand.addCommand(CombinedCommand([
-                SpinCommand(self.controller.mill),
-                RaiseCommand(self.controller.mill, z, self.controller),
-                ShiftCommand(self.controller.mill, self.controller.handler, x),
+            # Go to starting point
+            (x0, z0) = ptsList[0] if len(ptsList) > 0 else (0,0)
+            if not closedLoop:
+                self.moveTo(self.controller.mill, x0, z0, face=face)
+
+            # Push in with mill to depth
+            self.controller.addCommand(CombinedCommand([
+                PushCommand(self.controller.mill, d, self.controller),
+                SpinCommand(self.controller.mill)
             ]))
-        self.controller.addCommand(sequenceCommand)
+            # Make mill go through all the points in sequence
+            sequenceCommand = SequentialCommand([])
+            for (x, z) in ptsList:
+                sequenceCommand.addCommand(CombinedCommand([
+                    SpinCommand(self.controller.mill),
+                    RaiseCommand(self.controller.mill, z, self.controller),
+                    ShiftCommand(self.controller.mill, self.controller.handler, x),
+                ]))
+            if closedLoop:
+                # Mill back to first command
+                (x, z) = ptsList[len(ptsList)-1]
+                sequenceCommand.addCommand(CombinedCommand([
+                    SpinCommand(self.controller.mill),
+                    RaiseCommand(self.controller.mill, z, self.controller),
+                    ShiftCommand(self.controller.mill, self.controller.handler, x),
+                ]))
+            self.controller.addCommand(sequenceCommand)
 
         # Retract mill
-        self.controller.addCommand(CombinedCommand([
-            PushCommand(self.controller.mill, -startDepthOffset, self.controller),
-            SpinCommand(self.controller.mill)
-        ]))
-        self.retractMill()
+        self.retractMill(spinning=True)
 

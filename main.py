@@ -1,5 +1,5 @@
-USE_GUI = True
-USE_SIM = True
+USE_GUI = False
+USE_SIM = False
 AUTO_START = False
 AUTO_TOOLPATH = False
 
@@ -20,9 +20,9 @@ def main():
     controller.tick()
 
     if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part3.STL', controller)
+        stlProcessor.generateCommands('part0.STL', controller)
 
-    # controller.commandGenerator.homeAll()
+    controller.commandGenerator.homeAll()
 
     ################ Commands go here ################
     from Commands.RaiseCommand import RaiseCommand
@@ -34,14 +34,14 @@ def main():
     from Commands.SpinCommand import SpinCommand
     from Commands.StopCommand import StopCommand
     from Commands.SequentialCommand import SequentialCommand
+    # runDemoPart1()
+    # calibrationRoutine()
 
-
-    lathe(30, 60, 40)
 
 
     ################ End of Commands ################
 
-    # controller.commandGenerator.resetAll()
+    # controller.commandGenerator.homeAll()
     # controller.setFace('front')
 
     controller.start()
@@ -191,9 +191,8 @@ def drill(face, x, z, depth):
     """
     controller.commandGenerator.drill(face, x, z, depth)
 
-def millPointsSequence(ptsList, depth, face):
+def millPointSequence(ptsList, depth, face):
     controller.commandGenerator.millPointsSequence(ptsList, depth, face)
-
 
 def calibrationRoutine():
     controller.commandGenerator.calibrationRoutine()
@@ -202,19 +201,20 @@ def calibrationRoutine():
 def runDemoPart0():
     drill('front', -20, 25, 50)
     drill('front', 20, 25, 50)
-    lathe(30, 60, 25)
     cutInCircle('top', 0, 40, 25, 40)
+    intrude('top', 0, 0, 12.5, 80 - 12.5, 20, 20, 6)
+    intrude('top', 0, 0, 12.5, 80 - 12.5, 40, 40, 6)
     fillet('top', 38.3, 80, 10, 1, 30)
     fillet('top', -38.3, 80, 10, 2, 30)
     fillet('top', -38.3, 0, 10, 3, 30)
     fillet('top', 38.3, 0, 10, 4, 30)
-    intrude('top', 0, 0, 12.5, 80 - 12.5, 40, 40, 6)
+    lathe(50, 80, 35)
 
 
 def runDemoPart1():
     #12 mins
-    reshapeFrontM([(76.6, 20), (40, 90-55-20), (80, 40), (40, 55-20)])
-    reshapeSideM([(76.6, 20), (40, 90 - 55 - 20), (80, 40), (40, 55 - 20)])
+    # reshapeFrontM([(76.6, 20), (40, 90-55-20), (80, 40), (40, 55-20)])
+    # reshapeSideM([(76.6, 20), (40, 90 - 55 - 20), (80, 40), (40, 55 - 20)])
     lathe(20, 35, 20)
     for face in ['front', 'right', 'back', 'left']:
         cutOutCircle(face, 0, 110-55, 20, 18.3)
@@ -243,7 +243,7 @@ def runDemoPart2():
 
 
 def runDemoPart3():
-    reshapeFrontM([(80, 30), (30, 80)])
+    # reshapeFrontM([(80, 30), (30, 80)])
     lathe(30, 110, 37.5)
     drill('front', -27.5, 100, 72)
     drill('front', -27.5, 40, 72)

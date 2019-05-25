@@ -434,8 +434,6 @@ class STLProcessor:
                             cv2.imshow('Milling paths', cimg)
                             cv2.waitKey(0)
 
-
-
             self.controller.commandGenerator.retractMill()
 
     def millPixelPath(self, millPath, im, depth, face):
@@ -444,7 +442,10 @@ class STLProcessor:
             borderPathMM = []
             for pts in millPath:
                 borderPathMM.append(pixelPos2mmPos(pts, im))
-            self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, face)
+            (x0, z0) = millPath[0]
+            self.controller.commandGenerator.moveTo(self.controller.mill, x0, z0, face=face)
+            print(face)
+            self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, face, closedLoop=True)
 
     def _shapeExistsInImg(self, img, pathList, mmAccuracy=1):
         pathListWithShapes = self._detectEdge(img)

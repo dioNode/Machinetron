@@ -1,6 +1,6 @@
 configurationMap = {
     'handler': {
-        'railSpeed': 4,
+        'railSpeed': 10,
         'flipSpeed': 12,
         'spinSpeed': 100,
         'rapidRailSpeed': 50,
@@ -10,7 +10,7 @@ configurationMap = {
         'maxFlipSpeed': 20,
         'maxSpinSpeed': 500,
         'railDPR': 39.23809524,
-        'flipDPR': 25,
+        'flipDPR': 25.7142857,
         'spinDPR': 360,
         'maxRail': 239.5,
         'maxFlip': 90,
@@ -74,8 +74,8 @@ configurationMap = {
         },
     }, 'mill': {
         'homeX': 53,
-        'raiseSpeed': 4,
-        'pushSpeed': 3,
+        'raiseSpeed': 10,
+        'pushSpeed': 10,
         'spinSpeed': 500,
         'rapidRaiseSpeed': 25,
         'rapidPushSpeed': 50,
@@ -90,7 +90,7 @@ configurationMap = {
         'maxPush': 185,
         'diameter': 10,
         'depth': 60,
-        'pushIncrement': 5,
+        'pushIncrement': 20,
         'id': 0x2F,
         'offsets': {
             'cuttingBit2HandlerCenter': 175,

@@ -39,7 +39,6 @@ class PushCommand(Command):
 
         if flipped:
             offset2Face = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerFlipBase'] - faceDepth
-            print(offset2Face, faceDepth, 'faceoffset')
             self.depth = depth + offset2Face
         else:
             offset2Face = configurationMap[cutMachine.name.lower()]['offsets']['cuttingBit2HandlerCenter'] - faceDepth/2

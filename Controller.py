@@ -53,7 +53,7 @@ class Controller:
         self.facename = 'front'
 
         self.useSimulator = useSimulator
-        self.timeStep = 0.001 if useSimulator else 1.5
+        self.timeStep = 0.001 if useSimulator else 2
         speedMultiplier = configurationMap['other']['speedMultiplier']
         self.microcontroller = MicrocontrollerSimulator(speedMultiplier) if useSimulator else Microcontroller()
 
