@@ -21,8 +21,8 @@ class RaiseCommand(Command):
         self.name = "Raising "+cutMachine.name
         heightOffset = configurationMap[machineName]['offsets']['cuttingBitHeightOffset']
         heightOffsetFlipped = configurationMap[machineName]['offsets']['cuttingBitHeightOffsetFlipped']
-        isFlipped = True if controller.facename == "top" else False
-        self.baseOffset = heightOffsetFlipped if isFlipped else heightOffset
+        self.isFlipped = True if controller.facename == "top" else False
+        self.baseOffset = heightOffsetFlipped if self.isFlipped else heightOffset
         self.heightDisplacement = heightDisplacement + self.baseOffset
 
         self.home = home
@@ -49,7 +49,11 @@ class RaiseCommand(Command):
         # Cap variables
         cutMachineName = cutMachine.name.lower()
         minHeight = self.baseOffset + configurationMap['other']['gripperHeight']
-        heightDisplacement = max(min(heightDisplacement, configurationMap[cutMachineName]['maxRaise']), minHeight)
+        heightDisplacement = min(heightDisplacement, configurationMap[cutMachineName]['maxRaise'])
+        if not self.isFlipped:
+            heightDisplacement = max(heightDisplacement, minHeight)
+
+
         startSpeed = min(startSpeed, configurationMap[cutMachineName]['maxRaiseSpeed'])
         endSpeed = min(endSpeed, configurationMap[cutMachineName]['maxRaiseSpeed'])
 

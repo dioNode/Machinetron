@@ -34,50 +34,79 @@ class CommandGenerator:
             face (string): The surface being used in focus and where the widthHeightTuples are based off.
 
         """
+        # Get widthHeightTuples in descending order from top down
+        descWidthHeightTuples = widthHeightTuples.copy()
+        descWidthHeightTuples.reverse()
+        # Calculate final height
+        maxHeight = 0
+        for (width, height) in descWidthHeightTuples:
+            maxHeight += height
+        # Select correct face
+        self.selectFace(face)
+        # Get useful variables
+
+        millRadius = configurationMap['mill']['diameter'] / 2
+        # Trim over top if needed
+        if maxHeight < self.controller.zLength:
+            # Move to top left corner
+            self.moveTo(self.controller.mill, -self.controller.currentWidth/2 + millRadius,
+                        self.controller.currentHeight)
+            # Specify mill path to go across horizontally and into foam gradually
+            zSequence = np.concatenate((np.arange(self.controller.currentHeight, maxHeight, -millRadius*2),
+                                        np.array(maxHeight)))
+            goRight = True
+            for z in zSequence:
+                x0 = -self.controller.currentWidth/2 if goRight else self.controller.currentWidth/2
+                x1 = self.controller.currentWidth / 2 if goRight else -self.controller.currentWidth / 2
+                self.millPointsSequence([(x0, z), (x1, z)], self.controller.currentDepth/2, 'front')
+                goRight = not goRight
+
+
+
+
+
+
+
+
         # Some useful variables to have
-        controller = self.controller
-        millSpinCommand = SpinCommand(controller.mill)
-        radius = configurationMap['mill']['diameter'] / 2
-
-        # Get to initial positioning
-        # self.selectFace(face)
+        # controller = self.controller
+        # millSpinCommand = SpinCommand(controller.mill)
+        # radius = configurationMap['mill']['diameter'] / 2
+        #
+        # # Move to starting position
+        # self.moveTo(controller.mill, -controller.currentFaceWidth/2 - radius, face=face)
+        #
+        # # Push into depth
         # controller.addCommand(CombinedCommand([
-        #     RaiseCommand(controller.mill, 0, rapid=True),
-        #     ShiftCommand(controller.mill, controller.handler, -controller.currentFaceWidth / 2 - radius, rapid=True)
-        # ], 'Setup initial position and face'))
-        self.moveTo(controller.mill, -controller.currentFaceWidth/2 - radius, face=face)
-
-        # Push into depth
-        controller.addCommand(CombinedCommand([
-            PushCommand(controller.mill, controller.currentFaceDepth, controller),
-            millSpinCommand
-        ]))
-
-        # Go up left hand side
-        currentHeight = 0
-        for tupleNum in range(len(widthHeightTuples)):
-            widthHeightTuple = widthHeightTuples[tupleNum]
-            width, height = widthHeightTuple
-            currentHeight += height
-            x = -width / 2 - radius
-            z = currentHeight + radius
-            controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, controller.handler, x), millSpinCommand]))
-            controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
-
-
-        # Go back down right hand side
-        for tupleNum in range(len(widthHeightTuples) - 1, -1, -1):
-            widthHeightTuple = widthHeightTuples[tupleNum]
-            width, height = widthHeightTuple
-            currentHeight -= height
-            x = width / 2 + radius
-            z = currentHeight + radius
-            controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, controller.handler, x), millSpinCommand]))
-            controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
-
-        # Go back down to bottom
-        controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, 0), millSpinCommand]))
-        controller.addCommand(PushCommand(controller.mill, 0, controller))
+        #     PushCommand(controller.mill, controller.currentFaceDepth, controller),
+        #     millSpinCommand
+        # ]))
+        #
+        # # Go up left hand side
+        # currentHeight = 0
+        # for tupleNum in range(len(widthHeightTuples)):
+        #     widthHeightTuple = widthHeightTuples[tupleNum]
+        #     width, height = widthHeightTuple
+        #     currentHeight += height
+        #     x = -width / 2 - radius
+        #     z = currentHeight + radius
+        #     controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, controller.handler, x), millSpinCommand]))
+        #     controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
+        #
+        #
+        # # Go back down right hand side
+        # for tupleNum in range(len(widthHeightTuples) - 1, -1, -1):
+        #     widthHeightTuple = widthHeightTuples[tupleNum]
+        #     width, height = widthHeightTuple
+        #     currentHeight -= height
+        #     x = width / 2 + radius
+        #     z = currentHeight + radius
+        #     controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, controller.handler, x), millSpinCommand]))
+        #     controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
+        #
+        # # Go back down to bottom
+        # controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, 0), millSpinCommand]))
+        # controller.addCommand(PushCommand(controller.mill, 0, controller))
 
     def drill(self, face, x, z, depth):
         """Uses the drill to drill a hole.
@@ -121,7 +150,6 @@ class CommandGenerator:
             radius (double): Radius of the circle being cut out.
 
         """
-        cuttingDepthOffset = 40
         commandString = ', '.join(['lathe(' + str(z0), str(z1), str(radius)+')'])
         self.controller.writeToHistory(commandString)
         controller = self.controller
@@ -135,45 +163,38 @@ class CommandGenerator:
         # Offset to account for lathe length
         latheLength = configurationMap['lathe']['length']
         zTop -= latheLength
-
         pushIncrement = configurationMap['lathe']['pushIncrement']
-        self.selectFace('front')
-
-
         handlerSpinCommand = SpinCommand(controller.handler, rapid=True)
-
         # Set starting positions
-        controller.addCommand(CombinedCommand([
-            RaiseCommand(controller.lathe, zBot, controller, rapid=True),
-            ShiftCommand(controller.lathe, controller.handler, 0, rapid=True),
-        ]))
-        controller.addCommand(RaiseCommand(controller.lathe, zTop, controller, rapid=True))
-        # Push it close first
-        controller.addCommand(PushCommand(controller.lathe, -cuttingDepthOffset, controller, rapid=True))
+        self.moveTo(controller.lathe, 0, zTop, face='front')
 
         # Start lathing
-        maxRadius = max(controller.currentFaceDepth, controller.currentFaceWidth) / 2
+        maxRadius = math.sqrt(controller.currentFaceDepth**2 + controller.currentFaceWidth**2) / 2 + 3 # A little safety
         sequenceCommand = SequentialCommand([])
-        sequenceCommand.addCommand(SpinCommand(controller.handler, 360*5, configurationMap['handler']['initialRampUpSpeed'],
-                                          configurationMap['handler']['rapidSpinSpeed']))
+        sequenceCommand.addCommand(SpinCommand(controller.handler, 360*5,
+                                               configurationMap['handler']['initialRampUpSpeed'],
+                                               configurationMap['handler']['rapidSpinSpeed']))
         sequenceCommand.addCommand(handlerSpinCommand)
 
+        goingUp = True
         for currentRadius in np.arange(maxRadius, radius, -pushIncrement):
             # Push in
             sequenceCommand.addCommand(CombinedCommand([
                 PushCommand(controller.lathe, currentRadius, controller, fromCenter=True),
                 handlerSpinCommand
             ], 'Push Lathe in'))
-            # Go up
-            sequenceCommand.addCommand(CombinedCommand([
-                RaiseCommand(controller.lathe, zTop, controller),
-                handlerSpinCommand
-            ], 'Lathe Up'))
-            # Back down
-            sequenceCommand.addCommand(CombinedCommand([
-                RaiseCommand(controller.lathe, zBot, controller),
-                handlerSpinCommand
-            ], 'Lathe Down'))
+            if goingUp:
+                # Go up
+                sequenceCommand.addCommand(CombinedCommand([
+                    RaiseCommand(controller.lathe, zTop, controller),
+                    handlerSpinCommand
+                ], 'Lathe Up'))
+            else:
+                # Back down
+                sequenceCommand.addCommand(CombinedCommand([
+                    RaiseCommand(controller.lathe, zBot, controller),
+                    handlerSpinCommand
+                ], 'Lathe Down'))
 
         controller.addCommand(sequenceCommand)
 
@@ -182,7 +203,7 @@ class CommandGenerator:
 
         self.retractLathe()
 
-    def resetAll(self):
+    def homeAll(self):
         """Resets all the sub machines to their default starting state.
 
         All the sub machines should move towards their 0 location until the limit switches are hit. This command should
@@ -193,7 +214,6 @@ class CommandGenerator:
         self.homeLathe()
         self.homeDrill()
         self.homeHandler()
-
 
     def millArcDiscrete(self, face, x, z, radius, depth, startAngle, endAngle):
         """Uses the mill to cut out in an arc shape.
@@ -221,12 +241,6 @@ class CommandGenerator:
         angle = startAngle
         currentX = x + radius * math.cos(angle)
         currentZ = actualZ + radius * math.sin(angle)
-        # self.controller.addCommand(CombinedCommand([
-        #     ShiftCommand(self.controller.mill, self.controller.handler, currentX, rapid=True),
-        #     RaiseCommand(self.controller.mill, currentZ, self.controller, rapid=True),
-        # ]))
-        # # Move closer to foam
-        # self.controller.addCommand(PushCommand(self.controller.mill, -motorStartOffset, self.controller, rapid=True))
         self.moveTo(self.controller.mill, currentX, currentZ, face=face)
 
 
@@ -269,7 +283,7 @@ class CommandGenerator:
         #     RaiseCommand(self.controller.mill, currentZ, self.controller, startSpeed=syncSpeed),
         # ]))
         self.controller.addCommand(sequentialCommand)
-        self.retractMill()
+        # self.retractMill()
 
     def cutInCircle(self, face, x, z, radius, depth):
         """Completely cuts out the inside of a given circle.
@@ -284,10 +298,15 @@ class CommandGenerator:
         """
         self.selectFace(face)
         millRadius = configurationMap['mill']['diameter'] / 2
-        # Go through and cut out from inner to out
-        for r in np.arange(millRadius, radius-millRadius, millRadius*2):
-            self.millCircleDiscrete(face, x, z, r, depth)
-        self.millCircleDiscrete(face, x, z, radius - millRadius, depth)
+        # Go through and cut out from inner to out for each depth
+
+        depthStep = configurationMap['mill']['pushIncrement']
+        for d in np.arange(0, depth, depthStep):
+            # Go through and cut out from inner to out
+            for r in np.arange(millRadius, radius - millRadius, millRadius * 2):
+                self.millCircleDiscrete(face, x, z, r, d)
+            self.millCircleDiscrete(face, x, z, radius - millRadius, d)
+        self.millCircleDiscrete(face, x, z, radius, depth)
 
     def cutOutCircle(self, face, x, z, radius, depth):
         """Cuts once around the outside of the circle.
@@ -418,6 +437,17 @@ class CommandGenerator:
         self.millArcDiscrete(face, x, z, radius, depth, startAngle, endAngle)
         self.retractMill()
 
+    def retractCutMachine(self, subMachine):
+        subMachineName = subMachine.name.lower()
+        if subMachineName == 'mill':
+            self.retractMill()
+        elif subMachineName == 'drill':
+            self.retractDrill()
+        elif subMachineName == 'lathe':
+            self.retractLathe()
+        else:
+            print('Warning not submachine detected for retraction')
+
     def retractMill(self):
         """Stops the mill spin and pulls the mill back to base position."""
         self.controller.addCommand(PushCommand(self.controller.mill, 0, self.controller, home=True, rapid=True))
@@ -477,7 +507,7 @@ class CommandGenerator:
         """
         d = -configurationMap[cutMachine.name.lower()]['offsets']['motorStartDepthOffset'] if d is None else d
         # Ensure cutmachine is retracted
-        self.controller.addCommand(PushCommand(cutMachine, d, self.controller, rapid=True, home=True))
+        self.retractCutMachine(cutMachine)
         # Select the right face
         if face is not None:
             self.selectFace(face)
@@ -610,12 +640,10 @@ class CommandGenerator:
         self.pauseCommand()
         self.controller.addCommand(PushCommand(cutmachine, 0, self.controller, home=True, rapid=True))
 
-
     def calibrateHandler(self):
         self.controller.addCommand(FlipCommand(self.controller.handler, 'up'))
         self.pauseCommand()
         self.controller.addCommand(FlipCommand(self.controller.handler, 'down'))
-
 
     def calibrationRoutine(self):
         """A routine used to check if the coordinate system is calibrated correctly in real life.
@@ -625,7 +653,7 @@ class CommandGenerator:
         user time to take measurements.
 
         """
-        self.resetAll()
+        self.homeAll()
         cutmachines = [self.controller.mill, self.controller.lathe, self.controller.drill]
         # self.controller.addCommand(FlipCommand(self.controller.handler, 'up'))
         for cutmachine in cutmachines:

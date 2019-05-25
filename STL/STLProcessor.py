@@ -7,7 +7,7 @@ import cv2
 from support.supportFunctions import clearFolder, unique, pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel, \
     inRange, tupleArrayInRange, getCenterPoint
 from config import configurationMap
-import matplotlib.pyplot as plt
+
 
 
 class STLProcessor:
@@ -24,7 +24,7 @@ class STLProcessor:
     def __init__(self):
         self.controller = None
         self.path = None
-        self.sliceDepth = 10
+        self.sliceDepth = 1
         self.filename = ''
         self.imageSlicesLeftRight = []
         self.imageSlicesRightLeft = []

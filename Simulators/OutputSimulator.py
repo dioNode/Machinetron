@@ -273,9 +273,10 @@ class OutputSimulator:
 
         endeffactorLocationX = int(handlerX - cutMachines[i].homeX + self.controller.currentFaceWidth/2)
 
-        shade = 250 - cutMachines[i].penMotor.currentDisplacement
-        shade = 20 if shade < 20 else shade
-        shade = 255 if shade >= 255 else shade
+        # shade = 250 - cutMachines[i].penMotor.currentDisplacement
+        # shade = 20 if shade < 20 else shade
+        # shade = 255 if shade >= 255 else shade
+        shade = 255
 
         circleColour = (shade, shade, shade)
 

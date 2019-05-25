@@ -353,7 +353,14 @@ void stepperTimerSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine_pt
 				setSudoCompareRegister(htim, motor_ptr -> id, 0);
 				// Disable the motor driver to stop current draw.
 				// May need to remove this line if holding torque is required
-				enableStepperDriver(motor_ptr -> id, /*Enable*/ 0);
+				#ifdef HANDLER
+					if((motor_ptr->id) != 3) {
+						enableStepperDriver(motor_ptr -> id, /*Enable*/ 0);
+					}
+				#endif
+				#if defined MILL || defined DRILL || defined LATHE
+					enableStepperDriver(motor_ptr -> id, /*Enable*/ 0);
+				#endif
 			}
 		}
 	}		

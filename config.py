@@ -45,7 +45,7 @@ configurationMap = {
         },
     }, 'lathe': {
         'homeX': 90,
-        'raiseSpeed': 1,
+        'raiseSpeed': 2,
         'pushSpeed': 1,
         'spinSpeed': 0,
         'rapidRaiseSpeed': 25,
@@ -90,6 +90,7 @@ configurationMap = {
         'maxPush': 185,
         'diameter': 10,
         'depth': 60,
+        'pushIncrement': 5,
         'id': 0x2F,
         'offsets': {
             'cuttingBit2HandlerCenter': 175,
