@@ -12,7 +12,7 @@ from Commands.CombinedCommand import CombinedCommand
 from Commands.SelectFaceCommand import SelectFaceCommand
 from Commands.SequentialCommand import SequentialCommand
 from Commands.PauseCommand import PauseCommand
-from support.supportFunctions import getLinearVelocityTime
+from support.supportFunctions import getLinearVelocityTime, incRange
 from config import configurationMap
 
 
@@ -44,69 +44,111 @@ class CommandGenerator:
         # Select correct face
         self.selectFace(face)
         # Get useful variables
-
-        millRadius = configurationMap['mill']['diameter'] / 2
+        millRadius = configurationMap['mill']['diameter']/2
+        faceWidth = self.controller.currentFaceWidth
+        faceHeight = self.controller.currentFaceHeight
+        faceDepth = self.controller.currentFaceDepth
         # Trim over top if needed
-        if maxHeight < self.controller.zLength:
-            # Move to top left corner
-            self.moveTo(self.controller.mill, -self.controller.currentWidth/2 + millRadius,
-                        self.controller.currentHeight)
-            # Specify mill path to go across horizontally and into foam gradually
-            zSequence = np.concatenate((np.arange(self.controller.currentHeight, maxHeight, -millRadius*2),
-                                        np.array(maxHeight)))
-            goRight = True
-            for z in zSequence:
-                x0 = -self.controller.currentWidth/2 if goRight else self.controller.currentWidth/2
-                x1 = self.controller.currentWidth / 2 if goRight else -self.controller.currentWidth / 2
-                self.millPointsSequence([(x0, z), (x1, z)], self.controller.currentDepth/2, 'front')
-                goRight = not goRight
+        if maxHeight < self.controller.currentFaceHeight:
+            print(-faceWidth/2, faceWidth/2, maxHeight, faceHeight, faceDepth/2)
+            self.cutRectangle(-faceWidth/2, faceWidth/2, maxHeight, faceHeight, faceDepth/2, startingSide='top')
+
+        # Go through left hand side and cut out rectangles if needed
+        currentHeight = maxHeight
+        rightHandValues = []
+        leftHandValues = []
+        for i, (w, z) in enumerate(descWidthHeightTuples):
+            prevHeight = currentHeight
+            currentHeight -= z
+            if i < len(descWidthHeightTuples)-1:
+                (wNext, zNext) = descWidthHeightTuples[i+1]
+                if abs(w) < faceWidth:
+                    # It needs milling
+                    xLeft = min(-wNext/2, -w/2)
+                    xRight = max(-wNext/2, -w/2)
+                    zTop = prevHeight
+                    zBot = currentHeight
+                    leftHandValues.append([xLeft - millRadius, xRight, zBot, zTop])
+                    rightHandValues.append([-xRight, -xLeft + millRadius, zBot, zTop])
+
+        frontFace = face
+        if frontFace == 'front':
+            backFace = 'back'
+        elif frontFace == 'back':
+            backFace = 'front'
+        elif frontFace == 'left':
+            backFace = 'right'
+        elif frontFace == 'right':
+            backFace = 'left'
+
+        for face in ['front', 'back']:
+            for [xLeft, xRight, zBot, zTop] in leftHandValues:
+                self.cutRectangle(xLeft, xRight, zBot, zTop, faceDepth / 2, startingSide=frontFace, face=face)
+            for [xLeft, xRight, zBot, zTop] in rightHandValues:
+                self.cutRectangle(xLeft, xRight, zBot, zTop, faceDepth/2, startingSide=backFace, face=face)
 
 
-
-
-
-
-
-
-        # Some useful variables to have
-        # controller = self.controller
-        # millSpinCommand = SpinCommand(controller.mill)
-        # radius = configurationMap['mill']['diameter'] / 2
-        #
-        # # Move to starting position
-        # self.moveTo(controller.mill, -controller.currentFaceWidth/2 - radius, face=face)
-        #
-        # # Push into depth
-        # controller.addCommand(CombinedCommand([
-        #     PushCommand(controller.mill, controller.currentFaceDepth, controller),
-        #     millSpinCommand
-        # ]))
-        #
-        # # Go up left hand side
-        # currentHeight = 0
-        # for tupleNum in range(len(widthHeightTuples)):
-        #     widthHeightTuple = widthHeightTuples[tupleNum]
-        #     width, height = widthHeightTuple
-        #     currentHeight += height
-        #     x = -width / 2 - radius
-        #     z = currentHeight + radius
-        #     controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, controller.handler, x), millSpinCommand]))
-        #     controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
-        #
-        #
-        # # Go back down right hand side
-        # for tupleNum in range(len(widthHeightTuples) - 1, -1, -1):
-        #     widthHeightTuple = widthHeightTuples[tupleNum]
-        #     width, height = widthHeightTuple
-        #     currentHeight -= height
-        #     x = width / 2 + radius
-        #     z = currentHeight + radius
-        #     controller.addCommand(CombinedCommand([ShiftCommand(controller.mill, controller.handler, x), millSpinCommand]))
-        #     controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, z), millSpinCommand]))
-        #
-        # # Go back down to bottom
-        # controller.addCommand(CombinedCommand([RaiseCommand(controller.mill, 0), millSpinCommand]))
-        # controller.addCommand(PushCommand(controller.mill, 0, controller))
+    def cutRectangle(self, xLeft, xRight, zBot, zTop, depth, startingSide='top', cutInside=True, face=None):
+        millDepth = configurationMap['mill']['pushIncrement']
+        millRadius = configurationMap['mill']['diameter']/2
+        for d in incRange(millDepth, depth, millDepth):
+            # Cut out rectange from starting side
+            if startingSide == 'top':
+                # Start at top left hand side and cut across and down
+                self.moveTo(self.controller.mill, xLeft + millRadius, zTop - millRadius, face=face)
+                # Push mill in
+                self.controller.addCommand(CombinedCommand([
+                    SpinCommand(self.controller.mill),
+                    PushCommand(self.controller.mill, d, self.controller),
+                ]))
+                # Cut through rectangle down to bottom
+                moveRight = True
+                for z in incRange(zTop - millRadius, zBot + millRadius, -millRadius):
+                    x = xRight - millRadius if moveRight else xLeft + millRadius
+                    print('god',x, z, zTop, millRadius, zBot, d, moveRight)
+                    # Move down then across (The first down should not move anywhere)
+                    self.controller.addCommand(CombinedCommand([
+                        SpinCommand(self.controller.mill),
+                        RaiseCommand(self.controller.mill, z, self.controller)
+                    ]))
+                    self.controller.addCommand(CombinedCommand([
+                        SpinCommand(self.controller.mill),
+                        ShiftCommand(self.controller.mill, self.controller.handler, x)
+                    ]))
+                    moveRight = not moveRight
+                self.retractMill(spinning=True)
+            if startingSide == 'left':
+                # Cut through rectangle down to bottom
+                for x in incRange(xLeft + millRadius, xRight - millRadius, millRadius):
+                    # Start at top left hand side and cut across and down
+                    self.moveTo(self.controller.mill, x, zTop - millRadius, face=face)
+                    # Push mill in
+                    self.controller.addCommand(CombinedCommand([
+                        SpinCommand(self.controller.mill),
+                        PushCommand(self.controller.mill, d, self.controller),
+                    ]))
+                    # Cut down
+                    self.controller.addCommand(CombinedCommand([
+                        SpinCommand(self.controller.mill),
+                        RaiseCommand(self.controller.mill, zBot + millRadius, self.controller)
+                    ]))
+                self.retractMill(spinning=True)
+            if startingSide == 'right':
+                # Cut through rectangle down to bottom
+                for x in incRange(xRight - millRadius, xLeft + millRadius, -millRadius):
+                    # Start at top right hand side and cut across and down
+                    self.moveTo(self.controller.mill, x, zTop - millRadius, face=face)
+                    # Push mill in
+                    self.controller.addCommand(CombinedCommand([
+                        SpinCommand(self.controller.mill),
+                        PushCommand(self.controller.mill, d, self.controller),
+                    ]))
+                    # Cut down
+                    self.controller.addCommand(CombinedCommand([
+                        SpinCommand(self.controller.mill),
+                        RaiseCommand(self.controller.mill, zBot + millRadius, self.controller)
+                    ]))
+                self.retractMill(spinning=True)
 
     def drill(self, face, x, z, depth):
         """Uses the drill to drill a hole.

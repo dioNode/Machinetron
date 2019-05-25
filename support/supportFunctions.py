@@ -163,5 +163,7 @@ def posListMatches(ptsListOrg, ptsListCmp, errorThresh=0):
                 break
     return len(ptsListCmp) == 0
 
-
+def incRange(startVal, endVal, increment):
+    incRange = np.arange(startVal, endVal, increment)
+    return np.concatenate((incRange, np.array([endVal])))
 

@@ -1,5 +1,5 @@
-USE_GUI = False
-USE_SIM = False
+USE_GUI = True
+USE_SIM = True
 AUTO_START = False
 AUTO_TOOLPATH = False
 
@@ -34,7 +34,7 @@ def main():
     from Commands.SpinCommand import SpinCommand
     from Commands.StopCommand import StopCommand
     from Commands.SequentialCommand import SequentialCommand
-    # runDemoPart1()
+    runDemoPart1()
     # calibrationRoutine()
 
 
@@ -213,19 +213,20 @@ def runDemoPart0():
 
 def runDemoPart1():
     #12 mins
-    # reshapeFrontM([(76.6, 20), (40, 90-55-20), (80, 40), (40, 55-20)])
+    reshapeSideM([(80, 75), (40, 35)])
+    reshapeFrontM([(76.6, 75), (40, 35)])
     # reshapeSideM([(76.6, 20), (40, 90 - 55 - 20), (80, 40), (40, 55 - 20)])
-    lathe(20, 35, 20)
-    for face in ['front', 'right', 'back', 'left']:
-        cutOutCircle(face, 0, 110-55, 20, 18.3)
-
-    fillet('top', 20, 60, 10, 1, 20)
-    fillet('top', -20, 60, 10, 2, 20)
-    fillet('top', -20, 20, 10, 3, 20)
-    fillet('top', 20, 20, 10, 4, 20)
-
-    drill('front', 0, 110-10, 40+18.3)
-    drill('right', 0, 110 - 10, 40 + 18.3)
+    # lathe(20, 35, 20)
+    # for face in ['front', 'right', 'back', 'left']:
+    #     cutOutCircle(face, 0, 110-55, 20, 18.3)
+    #
+    # fillet('top', 20, 60, 10, 1, 20)
+    # fillet('top', -20, 60, 10, 2, 20)
+    # fillet('top', -20, 20, 10, 3, 20)
+    # fillet('top', 20, 20, 10, 4, 20)
+    #
+    # drill('front', 0, 110-10, 40+18.3)
+    # drill('right', 0, 110 - 10, 40 + 18.3)
 
 
 def runDemoPart2():
