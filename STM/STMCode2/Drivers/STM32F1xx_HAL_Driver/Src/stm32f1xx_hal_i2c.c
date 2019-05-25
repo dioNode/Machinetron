@@ -4441,10 +4441,9 @@ static HAL_StatusTypeDef I2C_SlaveReceive_RXNE(I2C_HandleTypeDef *hi2c)
 		
 		uint8_t firstByte = getI2CReceiveBuffer()[0];
 		if((hi2c->XferCount == RXBUFFERSIZE - 1) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN) 
-			&&((firstByte == READ_INST_SPEED_M1) || (firstByte == READ_INST_SPEED_M2)
+			&&((firstByte == READ_MACHINE_STATE) || (firstByte == READ_INST_SPEED_M1) || (firstByte == READ_INST_SPEED_M2)
 				|| (firstByte == READ_INST_SPEED_M3) || (firstByte == READ_INST_POS_M1)
-				|| (firstByte == READ_INST_POS_M2) || (firstByte == READ_INST_POS_M3)
-				|| (firstByte == READ_MACHINE_STATE)))
+				|| (firstByte == READ_INST_POS_M2) || (firstByte == READ_INST_POS_M3)))
     {
       // Last Byte is received, disable Interrupt
       __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);
@@ -4481,6 +4480,9 @@ static HAL_StatusTypeDef I2C_SlaveReceive_RXNE(I2C_HandleTypeDef *hi2c)
   */
 static HAL_StatusTypeDef I2C_SlaveReceive_BTF(I2C_HandleTypeDef *hi2c)
 {
+	/* Declaration of temporary variables to prevent undefined behavior of volatile usage */
+  uint32_t CurrentState = hi2c->State;
+	
   if(hi2c->XferCount != 0U)
   {
     /* Read data from DR */
@@ -4488,12 +4490,11 @@ static HAL_StatusTypeDef I2C_SlaveReceive_BTF(I2C_HandleTypeDef *hi2c)
     hi2c->XferCount--;
 		
 		/*_______________User Code Check First Byte Matches Request_______________*/
-		/*
+		uint8_t firstByte = getI2CReceiveBuffer()[0];
 		if((hi2c->XferCount == RXBUFFERSIZE - 1) && (CurrentState == HAL_I2C_STATE_BUSY_RX_LISTEN) 
-			&&((firstByte == READ_INST_SPEED_M1) || (firstByte == READ_INST_SPEED_M2)
+			&&((firstByte == READ_MACHINE_STATE) || (firstByte == READ_INST_SPEED_M1) || (firstByte == READ_INST_SPEED_M2)
 				|| (firstByte == READ_INST_SPEED_M3) || (firstByte == READ_INST_POS_M1)
-				|| (firstByte == READ_INST_POS_M2) || (firstByte == READ_INST_POS_M3)
-				|| (firstByte == READ_MACHINE_STATE)))
+				|| (firstByte == READ_INST_POS_M2) || (firstByte == READ_INST_POS_M3)))
     {
       // Last Byte is received, disable Interrupt
       __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);
@@ -4505,7 +4506,7 @@ static HAL_StatusTypeDef I2C_SlaveReceive_BTF(I2C_HandleTypeDef *hi2c)
       // Call the Rx complete callback to inform upper layer of the end of receive process
       HAL_I2C_SlaveRxCpltCallback(hi2c);
     }
-		*/
+		
   }
   return HAL_OK;
 }

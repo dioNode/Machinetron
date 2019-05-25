@@ -36,7 +36,7 @@ def main():
     from Commands.SequentialCommand import SequentialCommand
 
 
-    drill('front', 0, 60, 30)
+    lathe(30, 60, 40)
 
 
     ################ End of Commands ################

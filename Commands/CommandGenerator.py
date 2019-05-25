@@ -159,8 +159,9 @@ class CommandGenerator:
         self.moveTo(controller.lathe, 0, zTop, face='front')
 
         # Start lathing
-        maxRadius = math.sqrt(controller.currentFaceDepth**2 + controller.currentFaceWidth**2) / 2 + 3 # A little safety
+        maxRadius = math.sqrt(controller.currentFaceDepth**2 + controller.currentFaceWidth**2) / 2 + 2 # A little safety
         sequenceCommand = SequentialCommand([])
+        # Ramp up speed for 5 rotations
         sequenceCommand.addCommand(SpinCommand(controller.handler, 360*5,
                                                configurationMap['handler']['initialRampUpSpeed'],
                                                configurationMap['handler']['rapidSpinSpeed']))
@@ -185,6 +186,7 @@ class CommandGenerator:
                     RaiseCommand(controller.lathe, zBot, controller),
                     handlerSpinCommand
                 ], 'Lathe Down'))
+            goingUp = not goingUp
 
         controller.addCommand(sequenceCommand)
 

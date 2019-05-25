@@ -354,7 +354,7 @@ void stepperTimerSetUp(TIM_HandleTypeDef *htim, struct SubMachine *submachine_pt
 				// Disable the motor driver to stop current draw.
 				// May need to remove this line if holding torque is required
 				#ifdef HANDLER
-					if((motor_ptr->id) != 3) {
+					if(((motor_ptr->id) != 3) && ((motor_ptr->id) != 2)) {
 						enableStepperDriver(motor_ptr -> id, /*Enable*/ 0);
 					}
 				#endif

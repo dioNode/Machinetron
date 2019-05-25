@@ -322,7 +322,7 @@ int main(void)
 				// Else do not
 				if(getMotorById(&subMachine, 2)->infSpin == 0) {
 						setChannelInterrupt(&htim1,2, 0);
-						enableStepperDriver(2, 0);
+						//enableStepperDriver(2, 0);
 				}
 					
 				setChannelInterrupt(&htim1,3, 0);
@@ -610,10 +610,18 @@ int getInstArrayFirstEmptyIndex(void) {
   * @brief  Function to increment the value of the first empty instruction index
   */
 void incrementFirstEmptyIndex(void) {
-	if((getInstArrayFirstEmptyIndex() == INST_ARRAY_LENGTH) && (getInstArrayFirstIndex() == 0)) {
-		Error_Handler();
+	if(getInstArrayFirstEmptyIndex() == (INST_ARRAY_LENGTH - 1)) {
+		if(getInstArrayFirstIndex() == 0) {
+			Error_Handler();
+		} else {
+			instArrFirstEmptyIndex = 0;
+		}
 	} else {
-		instArrFirstEmptyIndex += 1;
+		if(getInstArrayFirstIndex() - getInstArrayFirstEmptyIndex() == 1) {
+			Error_Handler();
+		} else {
+			instArrFirstEmptyIndex += 1;
+		}
 	}
 }
 
@@ -621,7 +629,7 @@ void incrementFirstEmptyIndex(void) {
   * @brief  Function to increment the value of the first instruction index
   */
 void incrementFirstIndex(void) {
-	if(getInstArrayFirstIndex() == INST_ARRAY_LENGTH) {
+	if(getInstArrayFirstIndex() == (INST_ARRAY_LENGTH - 1)) {
 		instArrFirstIndex = 0;
 	} else {
 		instArrFirstIndex += 1;
@@ -797,7 +805,9 @@ void stopCurrentInstruction(void) {
 	}
 	
 	enableStepperDriver(1, 0);
-	enableStepperDriver(2, 0);
+	#if defined MILL || defined DRILL || defined LATHE
+		enableStepperDriver(2, 0);
+	#endif
 	#if defined HANDLER
 	if(((getMotorById(&subMachine, 3)->currentStep) > 50) || ((getMotorById(&subMachine, 3)->currentStep) < -50)) {
 		enableStepperDriver(3,0);
