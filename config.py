@@ -41,7 +41,7 @@ configurationMap = {
             'cuttingBit2HandlerFlipBase': 152,
             'cuttingBitHeightOffset': 22,
             'cuttingBitHeightOffsetFlipped': 15,
-            'motorStartDepthOffset': 40, # The amount of distance before the drill should start spinning
+            'motorStartDepthOffset': 30, # The amount of distance before the drill should start spinning
         },
     }, 'lathe': {
         'homeX': 90,
@@ -117,7 +117,7 @@ configurationMap = {
         'homeVal': -10,
         'mmPerPixelRatio': 0.1, # Using the y direction
         'mmError': 1.0,
-        'speedMultiplier': 10,
+        'speedMultiplier': 3,
         'numRotationSteps': 200,
         'syncSpeed': 15,
         'gripperHeight': 30,

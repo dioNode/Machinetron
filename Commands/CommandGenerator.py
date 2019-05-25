@@ -118,28 +118,18 @@ class CommandGenerator:
             depth (double): Depth of the drill into the foam.
 
         """
-        startSpinOffset = 30
         commandString = ', '.join(['drill(' + '"'+str(face)+'"', str(x), str(z), str(depth)+')'])
         self.controller.writeToHistory(commandString)
-        # Align to face
         controller = self.controller
-        # z = controller.currentFaceHeight - z
-        self.selectFace(face)
-        controller.addCommand(CombinedCommand([
-            ShiftCommand(controller.drill, controller.handler, x, rapid=True),
-            RaiseCommand(controller.drill, z, controller, rapid=True)], 'Align Drill'))
+        # Align drill
+        self.moveTo(controller.drill, x, z, face=face)
         # Drill in
-        controller.addCommand(PushCommand(controller.drill, -startSpinOffset, controller, rapid=True))
         controller.addCommand(CombinedCommand([
             PushCommand(controller.drill, depth, controller),
             SpinCommand(controller.drill)
         ], 'Drill In'))
-        controller.addCommand(CombinedCommand([
-            PushCommand(controller.drill, -startSpinOffset, controller),
-            SpinCommand(controller.drill)
-        ], 'Drill Out'))
         # Pull drill out
-        self.retractDrill()
+        self.retractDrill(spinning=True)
 
     def lathe(self, z0, z1, radius):
         """Uses the lathe to create a radial cut from z0 to z1.
@@ -437,27 +427,45 @@ class CommandGenerator:
         self.millArcDiscrete(face, x, z, radius, depth, startAngle, endAngle)
         self.retractMill()
 
-    def retractCutMachine(self, subMachine):
+    def retractCutMachine(self, subMachine, spinning=False):
         subMachineName = subMachine.name.lower()
         if subMachineName == 'mill':
-            self.retractMill()
+            self.retractMill(spinning)
         elif subMachineName == 'drill':
-            self.retractDrill()
+            self.retractDrill(spinning)
         elif subMachineName == 'lathe':
-            self.retractLathe()
+            self.retractLathe(spinning)
         else:
             print('Warning not submachine detected for retraction')
 
-    def retractMill(self):
+    def retractMill(self, spinning=False):
         """Stops the mill spin and pulls the mill back to base position."""
+        if spinning:
+            # Retract slowly while spinning
+            motorStartDepthOffset = configurationMap['mill']['offsets']['motorStartDepthOffset']
+            self.controller.addCommand(CombinedCommand([
+                SpinCommand(self.controller.mill),
+                PushCommand(self.controller.mill, -motorStartDepthOffset, self.controller)
+            ]))
         self.controller.addCommand(PushCommand(self.controller.mill, 0, self.controller, home=True, rapid=True))
 
-    def retractDrill(self):
+    def retractDrill(self, spinning=False):
         """Stops the drill spin and pulls the drill back to base position."""
+        if spinning:
+            # Retract slowly while spinning
+            motorStartDepthOffset = configurationMap['drill']['offsets']['motorStartDepthOffset']
+            self.controller.addCommand(CombinedCommand([
+                SpinCommand(self.controller.drill),
+                PushCommand(self.controller.drill, -motorStartDepthOffset, self.controller)
+            ]))
         self.controller.addCommand(PushCommand(self.controller.drill, 0, self.controller, home=True, rapid=True))
 
-    def retractLathe(self):
+    def retractLathe(self, spinning=False):
         """Stops the handler spin and pulls the lathe back to base position."""
+        if spinning:
+            # Retract slowly while spinning
+            motorStartDepthOffset = configurationMap['lathe']['offsets']['motorStartDepthOffset']
+            self.controller.addCommand(PushCommand(self.controller.mill, -motorStartDepthOffset, self.controller))
         self.controller.addCommand(CombinedCommand([
             PushCommand(self.controller.lathe, 0, self.controller, rapid=True, home=True),
             SpinCommand(self.controller.handler, 0, home=True)

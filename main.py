@@ -36,7 +36,7 @@ def main():
     from Commands.SequentialCommand import SequentialCommand
 
 
-
+    drill('front', 0, 60, 30)
 
 
     ################ End of Commands ################
