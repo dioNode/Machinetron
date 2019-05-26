@@ -44,7 +44,7 @@ def main():
     # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, rapid=True))
     # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 10000))
 
-
+    # quickDemo()
     # controller.addCommand(Pus)
 
 
@@ -206,6 +206,12 @@ def millPointSequence(ptsList, depth, face):
 def calibrationRoutine():
     controller.commandGenerator.calibrationRoutine()
 
+
+def quickDemo():
+    # drill('front', -15, 70, 10)
+    # drill('front', 15, 70, 10)
+    # cutOutCircle('front', 0, 40, 8, 5)
+    lathe(90, 110, 40)
 
 def runDemoPart0():
     # drill('front', -20, 25, 50)

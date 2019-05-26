@@ -571,7 +571,7 @@ class CommandGenerator:
         self.controller.setFace(face)
         self.controller.addCommand(SelectFaceCommand(face, self.controller))
 
-    def moveTo(self, cutMachine, x, z, d=None, face=None):
+    def moveTo(self, cutMachine, x, z, d=None, face=None, retractFirst=True):
         """Moves the handler towards the desired location.
 
         Args:
@@ -584,7 +584,8 @@ class CommandGenerator:
         """
         d = -configurationMap[cutMachine.name.lower()]['offsets']['motorStartDepthOffset'] if d is None else d
         # Ensure cutmachine is retracted
-        self.retractCutMachine(cutMachine)
+        if retractFirst:
+            self.retractCutMachine(cutMachine)
         # Select the right face
         if face is not None:
             self.selectFace(face)
@@ -747,6 +748,7 @@ class CommandGenerator:
         """
         commandString = ', '.join(['millPointSequence(' + str(ptsList), str(depth), '"' + face + '")'])
         self.controller.writeToHistory(commandString)
+        syncSpeed = min(configurationMap['handler']['railSpeed'], configurationMap['mill']['raiseSpeed'])
 
         # Go to starting point
         (x0, z0) = ptsList[0] if len(ptsList) > 0 else (0,0)
@@ -760,19 +762,30 @@ class CommandGenerator:
         ]))
         # Make mill go through all the points in sequence
         sequenceCommand = SequentialCommand([])
-        for (x, z) in ptsList:
-            sequenceCommand.addCommand(CombinedCommand([
-                SpinCommand(self.controller.mill),
-                RaiseCommand(self.controller.mill, z, self.controller),
-                ShiftCommand(self.controller.mill, self.controller.handler, x),
-            ]))
+        for (i, (x, z)) in enumerate(ptsList):
+            if i != 0:
+                x0, z0 = ptsList[i-1]
+                dx = abs(x - x0)
+                dz = abs(z - z0)
+                distanceMoved = math.sqrt(dx**2 + dz**2)
+                dt = distanceMoved / syncSpeed
+                sequenceCommand.addCommand(CombinedCommand([
+                    SpinCommand(self.controller.mill),
+                    RaiseCommand(self.controller.mill, z, self.controller, startSpeed=max(0.1, dz/dt)),
+                    ShiftCommand(self.controller.mill, self.controller.handler, x, startSpeed=max(0.1, dx/dt)),
+                ]))
         if closedLoop:
             # Mill back to first command
             (x, z) = ptsList[len(ptsList)-1]
+            (x0, z0) = ptsList[len(ptsList) - 2]
+            dx = abs(x - x0)
+            dz = abs(z - z0)
+            distanceMoved = math.sqrt(dx ** 2 + dz ** 2)
+            dt = distanceMoved / syncSpeed
             sequenceCommand.addCommand(CombinedCommand([
                 SpinCommand(self.controller.mill),
-                RaiseCommand(self.controller.mill, z, self.controller),
-                ShiftCommand(self.controller.mill, self.controller.handler, x),
+                RaiseCommand(self.controller.mill, z, self.controller, startSpeed=min(0.1,abs(dz/dt))),
+                ShiftCommand(self.controller.mill, self.controller.handler, x, startSpeed=min(0.1,abs(dx/dt))),
             ]))
         self.controller.addCommand(sequenceCommand)
 
