@@ -49,11 +49,11 @@ class Controller:
         self.state = statusMap['stopped']
         self.goButton = GoButton(self) if not useSimulator else None
         self.statusLed = StatusLed() if not useSimulator else StatusLed(False)
-        self.statusLed.turnRed()
+        self.statusLed.turnGreen()
         self.facename = 'front'
 
         self.useSimulator = useSimulator
-        self.timeStep = 0.001 if useSimulator else 2
+        self.timeStep = 0.001 if useSimulator else 0.5
         speedMultiplier = configurationMap['other']['speedMultiplier']
         self.microcontroller = MicrocontrollerSimulator(speedMultiplier) if useSimulator else Microcontroller()
 
@@ -171,7 +171,7 @@ class Controller:
         This sends the current command to be processed by the STM.
 
         """
-        self.statusLed.turnRed()
+        self.statusLed.turnRed() if self.state != statusMap['stopped'] else self.statusLed.turnGreen()
         print(self.currentCommand.generateTargets())
         # print(self.currentCommand.generateTargets(True))
         # print(self.microcontroller._targetsDictToInstruction(self.currentCommand.generateTargets(True)))
@@ -186,7 +186,7 @@ class Controller:
         else:
             self.microcontroller.processCommand(self.currentCommand)
             self.microcontroller.updateSubmachinesUsed(self.currentCommand.generateTargets())
-        self.statusLed.turnYellow()
+        self.statusLed.turnYellow() if self.state != statusMap['stopped'] else self.statusLed.turnGreen()
 
     def updateEndeffactorValues(self):
         """Updates the information for the end location for each of the actuators.
@@ -207,9 +207,9 @@ class Controller:
 
     def commandComplete(self):
         """Checks whether the current command has been complete."""
-        self.statusLed.turnRed()
+        self.statusLed.turnRed() if self.state != statusMap['stopped'] else self.statusLed.turnGreen()
         isCommandComplete = self.microcontroller.isComplete()
-        self.statusLed.turnYellow()
+        self.statusLed.turnYellow() if self.state != statusMap['stopped'] else self.statusLed.turnGreen()
         return isCommandComplete
 
     def getMicrocontrollerResults(self):

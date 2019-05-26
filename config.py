@@ -12,13 +12,13 @@ configurationMap = {
         'railDPR': 39.23809524,
         'flipDPR': 25.7142857,
         'spinDPR': 360,
-        'maxRail': 239.5,
+        'maxRail': 237.5,
         'maxFlip': 90,
         'id': 0x1A,
     }, 'drill': { # Location of lathe is measured relative to bottom
         'homeX': 205,
-        'raiseSpeed': 10,
-        'pushSpeed': 5,
+        'raiseSpeed': 15,
+        'pushSpeed': 10,
         'spinSpeed': 500,
         'rapidRaiseSpeed': 25,
         'rapidPushSpeed': 50,
@@ -37,11 +37,12 @@ configurationMap = {
         'id': 0x1F,
         'detectionTolerance': 10,
         'offsets': {
-            'cuttingBit2HandlerCenter': 187 - 10 + 6,
-            'cuttingBit2HandlerFlipBase': 152 - 3 + 1,
+            'cuttingBit2HandlerCenter': 170,
+            'cuttingBit2HandlerFlipBase': 134,
             'cuttingBitHeightOffset': 22,
-            'cuttingBitHeightOffsetFlipped': 15 - 3 + 5,
-            'motorStartDepthOffset': 30, # The amount of distance before the drill should start spinning
+            'cuttingBitHeightOffsetFlipped': 17,
+            'motorStartDepthOffset': 15, # The amount of distance before the drill should start spinning
+            'gripperSafetyVert': 10,
         },
     }, 'lathe': {
         'homeX': 91,
@@ -68,12 +69,13 @@ configurationMap = {
         'offsets': {
             'cuttingBit2HandlerCenter': 189,
             'cuttingBit2HandlerFlipBase': 157,
-            'cuttingBitHeightOffset': 26 - 6 - 1,
+            'cuttingBitHeightOffset': 19,
             'cuttingBitHeightOffsetFlipped': 11,
-            'motorStartDepthOffset': 40 - 10 - 5 - 4, # The amount of distance before the handler should start spinning
+            'motorStartDepthOffset': 21, # The amount of distance before the handler should start spinning
+            'gripperSafetyVert': 6,
         },
     }, 'mill': {
-        'homeX': 46,
+        'homeX': 46 + 7,
         'raiseSpeed': 10,
         'pushSpeed': 10,
         'spinSpeed': 500,
@@ -86,18 +88,19 @@ configurationMap = {
         'raiseDPR': 8.06115358,
         'pushDPR': 31.643,
         'spinDPR': 1,
-        'maxRaise': 131 - 2,
+        'maxRaise': 129,
         'maxPush': 185,
         'diameter': 10,
         'depth': 60,
-        'pushIncrement': 20,
+        'pushIncrement': 12,
         'id': 0x2F,
         'offsets': {
-            'cuttingBit2HandlerCenter': 175 - 3,
-            'cuttingBit2HandlerFlipBase': 144 - 5 - 3,
-            'cuttingBitHeightOffset': 17 - 3,
-            'cuttingBitHeightOffsetFlipped': 16 - 2 - 6 - 1,
+            'cuttingBit2HandlerCenter': 172,
+            'cuttingBit2HandlerFlipBase': 136,
+            'cuttingBitHeightOffset': 14,
+            'cuttingBitHeightOffsetFlipped': 7,
             'motorStartDepthOffset': 30, # The amount of distance before the mill should start spinning
+            'gripperSafetyVert': 10,
         },
     }, 'coordination': {
         'speed': 20,
@@ -120,6 +123,6 @@ configurationMap = {
         'speedMultiplier': 10,
         'numRotationSteps': 200,
         'syncSpeed': 15,
-        'gripperHeight': 30,
+        'gripperHeight': 20,
     }
 }
