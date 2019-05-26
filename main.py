@@ -34,15 +34,15 @@ def main():
         stlProcessor.generateCommands('part0.STL', controller)
 
     controller.commandGenerator.homeAll()
-
+    # controller.commandGenerator.homeHandler()
     ################ Commands go here ################
 
-    # runDemoPart0()
+    runDemoPart0()
     # calibrationRoutine()
 
     # controller.commandGenerator.moveTo(controller.mill, 0, 70, 0, face='front')
-    controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, rapid=True))
-    controller.addCommand(ShiftCommand(controller.drill, controller.handler, 10000))
+    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, rapid=True))
+    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 10000))
 
 
     # controller.addCommand(Pus)
@@ -208,15 +208,15 @@ def calibrationRoutine():
 
 
 def runDemoPart0():
-    drill('front', -20, 25, 50)
-    drill('front', 20, 25, 50)
-    cutInCircle('top', 0, 40, 25, 40)
-    intrude('top', 0, 0, 12.5, 80 - 12.5, 20, 20, 6)
-    intrude('top', 0, 0, 12.5, 80 - 12.5, 40, 40, 6)
-    fillet('top', 38.3, 80, 10, 1, 30)
-    fillet('top', -38.3, 80, 10, 2, 30)
-    fillet('top', -38.3, 0, 10, 3, 30)
-    fillet('top', 38.3, 0, 10, 4, 30)
+    # drill('front', -20, 25, 50)
+    # drill('front', 20, 25, 50)
+    # cutInCircle('top', 0, 40, 25, 40)
+    # intrude('top', 0, 0, 12.5, 80 - 12.5, 20, 20, 6)
+    # intrude('top', 0, 0, 12.5, 80 - 12.5, 40, 40, 6)
+    # fillet('top', 38.3, 80, 10, 1, 30)
+    # fillet('top', -38.3, 80, 10, 2, 30)
+    # fillet('top', -38.3, 0, 10, 3, 30)
+    # fillet('top', 38.3, 0, 10, 4, 30)
     lathe(50, 80, 35)
 
 

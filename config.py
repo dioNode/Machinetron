@@ -12,7 +12,7 @@ configurationMap = {
         'railDPR': 39.23809524,
         'flipDPR': 25.7142857,
         'spinDPR': 360,
-        'maxRail': 239.5,
+        'maxRail': 237.5,
         'maxFlip': 90,
         'id': 0x1A,
     }, 'drill': { # Location of lathe is measured relative to bottom
