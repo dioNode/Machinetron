@@ -1,5 +1,5 @@
-USE_GUI = True
-USE_SIM = True
+USE_GUI = False
+USE_SIM = False
 AUTO_START = False
 AUTO_TOOLPATH = False
 
@@ -15,28 +15,32 @@ if USE_GUI:
 controller = Controller(USE_SIM)
 
 
+from Commands.RaiseCommand import RaiseCommand
+from Commands.CombinedCommand import CombinedCommand
+from Commands.PushCommand import PushCommand
+from Commands.FlipCommand import FlipCommand
+from Commands.PauseCommand import PauseCommand
+from Commands.ShiftCommand import ShiftCommand
+from Commands.SpinCommand import SpinCommand
+from Commands.StopCommand import StopCommand
+from Commands.SequentialCommand import SequentialCommand
+
 def main():
-    setMountFace(76.6, 80, 110)
+    # setMountFace(76.6, 80, 110)
+    setMountFace(76, 76, 109)
     controller.tick()
 
     if AUTO_TOOLPATH:
         stlProcessor.generateCommands('part0.STL', controller)
 
-    controller.commandGenerator.homeAll()
+    # controller.commandGenerator.homeAll()
 
     ################ Commands go here ################
-    from Commands.RaiseCommand import RaiseCommand
-    from Commands.CombinedCommand import CombinedCommand
-    from Commands.PushCommand import PushCommand
-    from Commands.FlipCommand import FlipCommand
-    from Commands.PauseCommand import PauseCommand
-    from Commands.ShiftCommand import ShiftCommand
-    from Commands.SpinCommand import SpinCommand
-    from Commands.StopCommand import StopCommand
-    from Commands.SequentialCommand import SequentialCommand
-    runDemoPart1()
-    # calibrationRoutine()
 
+    # runDemoPart1()
+    # calibrationRoutine()
+    controller.commandGenerator.homeDrill()
+    drill('front', -5, 70, 40)
 
 
     ################ End of Commands ################
@@ -59,6 +63,7 @@ def main():
         controller.updateEndeffactorValues()
         if USE_GUI:
             outputSimulator.update()
+
 
 
 def setMountFace(xLength, yLength, zLength):

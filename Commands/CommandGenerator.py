@@ -520,7 +520,7 @@ class CommandGenerator:
             self.controller.addCommand(PushCommand(self.controller.mill, -motorStartDepthOffset, self.controller))
         self.controller.addCommand(CombinedCommand([
             PushCommand(self.controller.lathe, 0, self.controller, rapid=True, home=True),
-            SpinCommand(self.controller.handler, 0, home=True)
+            # SpinCommand(self.controller.handler, 0, home=True)
         ]))
 
     def homeCutmachine(self, cutmachine):
