@@ -79,7 +79,7 @@ extern "C" {
 #define INST_ARRAY_LENGTH               500
 
 /* Length of One Instruction */
-#define INST_LENGTH               			28
+#define INST_LENGTH               			21
 
 /* Intruction Type Byte Constants */
 #define NORM_INST												0x00
