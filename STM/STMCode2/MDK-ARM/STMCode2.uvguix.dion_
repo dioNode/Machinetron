@@ -106,18 +106,18 @@
       <flags>2</flags>
       <showCmd>3</showCmd>
       <MinPosition>
-        <xPos>-32000</xPos>
-        <yPos>-32000</yPos>
+        <xPos>-1</xPos>
+        <yPos>-1</yPos>
       </MinPosition>
       <MaxPosition>
         <xPos>-1</xPos>
         <yPos>-1</yPos>
       </MaxPosition>
       <NormalPosition>
-        <Top>0</Top>
-        <Left>0</Left>
-        <Right>1535</Right>
-        <Bottom>824</Bottom>
+        <Top>-8</Top>
+        <Left>-8</Left>
+        <Right>1536</Right>
+        <Bottom>832</Bottom>
       </NormalPosition>
     </WindowPosition>
     <MDIClientArea>
@@ -3619,9 +3619,9 @@
       <ActiveTab>1</ActiveTab>
       <Doc>
         <Name>../Src/main.c</Name>
-        <ColumnNumber>12</ColumnNumber>
-        <TopLine>556</TopLine>
-        <CurrentLine>577</CurrentLine>
+        <ColumnNumber>5</ColumnNumber>
+        <TopLine>247</TopLine>
+        <CurrentLine>260</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>
@@ -3629,8 +3629,8 @@
       <Doc>
         <Name>../Inc/main.h</Name>
         <ColumnNumber>0</ColumnNumber>
-        <TopLine>267</TopLine>
-        <CurrentLine>280</CurrentLine>
+        <TopLine>268</TopLine>
+        <CurrentLine>283</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>
@@ -3646,9 +3646,9 @@
       </Doc>
       <Doc>
         <Name>../Src/i2c.c</Name>
-        <ColumnNumber>16</ColumnNumber>
-        <TopLine>186</TopLine>
-        <CurrentLine>200</CurrentLine>
+        <ColumnNumber>31</ColumnNumber>
+        <TopLine>180</TopLine>
+        <CurrentLine>193</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>
@@ -3701,7 +3701,7 @@
       <Doc>
         <Name>..\Src\motor.c</Name>
         <ColumnNumber>2</ColumnNumber>
-        <TopLine>141</TopLine>
+        <TopLine>456</TopLine>
         <CurrentLine>168</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>

@@ -44,48 +44,56 @@ class CommandGenerator:
         # Select correct face
         self.selectFace(face)
         # Get useful variables
-        millRadius = configurationMap['mill']['diameter']/2
+        millRadius = configurationMap['mill']['diameter'] / 2
         faceWidth = self.controller.currentFaceWidth
         faceHeight = self.controller.currentFaceHeight
         faceDepth = self.controller.currentFaceDepth
-        # Trim over top if needed
-        if maxHeight < self.controller.currentFaceHeight:
-            print(-faceWidth/2, faceWidth/2, maxHeight, faceHeight, faceDepth/2)
-            self.cutRectangle(-faceWidth/2, faceWidth/2, maxHeight, faceHeight, faceDepth/2, startingSide='top')
 
-        # Go through left hand side and cut out rectangles if needed
-        currentHeight = maxHeight
-        rightHandValues = []
-        leftHandValues = []
-        for i, (w, z) in enumerate(descWidthHeightTuples):
-            prevHeight = currentHeight
-            currentHeight -= z
-            if i < len(descWidthHeightTuples)-1:
-                (wNext, zNext) = descWidthHeightTuples[i+1]
-                if abs(w) < faceWidth:
-                    # It needs milling
-                    xLeft = min(-wNext/2, -w/2)
-                    xRight = max(-wNext/2, -w/2)
-                    zTop = prevHeight
-                    zBot = currentHeight
-                    leftHandValues.append([xLeft - millRadius, xRight, zBot, zTop])
-                    rightHandValues.append([-xRight, -xLeft + millRadius, zBot, zTop])
+        if face == 'top':
+            # Trim over top if needed
+            if maxHeight < self.controller.currentFaceHeight:
+                self.cutRectangle(-faceWidth / 2, faceWidth / 2, maxHeight, faceHeight, faceDepth / 2,
+                                  startingSide='top')
 
-        frontFace = face
-        if frontFace == 'front':
-            backFace = 'back'
-        elif frontFace == 'back':
-            backFace = 'front'
-        elif frontFace == 'left':
-            backFace = 'right'
-        elif frontFace == 'right':
-            backFace = 'left'
 
-        for face in ['front', 'back']:
-            for [xLeft, xRight, zBot, zTop] in leftHandValues:
-                self.cutRectangle(xLeft, xRight, zBot, zTop, faceDepth / 2, startingSide=frontFace, face=face)
-            for [xLeft, xRight, zBot, zTop] in rightHandValues:
-                self.cutRectangle(xLeft, xRight, zBot, zTop, faceDepth/2, startingSide=backFace, face=face)
+        else:
+            # Trim over top if needed
+            if maxHeight < self.controller.currentFaceHeight:
+                self.cutRectangle(-faceWidth/2, faceWidth/2, maxHeight, faceHeight, faceDepth/2, startingSide='top')
+
+            # Go through left hand side and cut out rectangles if needed
+            currentHeight = maxHeight
+            rightHandValues = []
+            leftHandValues = []
+            for i, (w, z) in enumerate(descWidthHeightTuples):
+                prevHeight = currentHeight
+                currentHeight -= z
+                if i < len(descWidthHeightTuples)-1:
+                    (wNext, zNext) = descWidthHeightTuples[i+1]
+                    if abs(w) < faceWidth:
+                        # It needs milling
+                        xLeft = min(-wNext/2, -w/2)
+                        xRight = max(-wNext/2, -w/2)
+                        zTop = prevHeight
+                        zBot = currentHeight
+                        leftHandValues.append([xLeft - millRadius, xRight, zBot, zTop])
+                        rightHandValues.append([-xRight, -xLeft + millRadius, zBot, zTop])
+
+            frontFace = face
+            if frontFace == 'front':
+                backFace = 'back'
+            elif frontFace == 'back':
+                backFace = 'front'
+            elif frontFace == 'left':
+                backFace = 'right'
+            elif frontFace == 'right':
+                backFace = 'left'
+
+            for face in ['front', 'back']:
+                for [xLeft, xRight, zBot, zTop] in leftHandValues:
+                    self.cutRectangle(xLeft, xRight, zBot, zTop, faceDepth / 2, startingSide=frontFace, face=face)
+                for [xLeft, xRight, zBot, zTop] in rightHandValues:
+                    self.cutRectangle(xLeft, xRight, zBot, zTop, faceDepth/2, startingSide=backFace, face=face)
 
 
     def cutRectangle(self, xLeft, xRight, zBot, zTop, depth, startingSide='top', face=None):
@@ -311,7 +319,7 @@ class CommandGenerator:
         distPerPoint = 2 * radius * math.sin(angleStep/2)
         timePerPoint = distPerPoint / moveSpeed
         if radius != 0:
-            for angle in np.arange(startAngle, endAngle, angleStep):
+            for i,angle in enumerate(np.arange(startAngle, endAngle, angleStep)):
                 prevX = currentX
                 prevZ = currentZ
                 currentX = x + radius * math.cos(angle)
@@ -505,6 +513,8 @@ class CommandGenerator:
 
     def retractMill(self, spinning=False):
         """Stops the mill spin and pulls the mill back to base position."""
+        commandString = 'controller.commandGenerator.retractMill(spinning=' + str(spinning) +')'
+        self.controller.writeToHistory(commandString)
         if spinning:
             # Retract slowly while spinning
             motorStartDepthOffset = configurationMap['mill']['offsets']['motorStartDepthOffset']
@@ -582,6 +592,10 @@ class CommandGenerator:
             face (string): The face that is being worked on. This can be left None to use current face.
 
         """
+        # commandString = ', '.join(['controller.commandGenerator.moveTo(controller.' + cutMachine.name.lower(), str(x),
+        #                            str(z), str(d), '"'+face+'"', str(retractFirst) + ')'])
+        # self.controller.writeToHistory(commandString)
+
         d = -configurationMap[cutMachine.name.lower()]['offsets']['motorStartDepthOffset'] if d is None else d
         # Ensure cutmachine is retracted
         if retractFirst:
@@ -767,7 +781,7 @@ class CommandGenerator:
                 x0, z0 = ptsList[i-1]
                 dx = abs(x - x0)
                 dz = abs(z - z0)
-                distanceMoved = math.sqrt(dx**2 + dz**2)
+                distanceMoved = max(0.0001, math.sqrt(dx**2 + dz**2))
                 dt = distanceMoved / syncSpeed
                 sequenceCommand.addCommand(CombinedCommand([
                     SpinCommand(self.controller.mill),

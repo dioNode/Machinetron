@@ -48,7 +48,7 @@ class STLProcessor:
         self._clearFaces()
         self.controller.writeToHistory(filename)
         self.generateDrillCommands()
-        # self.generateLatheCommands()
+        self.generateLatheCommands()
         self._dumpImageSlices()
         self.generateMillCommands(showFig=controller.useSimulator)
 

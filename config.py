@@ -4,7 +4,7 @@ configurationMap = {
         'flipSpeed': 12,
         'spinSpeed': 100,
         'rapidRailSpeed': 50,
-        'rapidSpinSpeed': 360*2,
+        'rapidSpinSpeed': 500,
         'initialRampUpSpeed': 100,
         'maxRailSpeed': 80,
         'maxFlipSpeed': 20,

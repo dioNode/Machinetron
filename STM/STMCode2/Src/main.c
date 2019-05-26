@@ -248,7 +248,19 @@ int main(void)
 	
 	// Set the machine to a ready state
 	setMachineState(MACHINE_READY);
-
+	
+	// Temporary Instruction
+	//uint8_t tempInstruction[21] = {MOTOR1 | DIR_FORWARD | MOTOR_RUN,0x00,0x32,0x00,0x32,0x00,0x32,
+	//	MOTOR2 | DIR_FORWARD | MOTOR_RUN, 0x00,0x32,0x00,0x32,0x00,0x32,
+	//	MOTOR3 | DIR_FORWARD | MOTOR_RUN, 0x00,0x32,0x00,0x32,0x00,0x32};
+	
+	// Temporary homing instruction
+	//for(int i = 0; i < 21; i++) {
+	//	setInstructionArrayAtIndex(tempInstruction[i], 0, i);
+	//}
+	//incrementFirstEmptyIndex();
+	//setMachineState(MACHINE_RUNNING);
+		
 	//Temporarily set the stepper drivers to disabled
 	enableStepperDriver(1, 0);
 	#if defined HANDLER || defined LATHE

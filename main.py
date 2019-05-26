@@ -1,7 +1,7 @@
-USE_GUI = True
-USE_SIM = True
+USE_GUI = False
+USE_SIM = False
 AUTO_START = False
-AUTO_TOOLPATH = True
+AUTO_TOOLPATH = False
 
 from Controller import Controller
 
@@ -31,13 +31,15 @@ def main():
     controller.tick()
     controller.commandGenerator.homeAll()
 
+
+
     if AUTO_TOOLPATH:
         stlProcessor.generateCommands('part0.STL', controller)
 
 
     ################ Commands go here ################
 
-    # runDemoPart0()
+    runDemoPart0()
     # calibrationRoutine()
 
     # controller.commandGenerator.moveTo(controller.mill, 0, 70, 0, face='front')
@@ -45,13 +47,13 @@ def main():
     # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 10000))
 
     # quickDemo()
-    # controller.addCommand(Pus)
+    # reshapeFrontM([(76, 50), (50, 30), (76, 20)])
 
 
     ################ End of Commands ################
 
     # controller.setFace('front')
-
+    controller.commandGenerator.homeAll()
     controller.start()
 
     if USE_GUI:
@@ -109,7 +111,6 @@ def reshapeTopM(xzMiddleTuples):
         xzMiddleTuples (tuple array): List of tuples in the form (width, height) starting from middle upwards.
 
     """
-    # TODO fix to center vertically
     controller.commandGenerator.reshapeM(xzMiddleTuples, 'top')
 
 
@@ -208,10 +209,11 @@ def calibrationRoutine():
 
 
 def quickDemo():
-    # drill('front', -15, 70, 10)
-    # drill('front', 15, 70, 10)
-    # cutOutCircle('front', 0, 40, 8, 5)
+    drill('front', -15, 80, 10)
+    drill('front', 15, 80, 10)
+    cutOutCircle('front', 0, 40, 8, 5)
     lathe(90, 110, 40)
+    controller.commandGenerator.homeAll()
 
 def runDemoPart0():
     # drill('front', -20, 25, 50)
@@ -219,10 +221,10 @@ def runDemoPart0():
     # cutInCircle('top', 0, 40, 25, 40)
     # intrude('top', 0, 0, 12.5, 80 - 12.5, 20, 20, 6)
     # intrude('top', 0, 0, 12.5, 80 - 12.5, 40, 40, 6)
-    # fillet('top', 38.3, 80, 10, 1, 30)
-    # fillet('top', -38.3, 80, 10, 2, 30)
-    # fillet('top', -38.3, 0, 10, 3, 30)
-    # fillet('top', 38.3, 0, 10, 4, 30)
+    fillet('top', 38.3, 80, 10, 1, 30)
+    fillet('top', -38.3, 80, 10, 2, 30)
+    fillet('top', -38.3, 0, 10, 3, 30)
+    fillet('top', 38.3, 0, 10, 4, 30)
     lathe(50, 80, 35)
 
 
