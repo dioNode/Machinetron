@@ -89,6 +89,18 @@ class CommandGenerator:
 
 
     def cutRectangle(self, xLeft, xRight, zBot, zTop, depth, startingSide='top', face=None):
+        """Cuts out the inside of a rectangle with a mill.
+
+        Args:
+            xLeft (double): The vertical value of the left side of the rectangle.
+            xRight (double): The vertical value of the right side of the rectangle.
+            zBot (double): The horizontal value of the bottom side of the rectangle.
+            zTop (double): The horizontal value of the top side of the rectangle.
+            depth (double): The depth of the rectangle into the foam.
+            startingSide (string): The side which we start milling ['top', 'left', 'right'].
+            face (string): The foam face being worked on.
+
+        """
         millDepth = configurationMap['mill']['pushIncrement']
         millRadius = configurationMap['mill']['diameter']/2
         for d in incRange(millDepth, depth, millDepth):
@@ -480,6 +492,7 @@ class CommandGenerator:
             self.retractMill()
 
     def retractCutMachine(self, subMachine, spinning=False):
+        """Retracts the specific cutmachine out from the foam."""
         subMachineName = subMachine.name.lower()
         if subMachineName == 'mill':
             self.retractMill(spinning)
@@ -528,15 +541,19 @@ class CommandGenerator:
         self.controller.addCommand(RaiseCommand(cutmachine, 0, self.controller, home=True, rapid=True))
 
     def homeMill(self):
+        """Homes all the limit switches for the mill."""
         self.homeCutmachine(self.controller.mill)
 
     def homeLathe(self):
+        """Homes all the limit switches for the lathe."""
         self.homeCutmachine(self.controller.lathe)
 
     def homeDrill(self):
+        """Homes all the limit switches for the drill."""
         self.homeCutmachine(self.controller.drill)
 
     def homeHandler(self):
+        """Homes all the limit switches for the handler."""
         self.controller.addCommand(FlipCommand(self.controller.handler, 'down', home=True))
         self.controller.addCommand(CombinedCommand([
             ShiftCommand(self.controller.drill, self.controller.handler, 0,
@@ -733,8 +750,7 @@ class CommandGenerator:
         self.selectFace(face)
 
         millDepth = configurationMap['mill']['pushIncrement']
-        for d in np.concatenate((np.arange(millDepth, depth, millDepth), np.array([millDepth]))):
-
+        for d in incRange(millDepth, depth, millDepth):
             # Go to starting point
             (x0, z0) = ptsList[0] if len(ptsList) > 0 else (0,0)
             if not closedLoop:

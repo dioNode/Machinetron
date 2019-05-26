@@ -315,28 +315,32 @@ class Controller:
                 self.currentFaceHeight = xLength
 
     def goButtonClicked(self):
+        """This is called when a GO button is pressed or simulated."""
         if self.state == statusMap['started']:
             self.pause()
         else:
             self.resume()
 
     def sendPauseCommand(self):
+        """Sends a command to pause all the submachines."""
         self.microcontroller.pause()
 
     def sendResumeCommand(self):
+        """Sends a command to resume / start the submachines."""
         self.microcontroller.resume()
 
     def writeToHistory(self, lineString):
+        """Writes a command to the history text file for running at a later date."""
         myFile = open("history.txt", "a")
-
-        # \n is placed to indicate EOL (End of Line)
         myFile.write(lineString + '\n')
         myFile.close()  # to change file access modes
 
     def clearHistory(self):
+        """Clears the history.txt file."""
         open("history.txt", "w").close()
 
     def resetCurrentCommand(self):
+        """Adds a reset before the current command so the machines can go back to what they were doing cleanly."""
         # Shift all the commands into temporary place
         tempCommand = self.commandQueue.copy()
         tempCommand.insert(0, self.currentCommand)

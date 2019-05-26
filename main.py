@@ -1,7 +1,7 @@
-USE_GUI = True
-USE_SIM = True
+USE_GUI = False
+USE_SIM = False
 AUTO_START = False
-AUTO_TOOLPATH = True
+AUTO_TOOLPATH = False
 
 from Controller import Controller
 
