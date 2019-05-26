@@ -91,14 +91,14 @@ void stepMotor(struct Motor *motor_ptr) {
 	if(motorHome == 1){
 		dir = 0;
 		//Check if limit switch is currently pressed
-		if(isLimitSwitchClosed(motorID) == GPIO_PIN_SET) {
-			//Set the current step to 1 (will be decremented to zero later in this function
-			motor_ptr->currentStep = 1;
-			//Set the target position equal to 0
-			motor_ptr->targetStep = 0;
-			//Set the motor to not home
-			motor_ptr->motorHome = 0;
-		} 
+//		if(isLimitSwitchClosed(motorID) == GPIO_PIN_SET) {
+//			//Set the current step to 1 (will be decremented to zero later in this function
+//			motor_ptr->currentStep = 1;
+//			//Set the target position equal to 0
+//			motor_ptr->targetStep = 0;
+//			//Set the motor to not home
+//			motor_ptr->motorHome = 0;
+//		} 
 	} else if(motorInfSpin == 1) {
 		dir = motor_ptr -> direction;
 		if((dir == 1) && ((motor_ptr->targetStep) - getCurrentPositionSteps(motor_ptr) == 1))  {
@@ -465,6 +465,19 @@ int isMotorFinished(struct Motor *motor) {
 	if(motor -> motorRun != 0) {
 		if(motor -> infSpin == 1) {
 			isComplete = 0;
+		} else if(motor->motorHome == 1) {
+			if(isLimitSwitchClosed(motor->id) == GPIO_PIN_SET) {
+				//Set the current step to 1 (will be decremented to zero later in this function
+				motor->currentStep = 0;
+				//Set the target position equal to 0
+				motor->targetStep = 0;
+				//Set the motor to not home
+				motor->motorHome = 0;
+				//Set isComplete to 1
+				isComplete = 1;
+			} else {
+				isComplete = 0;
+			}
 		} else {
 			if(motor -> currentStep == motor -> targetStep) {
 				isComplete = 1;
