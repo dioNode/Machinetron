@@ -48,7 +48,7 @@ class RaiseCommand(Command):
 
         # Cap variables
         cutMachineName = cutMachine.name.lower()
-        minHeight = self.baseOffset + configurationMap['other']['gripperHeight']
+        minHeight = self.baseOffset + configurationMap['other']['gripperHeight'] + configurationMap[cutMachineName]['offsets']['gripperSafetyVert']
         heightDisplacement = min(heightDisplacement, configurationMap[cutMachineName]['maxRaise'])
         if not self.isFlipped:
             heightDisplacement = max(heightDisplacement, minHeight)

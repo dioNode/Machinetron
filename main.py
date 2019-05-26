@@ -39,8 +39,14 @@ def main():
 
     # runDemoPart1()
     # calibrationRoutine()
-    controller.commandGenerator.homeDrill()
-    drill('front', -5, 70, 40)
+    # controller.commandGenerator.homeLathe()
+    controller.commandGenerator.homeMill()
+
+    # controller.commandGenerator.moveTo(controller.lathe, 0, 0)
+    controller.commandGenerator.moveTo(controller.mill, 0, 0, 0)
+
+
+    # controller.addCommand(Pus)
 
 
     ################ End of Commands ################

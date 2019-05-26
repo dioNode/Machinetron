@@ -279,8 +279,8 @@ void stopCurrentInstruction(void);
 /*___________________Definition of current submachine____________________*/
 //#define HANDLER
 //#define LATHE
-#define MILL
-//#define DRILL
+//#define MILL
+#define DRILL
 
 // Define the submachine variable as global across files
 extern struct SubMachine subMachine;
