@@ -88,7 +88,7 @@ class CommandGenerator:
                 self.cutRectangle(xLeft, xRight, zBot, zTop, faceDepth/2, startingSide=backFace, face=face)
 
 
-    def cutRectangle(self, xLeft, xRight, zBot, zTop, depth, startingSide='top', cutInside=True, face=None):
+    def cutRectangle(self, xLeft, xRight, zBot, zTop, depth, startingSide='top', face=None):
         millDepth = configurationMap['mill']['pushIncrement']
         millRadius = configurationMap['mill']['diameter']/2
         for d in incRange(millDepth, depth, millDepth):

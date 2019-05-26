@@ -50,7 +50,7 @@ class STLProcessor:
         self.generateDrillCommands()
         self.generateLatheCommands()
         self._dumpImageSlices()
-        self.generateMillCommands(showFig=False)
+        self.generateMillCommands(showFig=controller.useSimulator)
 
     def generateLatheCommands(self):
         """Generates the commands to use the lathe.
@@ -428,11 +428,11 @@ class STLProcessor:
                                 for millPoint in shrunkPath:
                                     cv2.circle(cimg, millPoint, 3, (0, 255, 0), 1)
 
-                        if showFig:
-                            cv2.namedWindow('Milling paths', cv2.WINDOW_NORMAL)
-                            # cv2.resizeWindow('Milling paths', 80 * 2, 110 * 2)
-                            cv2.imshow('Milling paths', cimg)
-                            cv2.waitKey(0)
+                    if showFig:
+                        cv2.namedWindow('Milling paths', cv2.WINDOW_NORMAL)
+                        # cv2.resizeWindow('Milling paths', 80 * 2, 110 * 2)
+                        cv2.imshow('Milling paths', cimg)
+                        cv2.waitKey(0)
 
             self.controller.commandGenerator.retractMill()
 
