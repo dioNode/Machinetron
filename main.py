@@ -33,17 +33,16 @@ def main():
     if AUTO_TOOLPATH:
         stlProcessor.generateCommands('part0.STL', controller)
 
-    # controller.commandGenerator.homeAll()
+    controller.commandGenerator.homeAll()
 
     ################ Commands go here ################
 
-    # runDemoPart1()
+    # runDemoPart0()
     # calibrationRoutine()
-    # controller.commandGenerator.homeLathe()
-    controller.commandGenerator.homeMill()
 
-    # controller.commandGenerator.moveTo(controller.lathe, 0, 0)
-    controller.commandGenerator.moveTo(controller.mill, 0, 0, 0)
+    # controller.commandGenerator.moveTo(controller.mill, 0, 70, 0, face='front')
+    controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, rapid=True))
+    controller.addCommand(ShiftCommand(controller.drill, controller.handler, 10000))
 
 
     # controller.addCommand(Pus)
@@ -51,7 +50,6 @@ def main():
 
     ################ End of Commands ################
 
-    # controller.commandGenerator.homeAll()
     # controller.setFace('front')
 
     controller.start()

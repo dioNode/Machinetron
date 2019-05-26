@@ -42,7 +42,7 @@ configurationMap = {
             'cuttingBitHeightOffset': 22,
             'cuttingBitHeightOffsetFlipped': 17,
             'motorStartDepthOffset': 15, # The amount of distance before the drill should start spinning
-            'gripperSafetyVert': 6,
+            'gripperSafetyVert': 10,
         },
     }, 'lathe': {
         'homeX': 91,
@@ -75,7 +75,7 @@ configurationMap = {
             'gripperSafetyVert': 6,
         },
     }, 'mill': {
-        'homeX': 46,
+        'homeX': 46 + 7,
         'raiseSpeed': 10,
         'pushSpeed': 10,
         'spinSpeed': 500,
@@ -92,7 +92,7 @@ configurationMap = {
         'maxPush': 185,
         'diameter': 10,
         'depth': 60,
-        'pushIncrement': 20,
+        'pushIncrement': 12,
         'id': 0x2F,
         'offsets': {
             'cuttingBit2HandlerCenter': 172,

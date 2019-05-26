@@ -332,7 +332,7 @@ class CommandGenerator:
         # Go through and cut out from inner to out for each depth
         depthStep = configurationMap['mill']['pushIncrement']
 
-        for d in np.concatenate((np.arange(0, depth, depthStep), np.array([depth]))):
+        for d in np.concatenate((np.arange(depthStep, depth, depthStep), np.array([depth]))):
             self.moveTo(self.controller.mill, x, z)
             # Go through and cut out from inner to out
             for r in np.arange(millRadius, radius - millRadius, millRadius * 2):
@@ -475,7 +475,7 @@ class CommandGenerator:
         frontFace = face
 
         millDepth = configurationMap['mill']['pushIncrement']
-        for d in np.concatenate((np.arange(millDepth, depth, millDepth), np.array([depth]))):
+        for d in incRange(millDepth, depth, millDepth):
             self.millArcDiscrete(frontFace, x, z, radius, d, startAngle, endAngle, moveTo=True)
             self.retractMill()
 
