@@ -1,7 +1,7 @@
-USE_GUI = False
-USE_SIM = False
+USE_GUI = True
+USE_SIM = True
 AUTO_START = False
-AUTO_TOOLPATH = False
+AUTO_TOOLPATH = True
 
 from Controller import Controller
 
@@ -29,15 +29,15 @@ def main():
     # setMountFace(76.6, 80, 110)
     setMountFace(76, 76, 109)
     controller.tick()
+    controller.commandGenerator.homeAll()
 
     if AUTO_TOOLPATH:
         stlProcessor.generateCommands('part0.STL', controller)
 
-    controller.commandGenerator.homeAll()
-    # controller.commandGenerator.homeHandler()
+
     ################ Commands go here ################
 
-    runDemoPart0()
+    # runDemoPart0()
     # calibrationRoutine()
 
     # controller.commandGenerator.moveTo(controller.mill, 0, 70, 0, face='front')

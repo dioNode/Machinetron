@@ -5,7 +5,7 @@ import math
 import os
 import cv2
 from support.supportFunctions import clearFolder, unique, pixelPos2mmPos, pixel2mm, mmPos2PixelPos, mm2pixel, \
-    inRange, tupleArrayInRange, getCenterPoint
+    inRange, tupleArrayInRange, getCenterPoint, incRange
 from config import configurationMap
 
 
@@ -24,7 +24,7 @@ class STLProcessor:
     def __init__(self):
         self.controller = None
         self.path = None
-        self.sliceDepth = 1
+        self.sliceDepth = 10
         self.filename = ''
         self.imageSlicesLeftRight = []
         self.imageSlicesRightLeft = []
@@ -48,7 +48,7 @@ class STLProcessor:
         self._clearFaces()
         self.controller.writeToHistory(filename)
         self.generateDrillCommands()
-        self.generateLatheCommands()
+        # self.generateLatheCommands()
         self._dumpImageSlices()
         self.generateMillCommands(showFig=controller.useSimulator)
 
@@ -404,7 +404,6 @@ class STLProcessor:
                 # Shrink borderPath by mill radius
                 centerPoint = getCenterPoint(borderPath)
                 if depth > 0: # This means we will be milling inside the shapes
-
                     cv2.circle(cimg, (int(centerPoint[0]), int(centerPoint[1])), 10, (0, 0, 255), 4)
                     self.controller.commandGenerator.retractMill()
                     # Initial shrink half a mill diameter
@@ -413,23 +412,25 @@ class STLProcessor:
                     shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
                     if shrunkPath != []:
                         gotShapes = True
-                        # Show path being milled
-                        self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
-                        if showFig:
-                            for millPoint in shrunkPath:
-                                cv2.circle(cimg, millPoint, 3, (255, 0, 0), 1)
-
-                        while True: # Keep shrinking until your shape has disappeared
-                            shrunkIm = self._shrink(shrunkIm, mm2pixel(configurationMap['mill']['diameter'] / 2))
-                            shrunkShapePts = self._detectEdge(shrunkIm)
-                            if shrunkShapePts == []:
-                                break
-                            shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
-                            self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
+                        millDepth = configurationMap['mill']['pushIncrement']
+                        for d in incRange(millDepth, depth, millDepth) if depth > millDepth else [depth]:
                             # Show path being milled
+                            self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
                             if showFig:
                                 for millPoint in shrunkPath:
-                                    cv2.circle(cimg, millPoint, 3, (0, 255, 0), 1)
+                                    cv2.circle(cimg, millPoint, 3, (255, 0, 0), 1)
+
+                            while True: # Keep shrinking until your shape has disappeared
+                                shrunkIm = self._shrink(shrunkIm, mm2pixel(configurationMap['mill']['diameter'] / 2))
+                                shrunkShapePts = self._detectEdge(shrunkIm)
+                                if shrunkShapePts == []:
+                                    break
+                                shrunkPath = self._getShrunkenPath(shrunkShapePts, centerPoint)
+                                self.millPixelPath(shrunkPath, imgSlices[imageNum], depth, faceOrder[facenum])
+                                # Show path being milled
+                                if showFig:
+                                    for millPoint in shrunkPath:
+                                        cv2.circle(cimg, millPoint, 3, (0, 255, 0), 1)
 
             if showFig and gotShapes:
                 cv2.namedWindow('Milling paths', cv2.WINDOW_NORMAL)
@@ -440,14 +441,22 @@ class STLProcessor:
             self.controller.commandGenerator.retractMill()
 
     def millPixelPath(self, millPath, im, depth, face):
+        """Convert the mill path from pixels to mm then mill it out.
+
+        Args:
+            millPath (array(tuple)): A list of points that need to be milled out in pixels.
+            im (Img): A cv2 image for dimension references.
+            depth (float): The depth it needs to be milled into the foam.
+            face (string): The surface face of the foam being worked on.
+
+        """
         # Convert to mm
         if len(millPath) > 0:
             borderPathMM = []
             for pts in millPath:
                 borderPathMM.append(pixelPos2mmPos(pts, im))
-            (x0, z0) = millPath[0]
+            (x0, z0) = borderPathMM[0]
             self.controller.commandGenerator.moveTo(self.controller.mill, x0, z0, face=face)
-            print(face)
             self.controller.commandGenerator.millPointsSequence(borderPathMM, depth, face, closedLoop=True)
 
     def _shapeExistsInImg(self, img, pathList, mmAccuracy=1):

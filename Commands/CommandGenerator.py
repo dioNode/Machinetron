@@ -747,37 +747,34 @@ class CommandGenerator:
         """
         commandString = ', '.join(['millPointSequence(' + str(ptsList), str(depth), '"' + face + '")'])
         self.controller.writeToHistory(commandString)
-        self.selectFace(face)
 
-        millDepth = configurationMap['mill']['pushIncrement']
-        for d in incRange(millDepth, depth, millDepth):
-            # Go to starting point
-            (x0, z0) = ptsList[0] if len(ptsList) > 0 else (0,0)
-            if not closedLoop:
-                self.moveTo(self.controller.mill, x0, z0, face=face)
+        # Go to starting point
+        (x0, z0) = ptsList[0] if len(ptsList) > 0 else (0,0)
+        if not closedLoop:
+            self.moveTo(self.controller.mill, x0, z0, face=face)
 
-            # Push in with mill to depth
-            self.controller.addCommand(CombinedCommand([
-                PushCommand(self.controller.mill, d, self.controller),
-                SpinCommand(self.controller.mill)
+        # Push in with mill to depth
+        self.controller.addCommand(CombinedCommand([
+            PushCommand(self.controller.mill, depth, self.controller),
+            SpinCommand(self.controller.mill)
+        ]))
+        # Make mill go through all the points in sequence
+        sequenceCommand = SequentialCommand([])
+        for (x, z) in ptsList:
+            sequenceCommand.addCommand(CombinedCommand([
+                SpinCommand(self.controller.mill),
+                RaiseCommand(self.controller.mill, z, self.controller),
+                ShiftCommand(self.controller.mill, self.controller.handler, x),
             ]))
-            # Make mill go through all the points in sequence
-            sequenceCommand = SequentialCommand([])
-            for (x, z) in ptsList:
-                sequenceCommand.addCommand(CombinedCommand([
-                    SpinCommand(self.controller.mill),
-                    RaiseCommand(self.controller.mill, z, self.controller),
-                    ShiftCommand(self.controller.mill, self.controller.handler, x),
-                ]))
-            if closedLoop:
-                # Mill back to first command
-                (x, z) = ptsList[len(ptsList)-1]
-                sequenceCommand.addCommand(CombinedCommand([
-                    SpinCommand(self.controller.mill),
-                    RaiseCommand(self.controller.mill, z, self.controller),
-                    ShiftCommand(self.controller.mill, self.controller.handler, x),
-                ]))
-            self.controller.addCommand(sequenceCommand)
+        if closedLoop:
+            # Mill back to first command
+            (x, z) = ptsList[len(ptsList)-1]
+            sequenceCommand.addCommand(CombinedCommand([
+                SpinCommand(self.controller.mill),
+                RaiseCommand(self.controller.mill, z, self.controller),
+                ShiftCommand(self.controller.mill, self.controller.handler, x),
+            ]))
+        self.controller.addCommand(sequenceCommand)
 
         # Retract mill
         self.retractMill(spinning=True)

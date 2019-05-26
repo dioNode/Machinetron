@@ -560,6 +560,9 @@ void setMachineState(int newState) {
 		//startOrStopTimer(&htim4,/* Start or Stop*/ 0);
 		//#endif
 		HAL_TIM_Base_Stop_IT(&htim1);
+		#ifdef HANDLER
+		enableStepperDriver(2,0);
+		#endif
 		// Set the LED to Orange
 		setLEDColour("ORANGE");
 		machineState = newState;
@@ -569,6 +572,9 @@ void setMachineState(int newState) {
 			//#if defined MILL || defined DRILL
 			//startOrStopTimer(&htim4,/* Start or Stop*/ 1);
 			//#endif
+			#ifdef HANDLER 
+			enableStepperDriver(2,1);
+			#endif
 			HAL_TIM_Base_Start_IT(&htim1);
 		}
 		setLEDColour("RED");
