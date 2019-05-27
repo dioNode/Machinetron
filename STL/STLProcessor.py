@@ -24,7 +24,7 @@ class STLProcessor:
     def __init__(self):
         self.controller = None
         self.path = None
-        self.sliceDepth = 10
+        self.sliceDepth = 1
         self.filename = ''
         self.imageSlicesLeftRight = []
         self.imageSlicesRightLeft = []

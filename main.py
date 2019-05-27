@@ -1,7 +1,7 @@
-USE_GUI = False
-USE_SIM = False
+USE_GUI = True
+USE_SIM = True
 AUTO_START = False
-AUTO_TOOLPATH = False
+AUTO_TOOLPATH = True
 
 from Controller import Controller
 
@@ -34,17 +34,29 @@ def main():
 
 
     if AUTO_TOOLPATH:
-        stlProcessor.generateCommands('part0.STL', controller)
+        stlProcessor.generateCommands('part2.STL', controller)
 
 
     ################ Commands go here ################
 
-    runDemoPart0()
+    # runDemoPart0()
     # calibrationRoutine()
 
-    # controller.commandGenerator.moveTo(controller.mill, 0, 70, 0, face='front')
-    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 0, rapid=True))
-    # controller.addCommand(ShiftCommand(controller.drill, controller.handler, 10000))
+    drill("top", -0.0, 40.3, 40)
+
+    reshapeFrontM([(76.6, 110 - 60), (60, 60)])
+    reshapeSideM([(80, 110 - 60), (60, 60)])
+
+    controller.commandGenerator.cutRectangle(-40, -30, 110-60, 110, 40, 'left', 'front')
+
+    fillet('top', 30, 40 + 30, 10, 1, 60)
+
+    lathe(30, 50, 30)
+    lathe(25, 30, 35)
+    lathe(20, 25, 32.5)
+
+
+
 
     # quickDemo()
     # reshapeFrontM([(76, 50), (50, 30), (76, 20)])
